@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="739.0" prefWidth="1137.0" styleClass="main-bg" stylesheets="@../../Css/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.LoginController">
+   <children>
+      <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="571.0" prefWidth="1003.0" StackPane.alignment="CENTER">
+         <children>
+            <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="450.0" prefWidth="449.0" styleClass="login-card" HBox.hgrow="ALWAYS">
+               <children>
+                  <VBox>
+                     <children>
+                        <Label prefHeight="38.0" prefWidth="599.0" styleClass="brand-label" stylesheets="@../../Css/styles.css" text="ACE FITNESS GYM" />
+                        <Label alignment="TOP_LEFT" prefHeight="0.0" prefWidth="520.0" stylesheets="@../../Css/styles.css" text="Welcome Back">
+                           <styleClass>
+                              <String fx:value="welcome-header" />
+                              <String fx:value="text-header" />
+                           </styleClass></Label>
+                        <Label prefHeight="26.0" prefWidth="532.0" styleClass="sub-header" stylesheets="@../../Css/styles.css" text="Sign in to your account" />
+                     </children>
+                  </VBox>
+                  <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="164.0" prefWidth="456.0" styleClass="login-V-Box" stylesheets="@../../Css/styles.css">
+                     <children>
+                        <Label alignment="TOP_LEFT" prefHeight="0.0" prefWidth="456.0" styleClass="sub-header" stylesheets="@../../Css/styles.css" text="Email" />
+                        <TextField maxWidth="-Infinity" prefHeight="40.0" prefWidth="400.0" promptText="you@acefitness.com" styleClass="text-field-login" stylesheets="@../../Css/styles.css">
+                           <VBox.margin>
+                              <Insets top="6.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <Label alignment="TOP_LEFT" prefHeight="0.0" prefWidth="456.0" styleClass="sub-header" stylesheets="@../../Css/styles.css" text="Password">
+                           <VBox.margin>
+                              <Insets top="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <PasswordField maxWidth="-Infinity" prefHeight="40.0" prefWidth="400.0" stylesheets="@../../Css/styles.css">
+                           <VBox.margin>
+                              <Insets top="6.0" />
+                           </VBox.margin>
+                           <styleClass>
+                              <String fx:value="password-field-login" />
+                              <String fx:value="error" />
+                           </styleClass>
+                        </PasswordField>
+                        <Label prefHeight="18.0" prefWidth="263.0" text="⚠ Incorrect Email or Password!">
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                           <styleClass>
+                              <String fx:value="error-label" />
+                              <String fx:value="error-label-visible" />
+                           </styleClass>
+                        </Label>
+                     </children>
+                     <VBox.margin>
+                        <Insets top="50.0" />
+                     </VBox.margin>
+                  </VBox>
+                  <HBox alignment="CENTER_LEFT" prefHeight="39.0" prefWidth="456.0">
+                     <VBox.margin>
+                        <Insets top="15.0" />
+                     </VBox.margin>
+                     <children>
+                        <CheckBox fx:id="rememberMeCB" mnemonicParsing="false" prefWidth="177.0" stylesheets="@../../Css/styles.css" text="Remember me" />
+                        <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefHeight="18.0" prefWidth="220.0" styleClass="forgot-link" stylesheets="@../../Css/styles.css" text="Forgot password?" />
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="42.0" prefWidth="395.0">
+                     <children>
+                        <Button mnemonicParsing="false" prefHeight="42.0" prefWidth="400.0" styleClass="submit-btn" text="Sign In" />
+                     </children>
+                     <VBox.margin>
+                        <Insets top="15.0" />
+                     </VBox.margin>
+                  </HBox>
+               </children>
+            </VBox>
+            <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="450.0" prefWidth="380.0" styleClass="login-info-card" HBox.hgrow="ALWAYS">
+               <children>
+                  <StackPane prefHeight="573.0" prefWidth="467.0">
+                     <children>
+                        <VBox alignment="TOP_CENTER" maxWidth="-Infinity" prefHeight="261.0" prefWidth="350.0">
+                           <children>
+                              <Label alignment="CENTER" prefHeight="42.0" prefWidth="467.0" text="Ace Fitness Gym" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="31.0" />
+                                 </font>
+                                 <styleClass>
+                                    <String fx:value="gym-name-header" />
+                                    <String fx:value="text-header" />
+                                 </styleClass>
+                              </Label>
+                              <Label alignment="TOP_RIGHT" prefHeight="73.0" prefWidth="467.0" text="Staff Management Porta: Track members, coaches &amp; performance" wrapText="true">
+                                 <styleClass>
+                                    <String fx:value="sub-header" />
+                                    <String fx:value="sub-header-title" />
+                                 </styleClass>
+                                 <padding>
+                                    <Insets left="33.0" />
+                                 </padding>
+                              </Label>
+                           </children>
+                           <StackPane.margin>
+                              <Insets top="310.0" />
+                           </StackPane.margin>
+                        </VBox>
+                        <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                           <children>
+                              <ImageView fx:id="logoImg" fitHeight="420.0" fitWidth="230.0" layoutX="119.0" layoutY="-20.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../../image/etoNa.png" />
+                                 </image>
+                              </ImageView>
+                              <Circle fx:id="logoCircle" fill="#c9433e29" layoutX="234.0" layoutY="186.0" radius="100.0" stroke="#cb443e" strokeType="INSIDE" />
+                              <Circle fx:id="outerCircle2" fill="#a4393900" layoutX="234.0" layoutY="186.0" radius="118.0" stroke="#c7423e99" strokeType="INSIDE" />
+                              <Circle fx:id="outerCircle3" fill="#a4393900" layoutX="234.0" layoutY="186.0" radius="128.0" stroke="#c7423e98" strokeType="INSIDE" />
+                           </children>
+                        </AnchorPane>
+                     </children>
+                  </StackPane>
+               </children></VBox>
+         </children>
+      </HBox>
+   </children>
+</StackPane>
