@@ -16,8 +16,29 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
+
 <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="739.0" prefWidth="1137.0" styleClass="main-bg" stylesheets="@../../Css/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.LoginController">
    <children>
+      <AnchorPane layoutY="1000.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="765.0" prefWidth="1137.0">
+         <children>
+            <AnchorPane onMouseDragged="#handleTitleBarDragged" onMousePressed="#handleTitleBarPressed" prefHeight="42.0" prefWidth="1137.0" />
+            <ImageView fx:id="closeWindowIcon" fitHeight="26.0" fitWidth="64.0" layoutX="1056.0" layoutY="34.0" onMouseClicked="#handleClose" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../image/circle-xmark-solid.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="maxMinWindow" fitHeight="26.0" fitWidth="64.0" layoutX="1020.0" layoutY="34.0" onMouseClicked="#handleMaxMin" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../image/window-restore-regular.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="minimizeWindow" fitHeight="26.0" fitWidth="64.0" layoutX="983.0" layoutY="34.0" onDragDetected="#handleMinimize" onMouseClicked="#handleMinimize" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../image/minus-solid.png" />
+               </image>
+            </ImageView>
+         </children>
+      </AnchorPane>
       <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="571.0" prefWidth="1003.0" StackPane.alignment="CENTER">
          <children>
             <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="450.0" prefWidth="449.0" styleClass="login-card" HBox.hgrow="ALWAYS">
@@ -29,7 +50,8 @@
                            <styleClass>
                               <String fx:value="welcome-header" />
                               <String fx:value="text-header" />
-                           </styleClass></Label>
+                           </styleClass>
+                        </Label>
                         <Label prefHeight="26.0" prefWidth="532.0" styleClass="sub-header" stylesheets="@../../Css/styles.css" text="Sign in to your account" />
                      </children>
                   </VBox>
@@ -131,7 +153,8 @@
                         </AnchorPane>
                      </children>
                   </StackPane>
-               </children></VBox>
+               </children>
+            </VBox>
          </children>
       </HBox>
    </children>

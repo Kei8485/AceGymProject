@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class AceGymApplication extends Application {
     @Override
@@ -12,6 +13,7 @@ public class AceGymApplication extends Application {
         Scene scene = new Scene(fxmlLoader.load());
         stage.setScene(scene);
         stage.setTitle("Ace Fitness Gym System");
+        stage.initStyle(StageStyle.UNDECORATED);
         stage.centerOnScreen();
         stage.setMinWidth(1000);
         stage.setMinHeight(700);
