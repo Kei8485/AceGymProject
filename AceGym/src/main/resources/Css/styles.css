@@ -84,6 +84,18 @@
     -fx-prompt-text-fill: #4B5563;
 }
 
+.text-field-login:hover, .password-field-login:hover {
+    -fx-background-color: #243040;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 14, 0.3, 0, 2);
+}
+
+.text-field-login:focused, .password-field-login:focused {
+    -fx-background-color: #243040;
+    -fx-border-color: -fx-gray-text;
+    -fx-border-width: 1.5;
+    -fx-effect: -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 14, 0.3, 0, 2);
+}
+
 .text-field-login{
     -fx-font-size: 16px;
 
@@ -176,11 +188,15 @@
 
 
 .button:hover {
-    -fx-background-color: derive(-fx-accent-lighter-red-text, 15%);
+    -fx-background-color: derive(#E05252, -8%);
+    -fx-effect: dropshadow(gaussian, rgba(224, 82, 82, 0.35), 12, 0.4, 0, 0);
 }
 
 .button:pressed {
-    -fx-background-color: derive(-fx-accent-lighter-red-text, -10%);
+    -fx-background-color: derive(#E05252, -10%);
+    -fx-effect: dropshadow(gaussian, rgba(224, 82, 82, 0.15), 6, 0.3, 0, 0);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
 }
 
 /* info part */

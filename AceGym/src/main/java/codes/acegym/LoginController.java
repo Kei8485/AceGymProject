@@ -10,6 +10,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
@@ -18,6 +19,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class LoginController {
 
@@ -52,77 +54,17 @@ public class LoginController {
     PasswordField passwordField;
 
     @FXML
+    private TextField textFieldPass;
+
+    @FXML
+    private ImageView showAndHidePass;
+
+    @FXML
     Label validationError;
 
-    @FXML
-    public void handleLogin() {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
 
-        // --- Reset previous error styles ---
-        usernameField.getStyleClass().remove("error");
-        passwordField.getStyleClass().remove("error");
-        validationError.getStyleClass().remove("error-label-visible");
 
-        // --- Check empty fields ---
-        if (username.isEmpty() || password.isEmpty()) {
-            validationError.setText("⚠ Please fill in all fields!");
-            validationError.getStyleClass().add("error-label-visible");
 
-            if (username.isEmpty()) {
-                usernameField.getStyleClass().add("error");
-                shakeNode(usernameField);
-            }
-            if (password.isEmpty()) {
-                passwordField.getStyleClass().add("error");
-                shakeNode(passwordField);
-            }
-            return;
-        }
-
-        // --- Attempt login ---
-        boolean loginSuccess = DBConnector.login(username, password);
-
-        if (loginSuccess) {
-            try {
-                // Load dashboard FXML
-                FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/codes/acegym/HomePage.fxml")
-                );
-                Parent root = loader.load();
-
-                // Get the current stage
-                Stage stage = (Stage) usernameField.getScene().getWindow();
-
-                // Set the new scene directly
-                Scene scene = new Scene(root);
-                stage.setScene(scene);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                validationError.setText("⚠ Failed to load dashboard!");
-                validationError.getStyleClass().add("error-label-visible");
-            }
-        } else {
-            // --- Invalid credentials ---
-            validationError.setText("⚠ Incorrect Email or Password!");
-            validationError.getStyleClass().add("error-label-visible");
-            usernameField.getStyleClass().add("error");
-            shakeNode(usernameField);
-            passwordField.getStyleClass().add("error");
-            shakeNode(passwordField);
-        }
-    }
-
-    @FXML
-    private void shakeNode(Node node) {
-        TranslateTransition tt = new TranslateTransition(Duration.millis(50), node);
-        tt.setFromX(0);
-        tt.setByX(10);          // move right
-        tt.setCycleCount(4);    // 3 back-and-forth shakes
-        tt.setAutoReverse(true);
-        tt.play();
-    }
 
     public void initialize() {
         // This listener runs every time the checkbox is clicked
@@ -147,6 +89,144 @@ public class LoginController {
         applyHeartbeat(logoImg);
 
 
+    }
+
+    Image eyeOpen = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/image/eye-solid.png")));
+    Image eyeClosed = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/image/eye-slash-solid.png")));
+    boolean isPasswordVisible = false;
+
+    @FXML
+    private void togglePassword(MouseEvent event) {
+        // 1. Create the fade settings (200ms is a good "fast but smooth" speed)
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(200));
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200));
+
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+
+        if (isPasswordVisible) {
+            // --- Switching to Hidden (Dots) ---
+            fadeOut.setNode(textFieldPass);
+            fadeIn.setNode(passwordField);
+
+            passwordField.setText(textFieldPass.getText());
+
+            fadeOut.setOnFinished(e -> {
+                textFieldPass.setVisible(false);
+                passwordField.setVisible(true);
+                fadeIn.play();
+            });
+
+            showAndHidePass.setImage(eyeClosed);
+            isPasswordVisible = false;
+
+        } else {
+            // --- Switching to Visible (Plain Text) ---
+            fadeOut.setNode(passwordField);
+            fadeIn.setNode(textFieldPass);
+
+            textFieldPass.setText(passwordField.getText());
+
+            fadeOut.setOnFinished(e -> {
+                passwordField.setVisible(false);
+                textFieldPass.setVisible(true);
+                fadeIn.play();
+            });
+
+            showAndHidePass.setImage(eyeOpen);
+            isPasswordVisible = true;
+        }
+
+        // Start the animation
+        fadeOut.play();
+    }
+
+
+    @FXML
+    public void handleLogin() {
+        String username = usernameField.getText();
+
+        // 1. Get the password from the field that is currently visible
+        String password = isPasswordVisible ? textFieldPass.getText() : passwordField.getText();
+
+        // --- Reset previous error styles for ALL fields ---
+        usernameField.getStyleClass().remove("error");
+        passwordField.getStyleClass().remove("error");
+        textFieldPass.getStyleClass().remove("error");
+        validationError.getStyleClass().remove("error-label-visible");
+
+        // --- Check empty fields ---
+        if (username.isEmpty() || password.isEmpty()) {
+            validationError.setText("⚠ Please fill in all fields!");
+            validationError.getStyleClass().add("error-label-visible");
+            shakeNode(usernameField);
+
+            if (username.isEmpty()) {
+                usernameField.getStyleClass().add("error");
+                shakeNode(usernameField);
+            }
+
+            if (password.isEmpty()) {
+                // Apply error style to both so the red border stays if you toggle the eye
+                passwordField.getStyleClass().add("error");
+                textFieldPass.getStyleClass().add("error");
+                shakeNode(usernameField);
+
+                // SHAKE the one the user is currently looking at
+                shakeNode(isPasswordVisible ? textFieldPass : passwordField);
+                shakeNode(textFieldPass);
+                shakeNode(showAndHidePass);
+
+
+            }
+            return;
+        }
+
+        // --- Attempt login ---
+        boolean loginSuccess = DBConnector.login(username, password);
+
+        if (loginSuccess) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/codes/acegym/HomePage.fxml"));
+                Parent root = loader.load();
+                Stage stage = (Stage) usernameField.getScene().getWindow();
+                stage.setScene(new Scene(root));
+            } catch (IOException e) {
+                e.printStackTrace();
+                validationError.setText("⚠ Failed to load dashboard!");
+                validationError.getStyleClass().add("error-label-visible");
+            }
+        } else {
+            // --- Invalid credentials ---
+            validationError.setText("⚠ Incorrect Email or Password!");
+            validationError.getStyleClass().add("error-label-visible");
+
+            usernameField.getStyleClass().add("error");
+            shakeNode(usernameField);
+
+            // Apply error style to both password fields
+            passwordField.getStyleClass().add("error");
+            textFieldPass.getStyleClass().add("error");
+
+            shakeNode(textFieldPass);
+            shakeNode(passwordField);
+            shakeNode(usernameField);
+            shakeNode(showAndHidePass);
+        }
+    }
+
+
+    @FXML
+    private void shakeNode(Node node) {
+        TranslateTransition tt = new TranslateTransition(Duration.millis(50), node);
+        tt.setFromX(0);
+        tt.setByX(10);          // move right
+        tt.setCycleCount(4);    // 3 back-and-forth shakes
+        tt.setAutoReverse(true);
+        tt.play();
     }
 
 

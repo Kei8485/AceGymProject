@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
-<?import javafx.scene.text.*?>
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="739.0" prefWidth="1137.0" styleClass="main-bg" stylesheets="@../../Css/styles.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.LoginController">
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="739.0" prefWidth="1137.0" styleClass="main-bg" stylesheets="@../../Css/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.LoginController">
    <children>
       <AnchorPane layoutY="1000.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="765.0" prefWidth="1137.0">
          <children>
@@ -46,40 +54,54 @@
                         <Label prefHeight="26.0" prefWidth="532.0" styleClass="sub-header" stylesheets="@../../Css/styles.css" text="Sign in to your account" />
                      </children>
                   </VBox>
-                  <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="190.0" prefWidth="456.0" styleClass="login-V-Box" stylesheets="@../../Css/styles.css">
-                     <children>
-                        <Label alignment="TOP_LEFT" prefHeight="0.0" prefWidth="456.0" styleClass="sub-header" stylesheets="@../../Css/styles.css" text="Email" />
-                        <TextField fx:id="usernameField" maxWidth="-Infinity" prefHeight="40.0" prefWidth="400.0" promptText="you@acefitness.com" styleClass="text-field-login" stylesheets="@../../Css/styles.css">
-                           <VBox.margin>
-                              <Insets top="6.0" />
-                           </VBox.margin>
-                        </TextField>
-                        <Label alignment="TOP_LEFT" prefHeight="0.0" prefWidth="456.0" styleClass="sub-header" stylesheets="@../../Css/styles.css" text="Password">
-                           <VBox.margin>
-                              <Insets top="10.0" />
-                           </VBox.margin>
-                        </Label>
-                        <PasswordField fx:id="passwordField" maxWidth="-Infinity" prefHeight="40.0" prefWidth="400.0" stylesheets="@../../Css/styles.css">
-                           <VBox.margin>
-                              <Insets top="6.0" />
-                           </VBox.margin>
-                           <styleClass>
-                              <String fx:value="password-field-login" />
-                           </styleClass>
-                        </PasswordField>
-                        <Label fx:id="validationError" prefHeight="42.0" prefWidth="263.0" translateZ="-1.0">
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin>
-                           <styleClass>
-                              <String fx:value="error-label" />
-                           </styleClass>
-                        </Label>
-                     </children>
+                  <AnchorPane prefHeight="165.0" prefWidth="460.0">
                      <VBox.margin>
                         <Insets top="50.0" />
                      </VBox.margin>
-                  </VBox>
+                     <children>
+                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="165.0" prefWidth="456.0" styleClass="login-V-Box" stylesheets="@../../Css/styles.css">
+                           <children>
+                              <Label alignment="TOP_LEFT" prefHeight="0.0" prefWidth="456.0" styleClass="sub-header" stylesheets="@../../Css/styles.css" text="Email" />
+                              <TextField fx:id="usernameField" maxWidth="-Infinity" prefHeight="40.0" prefWidth="400.0" promptText="you@acefitness.com" styleClass="text-field-login" stylesheets="@../../Css/styles.css">
+                                 <VBox.margin>
+                                    <Insets top="6.0" />
+                                 </VBox.margin>
+                              </TextField>
+                              <Label alignment="TOP_LEFT" prefHeight="0.0" prefWidth="456.0" styleClass="sub-header" stylesheets="@../../Css/styles.css" text="Password">
+                                 <VBox.margin>
+                                    <Insets top="10.0" />
+                                 </VBox.margin>
+                              </Label>
+                              <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
+                                 <VBox.margin>
+                                    <Insets top="6.0" />
+                                 </VBox.margin>
+                                 <children>
+                                    <TextField fx:id="textFieldPass" maxWidth="-Infinity" opacity="0.0" prefHeight="40.0" prefWidth="400.0" styleClass="text-field-login" stylesheets="@../../Css/styles.css" />
+                                    <PasswordField fx:id="passwordField" maxWidth="-Infinity" prefHeight="40.0" prefWidth="400.0" stylesheets="@../../Css/styles.css" StackPane.alignment="CENTER_LEFT">
+                                       <styleClass>
+                                          <String fx:value="password-field-login" />
+                                       </styleClass>
+                                    </PasswordField>
+                                 </children>
+                              </StackPane>
+                              <Label fx:id="validationError" prefHeight="42.0" prefWidth="263.0" translateZ="-1.0">
+                                 <VBox.margin>
+                                    <Insets top="5.0" />
+                                 </VBox.margin>
+                                 <styleClass>
+                                    <String fx:value="error-label" />
+                                 </styleClass>
+                              </Label>
+                           </children>
+                        </VBox>
+                        <ImageView fx:id="showAndHidePass" fitHeight="20.0" fitWidth="26.0" layoutX="10.0" layoutY="7.0" onMouseClicked="#togglePassword" pickOnBounds="true" preserveRatio="true" x="360.0" y="110.0">
+                           <image>
+                              <Image url="@../../image/eye-slash-solid.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </AnchorPane>
                   <HBox alignment="CENTER_LEFT" prefHeight="39.0" prefWidth="336.0">
                      <VBox.margin>
                         <Insets top="15.0" />
