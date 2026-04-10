@@ -2,14 +2,22 @@ package codes.acegym;
 
 import javafx.animation.*;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
+import java.io.IOException;
 
 public class LoginController {
 
@@ -37,7 +45,84 @@ public class LoginController {
     @FXML
     ImageView minimizeWindow;
 
+    @FXML
+    TextField usernameField;
 
+    @FXML
+    PasswordField passwordField;
+
+    @FXML
+    Label validationError;
+
+    @FXML
+    public void handleLogin() {
+        String username = usernameField.getText();
+        String password = passwordField.getText();
+
+        // --- Reset previous error styles ---
+        usernameField.getStyleClass().remove("error");
+        passwordField.getStyleClass().remove("error");
+        validationError.getStyleClass().remove("error-label-visible");
+
+        // --- Check empty fields ---
+        if (username.isEmpty() || password.isEmpty()) {
+            validationError.setText("⚠ Please fill in all fields!");
+            validationError.getStyleClass().add("error-label-visible");
+
+            if (username.isEmpty()) {
+                usernameField.getStyleClass().add("error");
+                shakeNode(usernameField);
+            }
+            if (password.isEmpty()) {
+                passwordField.getStyleClass().add("error");
+                shakeNode(passwordField);
+            }
+            return;
+        }
+
+        // --- Attempt login ---
+        boolean loginSuccess = DBConnector.login(username, password);
+
+        if (loginSuccess) {
+            try {
+                // Load dashboard FXML
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/codes/acegym/HomePage.fxml")
+                );
+                Parent root = loader.load();
+
+                // Get the current stage
+                Stage stage = (Stage) usernameField.getScene().getWindow();
+
+                // Set the new scene directly
+                Scene scene = new Scene(root);
+                stage.setScene(scene);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                validationError.setText("⚠ Failed to load dashboard!");
+                validationError.getStyleClass().add("error-label-visible");
+            }
+        } else {
+            // --- Invalid credentials ---
+            validationError.setText("⚠ Incorrect Email or Password!");
+            validationError.getStyleClass().add("error-label-visible");
+            usernameField.getStyleClass().add("error");
+            shakeNode(usernameField);
+            passwordField.getStyleClass().add("error");
+            shakeNode(passwordField);
+        }
+    }
+
+    @FXML
+    private void shakeNode(Node node) {
+        TranslateTransition tt = new TranslateTransition(Duration.millis(50), node);
+        tt.setFromX(0);
+        tt.setByX(10);          // move right
+        tt.setCycleCount(4);    // 3 back-and-forth shakes
+        tt.setAutoReverse(true);
+        tt.play();
+    }
 
     public void initialize() {
         // This listener runs every time the checkbox is clicked

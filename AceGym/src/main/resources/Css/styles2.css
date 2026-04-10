@@ -1,0 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@100..900&family=Rubik+Puddles&display=swap');
+
+.root {
+    -fx-base-dark: #0D1117;
+    -fx-login-card-bg: #111827;
+    -fx-login-info-bg: #0F1923;
+    -fx-accent-darker-red-text: #8B2D2F;
+    -fx-accent-lighter-red-text: #CB443E;
+    -fx-white-text: #E8E6E9;
+    -fx-gray-text: #6B7280;
+}
+

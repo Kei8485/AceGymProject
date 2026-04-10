@@ -14,6 +14,14 @@
     -fx-background-color: -fx-base-dark;
 }
 
+.HomePage-left-bg {
+    -fx-background-color: #192037;
+}
+
+.HomePage-right-bg {
+    -fx-background-color: #263a79;
+}
+
 .login-card{
     -fx-background-color: -fx-login-card-bg;
     -fx-background-radius: 15 0 0 15;
@@ -86,8 +94,19 @@
 }
 
 
-/* error part */
-.text-field-login.error, .password-field-login.error {
+
+
+
+
+.text-field-login,
+.password-field-login {
+    -fx-border-color: gray;
+    -fx-border-width: 1px;
+}
+
+/* only when error is added */
+.text-field-login.error,
+.password-field-login.error {
     -fx-border-color: -fx-accent-lighter-red-text;
     -fx-border-width: 2px;
 }
@@ -95,12 +114,12 @@
 .error-label {
     -fx-text-fill: -fx-accent-lighter-red-text;
     -fx-font-family: 'Inter';
-    -fx-opacity: 0.0;
+    -fx-opacity: 1;
 }
 
-/* error part */
 .error-label-visible {
     -fx-opacity: 1.0;
+    -fx-transition: opacity 0.3s ease-in;
 }
 
 
