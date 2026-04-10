@@ -29,7 +29,7 @@
 }
 
 .login-info-card{
-    -fx-background-color: -fx-login-info-bg;
+    -fx-background-color: -fx-login-card-bg;
     -fx-background-radius: 0 15 15 0;
 }
 

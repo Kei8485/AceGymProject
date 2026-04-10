@@ -13,17 +13,17 @@
       <AnchorPane layoutY="1000.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="765.0" prefWidth="1137.0">
          <children>
             <AnchorPane onMouseDragged="#handleTitleBarDragged" onMousePressed="#handleTitleBarPressed" prefHeight="42.0" prefWidth="1137.0" />
-            <ImageView fx:id="closeWindowIcon" fitHeight="26.0" fitWidth="64.0" layoutX="1056.0" layoutY="34.0" onMouseClicked="#handleClose" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="closeWindowIcon" fitHeight="26.0" fitWidth="64.0" layoutX="1056.0" layoutY="34.0" onMouseClicked="#handleClose" pickOnBounds="true" preserveRatio="true" style="-fx-cursor: hand;">
                <image>
                   <Image url="@../../image/circle-xmark-solid.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="maxMinWindow" fitHeight="26.0" fitWidth="64.0" layoutX="1020.0" layoutY="34.0" onMouseClicked="#handleMaxMin" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="maxMinWindow" fitHeight="26.0" fitWidth="64.0" layoutX="1020.0" layoutY="34.0" onMouseClicked="#handleMaxMin" pickOnBounds="true" preserveRatio="true" style="-fx-cursor: hand;">
                <image>
                   <Image url="@../../image/window-restore-regular.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="minimizeWindow" fitHeight="26.0" fitWidth="64.0" layoutX="983.0" layoutY="34.0" onDragDetected="#handleMinimize" onMouseClicked="#handleMinimize" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="minimizeWindow" fitHeight="26.0" fitWidth="64.0" layoutX="983.0" layoutY="34.0" onDragDetected="#handleMinimize" onMouseClicked="#handleMinimize" pickOnBounds="true" preserveRatio="true" style="-fx-cursor: hand;">
                <image>
                   <Image url="@../../image/minus-solid.png" />
                </image>
