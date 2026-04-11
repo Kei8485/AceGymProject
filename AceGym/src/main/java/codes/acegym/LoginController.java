@@ -97,51 +97,47 @@ public class LoginController {
 
     @FXML
     private void togglePassword(MouseEvent event) {
-        // 1. Create the fade settings (200ms is a good "fast but smooth" speed)
-        FadeTransition fadeOut = new FadeTransition(Duration.millis(200));
-        FadeTransition fadeIn = new FadeTransition(Duration.millis(200));
-
-        fadeOut.setFromValue(1.0);
-        fadeOut.setToValue(0.0);
-
-        fadeIn.setFromValue(0.0);
-        fadeIn.setToValue(1.0);
 
         if (isPasswordVisible) {
-            // --- Switching to Hidden (Dots) ---
-            fadeOut.setNode(textFieldPass);
-            fadeIn.setNode(passwordField);
-
+            // Copy text
             passwordField.setText(textFieldPass.getText());
 
-            fadeOut.setOnFinished(e -> {
-                textFieldPass.setVisible(false);
-                passwordField.setVisible(true);
-                fadeIn.play();
-            });
+            // Switch visibility instantly
+            textFieldPass.setVisible(false);
+            textFieldPass.setManaged(false);
+
+            passwordField.setVisible(true);
+            passwordField.setManaged(true);
+
+            // Animate ONLY the appearing field (quick fade)
+            passwordField.setOpacity(0);
+            FadeTransition fade = new FadeTransition(Duration.millis(120), passwordField);
+            fade.setToValue(1);
+            fade.play();
 
             showAndHidePass.setImage(eyeClosed);
             isPasswordVisible = false;
 
         } else {
-            // --- Switching to Visible (Plain Text) ---
-            fadeOut.setNode(passwordField);
-            fadeIn.setNode(textFieldPass);
-
+            // Copy text
             textFieldPass.setText(passwordField.getText());
 
-            fadeOut.setOnFinished(e -> {
-                passwordField.setVisible(false);
-                textFieldPass.setVisible(true);
-                fadeIn.play();
-            });
+            // Switch instantly
+            passwordField.setVisible(false);
+            passwordField.setManaged(false);
+
+            textFieldPass.setVisible(true);
+            textFieldPass.setManaged(true);
+
+            // Animate appearing text
+            textFieldPass.setOpacity(0);
+            FadeTransition fade = new FadeTransition(Duration.millis(120), textFieldPass);
+            fade.setToValue(1);
+            fade.play();
 
             showAndHidePass.setImage(eyeOpen);
             isPasswordVisible = true;
         }
-
-        // Start the animation
-        fadeOut.play();
     }
 
 

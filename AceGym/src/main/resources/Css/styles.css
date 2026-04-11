@@ -10,6 +10,7 @@
     -fx-gray-text: #6B7280;
 }
 
+/* BACKGROUNDS */
 .main-bg{
     -fx-background-color: -fx-base-dark;
 }
@@ -22,10 +23,11 @@
     -fx-background-color: #263a79;
 }
 
+/* LOGIN CARDS */
 .login-card{
     -fx-background-color: -fx-login-card-bg;
     -fx-background-radius: 15 0 0 15;
-    -fx-padding: 70 40 0 40; /* Top Right Down Left */
+    -fx-padding: 70 40 0 40;
 }
 
 .login-info-card{
@@ -33,13 +35,12 @@
     -fx-background-radius: 0 15 15 0;
 }
 
-/* login desc */
+/* TEXT */
 .brand-label {
     -fx-font-family: 'Bebas Neue';
-    -fx-text-fill:-fx-accent-lighter-red-text;
+    -fx-text-fill: -fx-accent-lighter-red-text;
     -fx-font-size: 20px;
     -fx-font-weight: bold;
-    -fx-padding: 0 0 0 0;
 }
 
 .text-header{
@@ -50,9 +51,7 @@
 
 .gym-name-header{
     -fx-font-size: 38px;
-
 }
-
 
 .welcome-header {
     -fx-padding: -5 0 0 0;
@@ -62,17 +61,11 @@
 .sub-header {
     -fx-font-family: 'Inter';
     -fx-font-weight: bold;
-    -fx-text-fill:-fx-gray-text;
+    -fx-text-fill: -fx-gray-text;
     -fx-font-size: 16px;
 }
 
-.sub-header-title{
-
-}
-
-
-/* login part */
-
+/* INPUT FIELDS */
 .text-field-login, .password-field-login {
     -fx-background-color: #1F2937;
     -fx-background-radius: 8;
@@ -82,98 +75,84 @@
     -fx-font-family: 'Inter';
     -fx-padding: 10 15 10 15;
     -fx-prompt-text-fill: #4B5563;
+    -fx-font-size: 16px;
 }
 
+/* PASSWORD FIELD SMALLER TEXT (if needed) */
+.password-field-login{
+    -fx-font-size: 14px;
+}
+
+/* HOVER */
 .text-field-login:hover, .password-field-login:hover {
     -fx-background-color: #243040;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 14, 0.3, 0, 2);
 }
 
+/* FOCUSED (FIXED ERROR HERE) */
 .text-field-login:focused, .password-field-login:focused {
     -fx-background-color: #243040;
     -fx-border-color: -fx-gray-text;
     -fx-border-width: 1.5;
-    -fx-effect: -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 14, 0.3, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 14, 0.3, 0, 2);
 }
 
-.text-field-login{
-    -fx-font-size: 16px;
-
-}
-
-.password-field-login{
-    -fx-font-size: 10px;
-}
-
-
-
-
-
-
-.text-field-login,
-.password-field-login {
-    -fx-border-color: gray;
-    -fx-border-width: 1px;
-}
-
-/* only when error is added */
+/* ERROR STATE */
 .text-field-login.error,
 .password-field-login.error {
     -fx-border-color: -fx-accent-lighter-red-text;
     -fx-border-width: 2px;
 }
 
+/* ERROR LABEL */
 .error-label {
     -fx-text-fill: -fx-accent-lighter-red-text;
     -fx-font-family: 'Inter';
     -fx-opacity: 1;
 }
 
+/* ⚠️ JavaFX DOES NOT SUPPORT CSS TRANSITIONS */
 .error-label-visible {
     -fx-opacity: 1.0;
-    -fx-transition: opacity 0.3s ease-in;
 }
 
+/* CHECKBOX */
+.check-box {
+    -fx-text-fill: #6B7280;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+}
 
- .check-box {
-     -fx-text-fill: #6B7280;
-     -fx-font-family: 'Inter';
-     -fx-font-size: 16px;
-     -fx-cursor: hand;
+.check-box .box {
+    -fx-background-color: #1F2937;
+    -fx-border-color: #374151;
+    -fx-border-radius: 3;
+}
 
- }
+.check-box:selected .box {
+    -fx-background-color: -fx-accent-lighter-red-text;
+    -fx-border-color: -fx-accent-lighter-red-text;
+}
 
- .check-box .box {
-     -fx-background-color: #1F2937;
-     -fx-border-color: #374151;
-     -fx-border-radius: 3;
+.check-box:selected .mark {
+    -fx-background-color: white;
+    -fx-shape: "M1.23,3.32 l2,2 l4.5,-4.5";
+}
 
- }
+/* LINKS */
+.forgot-link {
+    -fx-text-fill: -fx-accent-lighter-red-text;
+    -fx-font-family: 'Inter';
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
 
- .check-box:selected .box {
-     -fx-background-color: -fx-accent-lighter-red-text;
-     -fx-border-color: -fx-accent-lighter-red-text;
- }
+.forgot-link:hover {
+    -fx-underline: true;
+}
 
- .check-box:selected .mark {
-     -fx-background-color: white;
-     -fx-shape: "M1.23,3.32 l2,2 l4.5,-4.5";
- }
-
- .forgot-link {
-     -fx-text-fill: -fx-accent-lighter-red-text;
-     -fx-font-family: 'Inter';
-     -fx-font-weight: bold;
-     -fx-cursor: hand;
- }
-
-
- .forgot-link:hover {
-     -fx-underline: true;
- }
-
-
-/* submit btn*/
+/* BUTTON */
 .button {
     -fx-background-color: -fx-accent-lighter-red-text;
     -fx-background-radius: 8;
@@ -181,27 +160,23 @@
     -fx-font-family: 'Inter';
     -fx-font-weight: bold;
     -fx-font-size: 14px;
-    /* Vertical padding makes the button taller/thicker */
     -fx-padding: 12 0 12 0;
     -fx-cursor: hand;
 }
 
-
 .button:hover {
-    -fx-background-color: derive(#E05252, -8%);
+    -fx-background-color: derive(-fx-accent-lighter-red-text, -8%);
     -fx-effect: dropshadow(gaussian, rgba(224, 82, 82, 0.35), 12, 0.4, 0, 0);
 }
 
 .button:pressed {
-    -fx-background-color: derive(#E05252, -10%);
+    -fx-background-color: derive(-fx-accent-lighter-red-text, -10%);
     -fx-effect: dropshadow(gaussian, rgba(224, 82, 82, 0.15), 6, 0.3, 0, 0);
     -fx-scale-x: 0.98;
     -fx-scale-y: 0.98;
 }
 
-/* info part */
-
+/* INFO PART */
 .circle-color{
     -fx-background-color: #1a1c25;
 }
-

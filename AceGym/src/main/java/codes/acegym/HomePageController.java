@@ -3,10 +3,7 @@ package codes.acegym;
 import javafx.animation.*;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
@@ -15,7 +12,26 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class HomePageController {
-    //    window btn
+    public ToggleButton CoachList;
+    public ToggleButton ReportForm;
+    public ToggleButton MembersForm;
+    public ToggleButton PaymentForm;
+    public ToggleButton planForm;
+    public ToggleButton registrationForm;
+    public ToggleButton adminProfile;
+    public ToggleButton dashboardBtn;
+
+    @FXML
+    private ToggleGroup menuGroup;
+
+    @FXML
+    private void initialize() {
+        menuGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            if (newToggle == null && oldToggle != null) {
+                oldToggle.setSelected(true);
+            }
+        });
+    }
 
     @FXML
     private void handleClose() {
