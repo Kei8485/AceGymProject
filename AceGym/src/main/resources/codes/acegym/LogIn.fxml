@@ -18,7 +18,7 @@
 
 <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="739.0" prefWidth="1137.0" styleClass="main-bg" stylesheets="@../../Css/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.LoginController">
    <children>
-      <AnchorPane layoutY="1000.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="765.0" prefWidth="1137.0">
+      <AnchorPane  maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="765.0" prefWidth="1137.0">
          <children>
             <AnchorPane onMouseDragged="#handleTitleBarDragged" onMousePressed="#handleTitleBarPressed" prefHeight="42.0" prefWidth="1137.0" />
             <ImageView fx:id="closeWindowIcon" fitHeight="26.0" fitWidth="64.0" layoutX="1056.0" layoutY="34.0" onMouseClicked="#handleClose" pickOnBounds="true" preserveRatio="true" style="-fx-cursor: hand;">
@@ -72,18 +72,35 @@
                                     <Insets top="10.0" />
                                  </VBox.margin>
                               </Label>
-                              <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
-                                 <VBox.margin>
-                                    <Insets top="6.0" />
-                                 </VBox.margin>
-                                 <children>
-                                    <TextField fx:id="textFieldPass" maxWidth="-Infinity" opacity="0.0" prefHeight="40.0" prefWidth="400.0" styleClass="text-field-login" stylesheets="@../../Css/styles.css" />
-                                    <PasswordField fx:id="passwordField" maxWidth="-Infinity" prefHeight="40.0" prefWidth="400.0" stylesheets="@../../Css/styles.css" StackPane.alignment="CENTER_LEFT">
-                                       <styleClass>
-                                          <String fx:value="password-field-login" />
-                                       </styleClass>
-                                    </PasswordField>
-                                 </children>
+                              <StackPane maxWidth="-Infinity" minWidth="-Infinity" prefWidth="400">
+
+                                 <TextField fx:id="textFieldPass"
+                                            prefHeight="40"
+                                            prefWidth="400"
+                                            styleClass="text-field-login"
+                                            opacity="0.0"/>
+
+                                 <PasswordField fx:id="passwordField"
+                                                prefHeight="40"
+                                                prefWidth="400"
+                                                styleClass="password-field-login"/>
+
+                                 <StackPane StackPane.alignment="CENTER_RIGHT"
+                                            prefWidth="40"
+                                            maxWidth="40"
+                                            style="-fx-cursor: hand;"
+                                            onMouseClicked="#togglePassword">
+
+                                    <ImageView fx:id="showAndHidePass"
+                                               fitHeight="18"
+                                               fitWidth="18"
+                                               translateX="-6">
+                                       <image>
+                                          <Image url="@../../image/eye-slash-solid.png" />
+                                       </image>
+                                    </ImageView>
+
+                                 </StackPane>
                               </StackPane>
                               <Label fx:id="validationError" prefHeight="42.0" prefWidth="263.0" translateZ="-1.0">
                                  <VBox.margin>
@@ -95,11 +112,6 @@
                               </Label>
                            </children>
                         </VBox>
-                        <ImageView fx:id="showAndHidePass" fitHeight="20.0" fitWidth="26.0" layoutX="10.0" layoutY="7.0" onMouseClicked="#togglePassword" pickOnBounds="true" preserveRatio="true" x="360.0" y="110.0">
-                           <image>
-                              <Image url="@../../image/eye-slash-solid.png" />
-                           </image>
-                        </ImageView>
                      </children>
                   </AnchorPane>
                   <HBox alignment="CENTER_LEFT" prefHeight="39.0" prefWidth="336.0">

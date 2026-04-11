@@ -1,33 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ToggleButton?>
-<?import javafx.scene.control.ToggleGroup?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<StackPane prefHeight="1080.0" prefWidth="1920.0" styleClass="main-bg" stylesheets="@../../Css/styles2.css, @../../Css/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.HomePageController">
+<StackPane prefHeight="1080.0" prefWidth="1920.0" styleClass="main-bg" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.HomePageController">
+    <stylesheets>
+        <URL value="@../../Css/styles2.css" />
+        <URL value="@../../Css/styles.css" />
+    </stylesheets>
 
     <children>
         <HBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="738.0" prefWidth="1177.0" style="-fx-background-color: transparent; -fx-border-width: 2; -fx-border-radius: 25;">
 
             <children>
                 <VBox prefHeight="738.0" prefWidth="259.0" spacing="75.0" style="-fx-background-color: #192037; -fx-background-radius: 25 0 0 25;">
+                    <fx:define>
+                        <ToggleGroup fx:id="menuGroup" />
+                    </fx:define>
 
                     <children>
-                        <Label prefHeight="126.0" prefWidth="185.0" text="Ace Fitness Gym" textFill="#ee4f5c" wrapText="true">
+                        <Label alignment="CENTER" prefHeight="101.0" prefWidth="274.0" styleClass="headerText" stylesheets="@../../../../../target/classes/Css/styles2.css" text="Ace Fitness Gym" textFill="#ee4f5c" wrapText="true">
 
                             <font>
                                 <Font size="29.0" />
                             </font>
                      <padding>
-                        <Insets left="15.0" top="15.0" />
+                        <Insets left="15.0" right="25.0" top="15.0" />
                      </padding>
                         </Label>
 
@@ -41,7 +43,6 @@
                                             <Image url="@../../image/dashboard.png" />
                                         </ImageView>
                                     </graphic>
-
 
                                 </ToggleButton>
 
@@ -118,7 +119,7 @@
                                 </ImageView>
 
                                 <VBox>
-                                    <Label style="-fx-text-fill: white; -fx-font-size: 14px;" text="Peter Parker" />
+                                    <Label style="-fx-text-fill: white; -fx-font-size: 14px;" styleClass="labelText" text="Peter Parker" />
                                     <Label style="-fx-text-fill: #9aa4bf; -fx-font-size: 11px;" text="Admin" />
                            <HBox.margin>
                               <Insets />
@@ -136,7 +137,21 @@
                             </HBox>
 
                             <HBox alignment="CENTER_RIGHT">
-                                <Button alignment="CENTER_LEFT" graphicTextGap="6" prefHeight="28.0" prefWidth="91.0" style="-fx-background-color: #DE6161; -fx-text-fill: black; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 12 0 0 12;-fx-border-radius: 12 0 0 12; -fx-padding: 4 8;" text="Logout">
+                                <Button fx:id="logoutButton"
+                                        onAction="#Logout"
+                                        alignment="CENTER_LEFT"
+                                        graphicTextGap="6"
+                                        prefHeight="28.0"
+                                        prefWidth="91.0"
+                                        style="-fx-background-color: #DE6161;
+                                        -fx-text-fill: black;
+                                        -fx-font-size: 11px;
+                                       -fx-font-weight: bold;
+                                       -fx-background-radius: 12 0 0 12;
+                                       -fx-border-radius: 12 0 0 12;
+                                       -fx-padding: 4 8;
+                                       -fx-font-family: Bebas Neue;"
+                                        text="Logout">
 
                                     <graphic>
                                         <ImageView fitHeight="12.0" fitWidth="12.0" preserveRatio="true">
@@ -150,7 +165,7 @@
                     </children>
                 </VBox>
 
-                <VBox prefHeight="738.0" prefWidth="888.0" style="-fx-background-color: #0E1223; -fx-background-radius: 0 25 25 0;" />
+                <VBox fx:id="contentArea" prefHeight="738.0" prefWidth="888.0" style="-fx-background-color: #0E1223; -fx-background-radius: 0 25 25 0;" />
             </children>
         </HBox>
     </children>

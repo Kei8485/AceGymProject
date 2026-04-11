@@ -25,7 +25,7 @@
     -fx-alignment: CENTER_LEFT;
     -fx-padding: 4 12 4 12;
     -fx-font-size: 14px;
-    -fx-font-family: 'Bebas Neue';
+    -fx-font-family: 'Inter';
 
 }
 
@@ -64,4 +64,25 @@
 .logout-btn:pressed,
 .logout-btn:armed {
     -fx-background-color: #c94c4c;
+}
+
+.headerText {
+    -fx-font-family: 'Bebas Neue';
+    -fx-font-size: 29;
+}
+
+.labelText {
+    -fx-font-family: 'Inter';
+}
+
+.report-container {
+    -fx-background-color: #192037;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+}
+
+.card {
+    -fx-background-color: #394058;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
 }

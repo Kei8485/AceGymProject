@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="738.0" prefWidth="888.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.DashboardController">
+
+    <stylesheets>
+        <URL value="@../../Css/styles2.css" />
+    </stylesheets>
+    <children>
+      <Label layoutX="57.0" layoutY="29.0" prefHeight="100.0" prefWidth="296.0" styleClass="labelText" text="Dashboard" textFill="WHITE">
+         <font>
+            <Font size="45.0" />
+         </font>
+      </Label>
+      <AnchorPane layoutX="37.0" layoutY="145.0" prefHeight="214.0" prefWidth="792.0" style="-fx-background-color: #192037;" styleClass="report-container">
+         <children>
+            <Pane layoutX="28.0" layoutY="73.0" prefHeight="167.0" prefWidth="198.0" style="-fx-background-color: #394058;" styleClass="card" />
+            <Label layoutX="28.0" layoutY="14.0" styleClass="labelText" text="Report Overview" textFill="#ee4f5c">
+               <font>
+                  <Font size="27.0" />
+               </font>
+            </Label>
+            <Pane layoutX="297.0" layoutY="73.0" prefHeight="167.0" prefWidth="198.0" style="-fx-background-color: #394058;" styleClass="card" />
+            <Pane layoutX="556.0" layoutY="73.0" prefHeight="167.0" prefWidth="198.0" style="-fx-background-color: #394058;" styleClass="card" />
+         </children>
+         <padding>
+            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+         </padding>
+      </AnchorPane>
+   </children>
+</AnchorPane>

@@ -1,25 +1,51 @@
 package codes.acegym;
 
-import javafx.animation.*;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.util.Duration;
+
+import java.io.IOException;
 
 public class HomePageController {
-    public ToggleButton CoachList;
-    public ToggleButton ReportForm;
-    public ToggleButton MembersForm;
-    public ToggleButton PaymentForm;
-    public ToggleButton planForm;
-    public ToggleButton registrationForm;
-    public ToggleButton adminProfile;
-    public ToggleButton dashboardBtn;
+
+    @FXML
+    private ToggleButton CoachList;
+
+    @FXML
+    private ToggleButton ReportForm;
+
+    @FXML
+    private ToggleButton MembersForm;
+
+    @FXML
+    private ToggleButton PaymentForm;
+
+    @FXML
+    private ToggleButton planForm;
+
+    @FXML
+    private ToggleButton registrationForm;
+
+    @FXML
+    private ToggleButton adminProfile;
+
+    @FXML
+    private ToggleButton dashboardBtn;
+
+    // FIXED: Correct fx:id from FXML (logoutButton)
+    @FXML
+    private Button logoutButton;
+
+    @FXML
+    private VBox contentArea;
 
     @FXML
     private ToggleGroup menuGroup;
@@ -31,6 +57,48 @@ public class HomePageController {
                 oldToggle.setSelected(true);
             }
         });
+        loadPage("/codes/acegym/Dashboard.fxml");
+        setupNavigation();
+    }
+
+    private void loadPage(String fxmlFile) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+            Parent view = loader.load();
+            contentArea.getChildren().setAll(view);
+            VBox.setVgrow(view, Priority.ALWAYS);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setupNavigation() {
+        dashboardBtn.setOnAction(e -> loadPage("/codes/acegym/Dashboard.fxml"));
+        adminProfile.setOnAction(e -> loadPage("/codes/acegym/AdminProfile.fxml"));
+        registrationForm.setOnAction(e -> loadPage("/codes/acegym/Registration.fxml"));
+        planForm.setOnAction(e -> loadPage("/codes/acegym/Plan.fxml"));
+        PaymentForm.setOnAction(e -> loadPage("/codes/acegym/Payment.fxml"));
+        MembersForm.setOnAction(e -> loadPage("/codes/acegym/Members.fxml"));
+        CoachList.setOnAction(e -> loadPage("/codes/acegym/CoachList.fxml"));
+        ReportForm.setOnAction(e -> loadPage("/codes/acegym/Report.fxml"));
+    }
+
+    // FIXED: Proper logout method
+    @FXML
+    private void Logout(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) logoutButton.getScene().getWindow();  // Use correct button reference
+
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -40,7 +108,6 @@ public class HomePageController {
 
     @FXML
     private void handleMinimize(MouseEvent event) {
-        // Gets the current window and minimizes it to the taskbar
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setIconified(true);
     }
@@ -48,12 +115,7 @@ public class HomePageController {
     @FXML
     private void handleMaxMin(MouseEvent event) {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        // Toggles between Maximized and Normal size
-        if (stage.isMaximized()) {
-            stage.setMaximized(false);
-        } else {
-            stage.setMaximized(true);
-        }
+        stage.setMaximized(!stage.isMaximized());
     }
 
     private double x = 0;
@@ -71,5 +133,4 @@ public class HomePageController {
         x = event.getSceneX();
         y = event.getSceneY();
     }
-
 }
