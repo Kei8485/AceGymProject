@@ -15,25 +15,37 @@ public class LogoutOverlayController {
     @FXML
     private void confirmLogout(ActionEvent event) {
         try {
-            // Load the login page
             FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
             Parent root = loader.load();
 
-            // 1. Get the current popup stage and close it
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            currentStage.close();
-
-            // 2. Get the main dashboard window (the owner)
             Stage mainStage = (Stage) currentStage.getOwner();
 
-            // 3. Set the new scene
+            // 1. Close the popup
+            currentStage.close();
+
+            // 2. CAPTURE THE STATE before swapping
+            boolean wasFullScreen = mainStage.isFullScreen();
+            boolean wasMaximized = mainStage.isMaximized();
+
+            // 3. SET THE SCENE
             Scene scene = new Scene(root);
             mainStage.setScene(scene);
 
-            // --- YOUR FULL SCREEN LOGIC ---
-            mainStage.setIconified(false);        // Restore if minimized
-            mainStage.setFullScreenExitHint("");  // Remove the "Press ESC to exit" message
-            mainStage.setFullScreen(true);         // Set to true full screen mode
+            // 4. APPLY THE IF-ELSE LOGIC
+            if (wasFullScreen) {
+                mainStage.setFullScreen(true);
+            } else if (wasMaximized) {
+                // Reset to normal first then maximize to clear coordinate bugs
+                mainStage.setMaximized(false);
+                mainStage.setMaximized(true);
+            } else {
+                // If it was small, keep it small and center it
+                mainStage.setMaximized(false);
+                mainStage.setWidth(1100);
+                mainStage.setHeight(700);
+                mainStage.centerOnScreen();
+            }
 
             mainStage.show();
 

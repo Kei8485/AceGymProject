@@ -350,9 +350,23 @@ public class LoginController {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/codes/acegym/HomePage.fxml"));
                 Parent root = loader.load();
                 Stage stage = (Stage) usernameField.getScene().getWindow();
+
+                // 1. CLEAN THE STAGE STATE BEFORE MAXIMIZING
+                // This prevents the window from "remembering" weird sizes from the Login screen
+                stage.setFullScreen(false);
+                stage.setMaximized(false);
+
+                // 2. SET THE NEW SCENE
                 stage.setScene(new Scene(root));
+
+                // 3. NOW MAXIMIZE
                 stage.setIconified(false);
                 stage.setMaximized(true);
+
+                // Optional: Bring the window to the front
+                stage.show();
+                stage.toFront();
+
             } catch (IOException e) {
                 e.printStackTrace();
                 validationError.setText("⚠ Failed to load dashboard!");
@@ -409,10 +423,19 @@ public class LoginController {
     @FXML
     private void handleMaxMin(MouseEvent event) {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        // Toggles between Maximized and Normal size
+
         if (stage.isMaximized()) {
+            // 1. Turn off maximized mode
             stage.setMaximized(false);
+
+            // 2. MANUALLY SET THE SMALL SIZE (The Fix)
+            stage.setWidth(1200);
+            stage.setHeight(800);
+
+            // 3. RE-CENTER
+            stage.centerOnScreen();
         } else {
+            // Just maximize it
             stage.setMaximized(true);
         }
     }
