@@ -97,48 +97,53 @@ public class LoginController {
 
     @FXML
     private void togglePassword(MouseEvent event) {
+        // 1. Create the fade settings (200ms is a good "fast but smooth" speed)
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(200));
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200));
+
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
 
         if (isPasswordVisible) {
-            // Copy text
+            // --- Switching to Hidden (Dots) ---
+            fadeOut.setNode(textFieldPass);
+            fadeIn.setNode(passwordField);
+
             passwordField.setText(textFieldPass.getText());
 
-            // Switch visibility instantly
-            textFieldPass.setVisible(false);
-            textFieldPass.setManaged(false);
-
-            passwordField.setVisible(true);
-            passwordField.setManaged(true);
-
-            // Animate ONLY the appearing field (quick fade)
-            passwordField.setOpacity(0);
-            FadeTransition fade = new FadeTransition(Duration.millis(120), passwordField);
-            fade.setToValue(1);
-            fade.play();
+            fadeOut.setOnFinished(e -> {
+                textFieldPass.setVisible(false);
+                passwordField.setVisible(true);
+                fadeIn.play();
+            });
 
             showAndHidePass.setImage(eyeClosed);
             isPasswordVisible = false;
 
         } else {
-            // Copy text
+            // --- Switching to Visible (Plain Text) ---
+            fadeOut.setNode(passwordField);
+            fadeIn.setNode(textFieldPass);
+
             textFieldPass.setText(passwordField.getText());
 
-            // Switch instantly
-            passwordField.setVisible(false);
-            passwordField.setManaged(false);
-
-            textFieldPass.setVisible(true);
-            textFieldPass.setManaged(true);
-
-            // Animate appearing text
-            textFieldPass.setOpacity(0);
-            FadeTransition fade = new FadeTransition(Duration.millis(120), textFieldPass);
-            fade.setToValue(1);
-            fade.play();
+            fadeOut.setOnFinished(e -> {
+                passwordField.setVisible(false);
+                textFieldPass.setVisible(true);
+                fadeIn.play();
+            });
 
             showAndHidePass.setImage(eyeOpen);
             isPasswordVisible = true;
         }
+
+        // Start the animation
+        fadeOut.play();
     }
+
 
 
     @FXML
