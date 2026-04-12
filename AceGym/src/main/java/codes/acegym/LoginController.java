@@ -190,6 +190,8 @@ public class LoginController {
                 Parent root = loader.load();
                 Stage stage = (Stage) usernameField.getScene().getWindow();
                 stage.setScene(new Scene(root));
+                stage.setIconified(false);
+                stage.setMaximized(true);
             } catch (IOException e) {
                 e.printStackTrace();
                 validationError.setText("⚠ Failed to load dashboard!");

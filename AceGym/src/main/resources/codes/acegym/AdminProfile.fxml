@@ -1,27 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/17.0.12"
-            xmlns:fx="http://javafx.com/fxml/1"
-            prefWidth="888.0"
-            prefHeight="738.0"
-            style="-fx-background-color: transparent;">
+<AnchorPane prefHeight="738.0" prefWidth="888.0" style="-fx-background-color: #0E1223;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+    <stylesheets>
+        <URL value="@../../Css/styles2.css" />
+    </stylesheets>
 
     <children>
+      <AnchorPane layoutX="55.0" layoutY="115.0" prefHeight="321.0" prefWidth="301.0" style="-fx-background-color: #394058;">
+         <children>
+            <ImageView fitHeight="91.0" fitWidth="121.0" layoutX="105.0" layoutY="30.0" pickOnBounds="true" preserveRatio="true">
+                <Image url="@../../image/admin-user.png" />
+            </ImageView>
 
-        <Label text="Admin Information"
-               AnchorPane.topAnchor="30.0"
-               AnchorPane.leftAnchor="30.0"
-               style="-fx-text-fill: white;">
+             <ImageView fitHeight="25.0" fitWidth="22.0" layoutX="83.0" layoutY="121.0" pickOnBounds="true" preserveRatio="true">
+                 <Image url="@../../image/edit.png" />
+             </ImageView>
+            <Label layoutX="110.0" layoutY="119.0" prefHeight="25.0" prefWidth="101.0" styleClass="labelText" text="User Profile" textFill="#ee4f5c">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Label layoutX="42.0" layoutY="160.0" prefHeight="25.0" prefWidth="82.0" styleClass="labelText" text="Username" textFill="#ee4f5c">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Label layoutX="42.0" layoutY="200.0" prefHeight="25.0" prefWidth="91.0" styleClass="labelText" text="Contact No." textFill="#ee4f5c">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Label layoutX="40.0" layoutY="238.0" prefHeight="25.0" prefWidth="113.0" styleClass="labelText" text="Email Address" textFill="#ee4f5c">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Label layoutX="161.0" layoutY="160.0" prefHeight="25.0" prefWidth="128.0" styleClass="labelText" text="David" textFill="#fcfcfc">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Label layoutX="161.0" layoutY="200.0" prefHeight="25.0" prefWidth="128.0" styleClass="labelText" text="09626164040" textFill="#fcfcfc">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Label layoutX="40.0" layoutY="263.0" prefHeight="25.0" prefWidth="241.0" styleClass="labelText" text="david.domingo.811@gmail.com" textFill="#fcfcfc">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+      
+
+         </children>
+      </AnchorPane>
+
+        <Label layoutX="55.0" layoutY="52.0" style="-fx-text-fill: white;" text="Admin Information" AnchorPane.leftAnchor="55.0" AnchorPane.topAnchor="52.0">
 
             <font>
-                <Font size="36.0"/>
+                <Font size="36.0" />
             </font>
 
         </Label>
+      <AnchorPane layoutX="384.0" layoutY="115.0" prefHeight="263.0" prefWidth="415.0" style="-fx-background-color: #394058;" />
 
     </children>
 

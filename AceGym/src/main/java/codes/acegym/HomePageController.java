@@ -90,10 +90,16 @@ public class HomePageController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
             Parent root = loader.load();
 
-            Stage stage = (Stage) logoutButton.getScene().getWindow();  // Use correct button reference
+            Stage stage = (Stage) logoutButton.getScene().getWindow();
 
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
+            stage.setScene(new Scene(root));
+
+            // 🔥 FIX HERE
+            stage.setIconified(false);   // restore if minimized
+            stage.setFullScreenExitHint("");
+            stage.setFullScreen(true);    // then maximize
+
+
             stage.show();
 
         } catch (IOException e) {

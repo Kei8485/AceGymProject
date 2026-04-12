@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.net.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="738.0" prefWidth="888.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.DashboardController">
+<AnchorPane prefHeight="738.0" prefWidth="888.0" style="-fx-background-color: #0E1223;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.DashboardController">
 
     <stylesheets>
         <URL value="@../../Css/styles2.css" />
@@ -19,14 +20,74 @@
       </Label>
       <AnchorPane layoutX="37.0" layoutY="145.0" prefHeight="214.0" prefWidth="792.0" style="-fx-background-color: #192037;" styleClass="report-container">
          <children>
-            <Pane layoutX="28.0" layoutY="73.0" prefHeight="167.0" prefWidth="198.0" style="-fx-background-color: #394058;" styleClass="card" />
+            <Pane layoutX="28.0" layoutY="73.0" prefHeight="167.0" prefWidth="198.0" style="-fx-background-color: #394058;" styleClass="card">
+               <children>
+                  <Label layoutX="20.0" layoutY="14.0" styleClass="labelText" text="Renewals Due" textFill="#a8a8a8">
+                     <font>
+                        <Font name="System Bold" size="23.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="68.0" layoutY="44.0" text="10" textFill="#a8a8a8">
+                     <font>
+                        <Font name="System Bold" size="54.0" />
+                     </font>
+                  </Label>
+               </children></Pane>
             <Label layoutX="28.0" layoutY="14.0" styleClass="labelText" text="Report Overview" textFill="#ee4f5c">
                <font>
                   <Font size="27.0" />
                </font>
             </Label>
-            <Pane layoutX="297.0" layoutY="73.0" prefHeight="167.0" prefWidth="198.0" style="-fx-background-color: #394058;" styleClass="card" />
-            <Pane layoutX="556.0" layoutY="73.0" prefHeight="167.0" prefWidth="198.0" style="-fx-background-color: #394058;" styleClass="card" />
+            <Pane layoutX="297.0" layoutY="73.0" prefHeight="167.0" prefWidth="198.0" style="-fx-background-color: #394058;" styleClass="card">
+               <children>
+                  <Label layoutX="18.0" layoutY="14.0" styleClass="labelText" text="New Members" textFill="#a8a8a8">
+                     <font>
+                        <Font name="System Bold" size="23.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="68.0" layoutY="44.0" text="10" textFill="#a8a8a8">
+                     <font>
+                        <Font name="System Bold" size="54.0" />
+                     </font>
+                  </Label>
+               </children></Pane>
+            <Pane layoutX="556.0" layoutY="73.0" prefHeight="167.0" prefWidth="198.0" style="-fx-background-color: #394058;" styleClass="card">
+               <children>
+                  <Label layoutX="65.0" layoutY="14.0" styleClass="labelText" text="Staffs" textFill="#a8a8a8">
+                     <font>
+                        <Font name="System Bold" size="23.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="65.0" layoutY="43.0" text="10" textFill="#a8a8a8">
+                     <font>
+                        <Font name="System Bold" size="54.0" />
+                     </font>
+                  </Label>
+               </children></Pane>
+         </children>
+         <padding>
+            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+         </padding>
+      </AnchorPane>
+      <AnchorPane layoutX="37.0" layoutY="430.0" prefHeight="270.0" prefWidth="392.0" style="-fx-background-color: #192037;" styleClass="report-container">
+         <children>
+            <Label layoutX="28.0" layoutY="14.0" styleClass="labelText" text="Members" textFill="#ee4f5c">
+               <font>
+                  <Font size="27.0" />
+               </font>
+            </Label>
+         </children>
+         <padding>
+            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+         </padding>
+      </AnchorPane>
+      <AnchorPane layoutX="444.0" layoutY="430.0" prefHeight="270.0" prefWidth="385.0" style="-fx-background-color: #192037;" styleClass="report-container">
+         <children>
+            <Label layoutX="28.0" layoutY="14.0" styleClass="labelText" text="Coaches/Staff" textFill="#ee4f5c">
+               <font>
+                  <Font size="27.0" />
+               </font>
+            </Label>
          </children>
          <padding>
             <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
