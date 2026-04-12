@@ -1,29 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
-<?import javafx.scene.text.Font?>
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
 
-<StackPane prefHeight="739.0" prefWidth="1137.0"
-           styleClass="main-bg"
-           stylesheets="@../../Css/styles.css"
-           xmlns="http://javafx.com/javafx/25"
-           xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="codes.acegym.LoginController">
+<StackPane fx:id="mainBGID" prefHeight="739.0" prefWidth="1137.0" styleClass="main-bg" stylesheets="@../../Css/styles.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.LoginController">
    <children>
-      <AnchorPane  maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="765.0" prefWidth="1137.0">
+      <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="765.0" prefWidth="1137.0">
          <children>
             <AnchorPane onMouseDragged="#handleTitleBarDragged" onMousePressed="#handleTitleBarPressed" prefHeight="42.0" prefWidth="1137.0" />
             <ImageView fx:id="closeWindowIcon" fitHeight="26.0" fitWidth="64.0" layoutX="1056.0" layoutY="34.0" onMouseClicked="#handleClose" pickOnBounds="true" preserveRatio="true" style="-fx-cursor: hand;">
@@ -79,27 +66,13 @@
                               </Label>
                               <StackPane maxWidth="-Infinity" minWidth="-Infinity" prefWidth="400">
 
-                                 <TextField fx:id="textFieldPass"
-                                            prefHeight="40"
-                                            prefWidth="400"
-                                            styleClass="text-field-login"
-                                            opacity="0.0"/>
+                                 <TextField fx:id="textFieldPass" opacity="0.0" prefHeight="40" prefWidth="400" styleClass="text-field-login" />
 
-                                 <PasswordField fx:id="passwordField"
-                                                prefHeight="40"
-                                                prefWidth="400"
-                                                styleClass="password-field-login"/>
+                                 <PasswordField fx:id="passwordField" prefHeight="40" prefWidth="400" styleClass="password-field-login" />
 
-                                 <StackPane StackPane.alignment="CENTER_RIGHT"
-                                            prefWidth="40"
-                                            maxWidth="40"
-                                            style="-fx-cursor: hand;"
-                                            onMouseClicked="#togglePassword">
+                                 <StackPane maxWidth="40" onMouseClicked="#togglePassword" prefWidth="40" style="-fx-cursor: hand;" StackPane.alignment="CENTER_RIGHT">
 
-                                    <ImageView fx:id="showAndHidePass"
-                                               fitHeight="18"
-                                               fitWidth="18"
-                                               translateX="-6">
+                                    <ImageView fx:id="showAndHidePass" fitHeight="18" fitWidth="18" translateX="-6">
                                        <image>
                                           <Image url="@../../image/eye-slash-solid.png" />
                                        </image>

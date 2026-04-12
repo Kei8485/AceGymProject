@@ -28,6 +28,17 @@
     -fx-border-radius: 12 0 0 12;
 }
 
+.logout-badge:hover {
+    -fx-background-color: #E05550;
+    -fx-text-fill: white;
+}
+
+.logout-badge:pressed {
+    -fx-background-color: #A33330;
+    -fx-text-fill: white;
+    -fx-padding: 5 20 3 20;
+}
+
 .logout-card {
     -fx-background-color: -fx-login-card-bg;
     -fx-background-radius: 15;
@@ -115,24 +126,36 @@
     -fx-font-family: 'Inter';
 }
 
-/* Hover State */
 .menu-button:hover {
-    -fx-background-color: rgba(255, 77, 77, 0.2); /* Subtle red tint */
-    -fx-text-fill: #ff4d4d; /* Ace Gym Red */
+    -fx-background-color: rgba(255, 77, 77, 0.2);
+    -fx-text-fill: #ff4d4d;
+    -fx-cursor: hand;
 }
 
 .menu-button:pressed {
-    -fx-background-color: rgba(255, 77, 77, 0.4); /* Darker red tint */
+    -fx-background-color: rgba(255, 77, 77, 0.4);
     -fx-text-fill: #ff2b2b;
+    -fx-padding: 1 0 0 16;
 }
 
-/* Selected State */
 .toggle-button.menu-button:selected {
     -fx-font-family: "Bebas Neue";
-    -fx-background-color: -fx-accent-lighter-red-text; /* Your defined red */
+    -fx-background-color: -fx-accent-lighter-red-text;
     -fx-text-fill: black;
     -fx-font-weight: 700;
     -fx-font-size: 17px;
+}
+
+.toggle-button.menu-button:selected:hover {
+    -fx-background-color: derive(-fx-accent-lighter-red-text, 15%);
+    -fx-text-fill: black;
+    -fx-cursor: hand;
+}
+
+.toggle-button.menu-button:selected:pressed {
+    -fx-background-color: derive(-fx-accent-lighter-red-text, -15%);
+    -fx-text-fill: black;
+    -fx-padding: 1 0 0 16;
 }
 
 .menu-button .image-view {

@@ -11,6 +11,7 @@ module codes.acegym {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires java.sql;
+    requires javafx.graphics;
 
     opens codes.acegym to javafx.fxml;
     exports codes.acegym;

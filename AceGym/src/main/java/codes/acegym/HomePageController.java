@@ -1,21 +1,30 @@
 package codes.acegym;
 
-import javafx.animation.FadeTransition;
-import javafx.animation.ParallelTransition;
-import javafx.animation.ScaleTransition;
-import javafx.animation.TranslateTransition;
+import javafx.animation.*;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.GaussianBlur;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -27,6 +36,15 @@ public class HomePageController {
 
     @FXML
     private ToggleButton CoachList;
+
+    @FXML
+    ImageView closeWindowIcon;
+
+    @FXML
+    ImageView maxMinWindow;
+
+    @FXML
+    ImageView minimizeWindow;
 
     @FXML
     private ToggleButton ReportForm;
@@ -60,15 +78,148 @@ public class HomePageController {
     private ToggleGroup menuGroup;
 
     @FXML
+    private StackPane homePageBgID;
+
+    @FXML
     private void initialize() {
         menuGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             if (newToggle == null && oldToggle != null) {
                 oldToggle.setSelected(true);
             }
         });
+
         loadPage("/codes/acegym/Dashboard.fxml");
         setupNavigation();
+        setDashboardBackground();
+
+        // Use Platform.runLater to wait for the window to actually exist
+        Platform.runLater(() -> {
+            // Get the stage using the scene from ANY node in this FXML
+            // I'm using the first toggle in your menuGroup as an example
+            if (!menuGroup.getToggles().isEmpty()) {
+                Node node = (Node) menuGroup.getToggles().get(0);
+                Stage stage = (Stage) node.getScene().getWindow();
+                addResizeListener(stage);
+            }
+        });
     }
+
+
+
+    public void addResizeListener(Stage stage) {
+        double border = 10; // The "grab" area in pixels
+
+        stage.getScene().setOnMouseMoved(e -> {
+            double x = e.getX(), y = e.getY();
+            double w = stage.getWidth(), h = stage.getHeight();
+            Cursor cursor = Cursor.DEFAULT;
+
+            if (x < border && y < border) cursor = Cursor.NW_RESIZE;
+            else if (x < border && y > h - border) cursor = Cursor.SW_RESIZE;
+            else if (x > w - border && y < border) cursor = Cursor.NE_RESIZE;
+            else if (x > w - border && y > h - border) cursor = Cursor.SE_RESIZE;
+            else if (x < border) cursor = Cursor.W_RESIZE;
+            else if (x > w - border) cursor = Cursor.E_RESIZE;
+            else if (y < border) cursor = Cursor.N_RESIZE;
+            else if (y > h - border) cursor = Cursor.S_RESIZE;
+
+            stage.getScene().setCursor(cursor);
+        });
+
+        stage.getScene().setOnMouseDragged(e -> {
+            double x = e.getScreenX(), y = e.getScreenY();
+            // Simple logic for South-East (bottom-right) dragging
+            if (stage.getScene().getCursor() == Cursor.SE_RESIZE) {
+                stage.setWidth(x - stage.getX());
+                stage.setHeight(y - stage.getY());
+            }
+            // You can add logic for other directions here similarly
+        });
+    }
+
+
+
+    private AnimationTimer glowTimer;
+
+    private void setDashboardBackground() {
+        homePageBgID.setStyle("-fx-background-color: #0D1117;");
+
+        Canvas canvas = new Canvas();
+        canvas.setMouseTransparent(true);
+
+        homePageBgID.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
+            canvas.setWidth(newBounds.getWidth());
+            canvas.setHeight(newBounds.getHeight());
+        });
+
+        homePageBgID.getChildren().add(0, canvas);
+
+        Platform.runLater(() -> {
+            canvas.setWidth(homePageBgID.getWidth());
+            canvas.setHeight(homePageBgID.getHeight());
+            startGlowPulse(canvas);
+        });
+    }
+
+    private void dashboardMaxMin(MouseEvent event){
+        System.out.println("Hello");
+    }
+
+    private void startGlowPulse(Canvas canvas) {
+        if (glowTimer != null) {
+            glowTimer.stop();
+        }
+
+        long[] startTime = { System.nanoTime() };
+
+        glowTimer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                double W = canvas.getWidth();
+                double H = canvas.getHeight();
+                if (W <= 0 || H <= 0) return;
+
+                double t = (now - startTime[0]) / 1_000_000_000.0;
+
+                double pulseBL = Math.min(1.0, Math.max(0.0, 0.10 + 0.05 * (0.5 + 0.5 * Math.sin(t * 0.6))));
+                double pulseTR = Math.min(1.0, Math.max(0.0, 0.07 + 0.05 * (0.5 + 0.5 * Math.sin(t * 0.6 + Math.PI * 0.7))));
+
+                GraphicsContext gc = canvas.getGraphicsContext2D();
+
+                gc.setFill(Color.web("#0D1117"));
+                gc.fillRect(0, 0, W, H);
+
+                RadialGradient glowBL = new RadialGradient(
+                        0, 0,
+                        0, H,
+                        W * 0.85,
+                        false,
+                        CycleMethod.NO_CYCLE,
+                        new Stop(0.0, Color.web("#CB443E", pulseBL)),
+                        new Stop(0.4, Color.web("#CB443E", pulseBL * 0.5)),
+                        new Stop(1.0, Color.TRANSPARENT)
+                );
+                gc.setFill(glowBL);
+                gc.fillRect(0, 0, W, H);
+
+                RadialGradient glowTR = new RadialGradient(
+                        0, 0,
+                        W, 0,
+                        W * 0.65,
+                        false,
+                        CycleMethod.NO_CYCLE,
+                        new Stop(0.0, Color.web("#8B2D2F", pulseTR)),
+                        new Stop(0.4, Color.web("#8B2D2F", pulseTR * 0.4)),
+                        new Stop(1.0, Color.TRANSPARENT)
+                );
+                gc.setFill(glowTR);
+                gc.fillRect(0, 0, W, H);
+            }
+        };
+
+        glowTimer.start();
+    }
+
 
     private void loadPage(String fxmlFile) {
         try {
