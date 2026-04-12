@@ -477,13 +477,39 @@ public class LoginController {
         });
 
         stage.getScene().setOnMouseDragged(e -> {
-            double x = e.getScreenX(), y = e.getScreenY();
-            // Simple logic for South-East (bottom-right) dragging
-            if (stage.getScene().getCursor() == Cursor.SE_RESIZE) {
+            if (stage.isMaximized()) return;
+
+            double x = e.getScreenX();
+            double y = e.getScreenY();
+            Cursor cursor = stage.getScene().getCursor();
+
+            // 1. Resize from the RIGHT (East)
+            if (cursor == Cursor.E_RESIZE || cursor == Cursor.SE_RESIZE || cursor == Cursor.NE_RESIZE) {
                 stage.setWidth(x - stage.getX());
+            }
+
+            // 2. Resize from the BOTTOM (South)
+            if (cursor == Cursor.S_RESIZE || cursor == Cursor.SE_RESIZE || cursor == Cursor.SW_RESIZE) {
                 stage.setHeight(y - stage.getY());
             }
-            // You can add logic for other directions here similarly
+
+            // 3. Resize from the LEFT (West)
+            if (cursor == Cursor.W_RESIZE || cursor == Cursor.NW_RESIZE || cursor == Cursor.SW_RESIZE) {
+                double newWidth = stage.getX() + stage.getWidth() - x;
+                if (newWidth > stage.getMinWidth()) {
+                    stage.setX(x);
+                    stage.setWidth(newWidth);
+                }
+            }
+
+            // 4. Resize from the TOP (North)
+            if (cursor == Cursor.N_RESIZE || cursor == Cursor.NW_RESIZE || cursor == Cursor.NE_RESIZE) {
+                double newHeight = stage.getY() + stage.getHeight() - y;
+                if (newHeight > stage.getMinHeight()) {
+                    stage.setY(y);
+                    stage.setHeight(newHeight);
+                }
+            }
         });
     }
 
