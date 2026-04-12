@@ -75,12 +75,7 @@ public class HomePageController {
     private void setupNavigation() {
         dashboardBtn.setOnAction(e -> loadPage("/codes/acegym/Dashboard.fxml"));
         adminProfile.setOnAction(e -> loadPage("/codes/acegym/AdminProfile.fxml"));
-        registrationForm.setOnAction(e -> loadPage("/codes/acegym/Registration.fxml"));
-        planForm.setOnAction(e -> loadPage("/codes/acegym/Plan.fxml"));
-        PaymentForm.setOnAction(e -> loadPage("/codes/acegym/Payment.fxml"));
-        MembersForm.setOnAction(e -> loadPage("/codes/acegym/Members.fxml"));
-        CoachList.setOnAction(e -> loadPage("/codes/acegym/CoachList.fxml"));
-        ReportForm.setOnAction(e -> loadPage("/codes/acegym/Report.fxml"));
+
     }
 
     // FIXED: Proper logout method
