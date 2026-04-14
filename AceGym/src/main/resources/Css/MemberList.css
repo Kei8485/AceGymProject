@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@100..900&display=swap');
+
+.root {
+    -fx-base-dark: #0D1117;
+    -fx-login-card-bg: #111827;
+    -fx-login-info-bg: #0F1923;
+    -fx-accent-darker-red-text: #8B2D2F;
+    -fx-accent-lighter-red-text: #CB443E;
+    -fx-white-text: #E8E6E9;
+    -fx-gray-text: #6B7280;
+}
+
+.title {
+    -fx-font-size: 36px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.card {
+    -fx-background-color: #1C2237;
+    -fx-background-radius: 15;
+    -fx-padding: 20;
+}
+
+.card-title {
+    -fx-font-size: 22px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.label {
+    -fx-text-fill: white;
+}
+
+.search-box {
+    -fx-background-radius: 20;
+    -fx-padding: 5 10;
+}
+
+.search-btn {
+    -fx-background-color: #E50914;
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+}
+
+.btn-primary {
+    -fx-background-color: #E50914;
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+}
+
+.btn-secondary {
+    -fx-background-color: #E0E0E0;
+    -fx-background-radius: 20;
+}
+
+/* Table styling */
+.table-view {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+}
+
+.table-view .cell {
+    -fx-text-fill: white;
+}

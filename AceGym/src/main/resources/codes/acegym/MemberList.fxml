@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="738.0" prefWidth="888.0" style="-fx-background-color: #0E1223;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.MemberListController">
+
+    <stylesheets>
+        <URL value="@../../Css/styles2.css" />
+        <URL value="@../../Css/MemberList.css" />
+    </stylesheets>
+
+    <children>
+
+        <!-- Title -->
+        <Label layoutX="30.0" layoutY="28.0" styleClass="title" text="Active Members" textFill="WHITE">
+         <font>
+            <Font size="40.0" />
+         </font></Label>
+
+        <!-- Card -->
+        <AnchorPane layoutX="30" layoutY="100" prefHeight="500" prefWidth="820" styleClass="card">
+
+            <children>
+
+                <!-- Header -->
+                <Label layoutX="20.0" layoutY="25.0" prefHeight="49.0" prefWidth="195.0" styleClass="card-title" text="Gym Members" textFill="WHITE">
+               <font>
+                  <Font size="30.0" />
+               </font></Label>
+
+                <!-- Controls -->
+                <HBox layoutX="20.0" layoutY="95.0" spacing="10">
+                    <children>
+                        <Label styleClass="label" text="Show Entries" textFill="WHITE" />
+                        <ComboBox fx:id="entriesBox" prefWidth="80" />
+                    </children>
+                </HBox>
+
+                <!-- Search -->
+                <HBox layoutX="613.0" layoutY="95.0" spacing="10">
+                    <children>
+                        <TextField fx:id="searchField" promptText="Search" styleClass="search-box" />
+                        <Button styleClass="search-btn" text="🔍" />
+                    </children>
+                </HBox>
+
+                <!-- Table -->
+                <TableView fx:id="memberTable" layoutX="20.0" layoutY="140.0" prefHeight="300" prefWidth="780">
+
+                    <columns>
+                        <TableColumn fx:id="nameCol" prefWidth="150" text="Name" />
+                        <TableColumn fx:id="idCol" prefWidth="150" text="Member ID" />
+                        <TableColumn fx:id="enrollCol" prefWidth="150" text="Date Enrolled" />
+                        <TableColumn fx:id="expireCol" prefWidth="150" text="Date Expiration" />
+                        <TableColumn fx:id="actionCol" prefWidth="179.0" text="Actions" />
+                    </columns>
+
+                </TableView>
+
+                <!-- Pagination -->
+                <HBox layoutX="688.0" layoutY="455.0" spacing="10">
+                    <children>
+                        <Button styleClass="btn-secondary" text="Previous" />
+                        <Button styleClass="btn-primary" text="Next" />
+                    </children>
+                </HBox>
+
+            </children>
+        </AnchorPane>
+
+    </children>
+</AnchorPane>

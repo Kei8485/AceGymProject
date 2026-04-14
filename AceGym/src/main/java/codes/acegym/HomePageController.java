@@ -281,6 +281,7 @@ public class HomePageController {
         // 3. Set actions with a "check if already selected" guard
         dashboardBtn.setOnAction(e -> handleNavigation(dashboardBtn, "/codes/acegym/Dashboard.fxml"));
         adminProfile.setOnAction(e -> handleNavigation(adminProfile, "/codes/acegym/AdminProfile.fxml"));
+        MembersForm.setOnAction(e -> handleNavigation(MembersForm, "/codes/acegym/MemberList.fxml"));
         // Add the rest of your buttons here following the same pattern...
     }
 

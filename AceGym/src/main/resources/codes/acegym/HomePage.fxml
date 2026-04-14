@@ -37,15 +37,13 @@
 
                         <VBox alignment="CENTER_RIGHT" prefHeight="329.0" prefWidth="259.0" spacing="4.0">
                             <children>
-                                <ToggleButton fx:id="dashboardBtn" alignment="CENTER_LEFT" graphicTextGap="10" maxHeight="53.0" minHeight="32.0" prefHeight="45.0" prefWidth="207.0" selected="true" styleClass="menu-button" text="Dashboard">
+                                <ToggleButton fx:id="dashboardBtn" alignment="CENTER_LEFT" graphicTextGap="10" maxHeight="53.0" minHeight="32.0" prefHeight="45.0" prefWidth="207.0" selected="true" styleClass="menu-button" text="Dashboard"  toggleGroup="$menuGroup">
                                     <graphic>
                                         <ImageView fitHeight="16.0" fitWidth="16.0" preserveRatio="true">
                                             <Image url="@../../image/dashboard.png" />
                                         </ImageView>
                                     </graphic>
-                                    <toggleGroup>
-                                        <ToggleGroup fx:id="menuGroup" />
-                                    </toggleGroup>
+
                                 </ToggleButton>
 
                                 <ToggleButton fx:id="adminProfile" alignment="CENTER_LEFT" graphicTextGap="10" maxHeight="55.0" minHeight="32.0" prefHeight="45.0" prefWidth="207.0" styleClass="menu-button" text="Admin Profile" toggleGroup="$menuGroup">
