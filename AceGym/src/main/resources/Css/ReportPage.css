@@ -1,0 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@100..900&display=swap');
+
+/* --- Variable Definitions --- */
+.root {
+    -fx-base-dark: #0D1117;
+    -fx-login-card-bg: #111827;
+    -fx-login-info-bg: #0F1923;
+    -fx-accent-darker-red-text: #8B2D2F;
+    -fx-accent-lighter-red-text: #CB443E;
+    -fx-white-text: #E8E6E9;
+    -fx-gray-text: #6B7280;
+}
+
+/* --- Layout Containers --- */
+.main-content-bg {
+    -fx-background-color: #0E1223;
+}
+
+.card-search {
+    -fx-background-color: #1c2237;
+    -fx-background-radius: 20;
+    -fx-padding: 30;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 0);
+}
+
+/* --- Typography --- */
+.text-header {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 35px;
+    -fx-font-weight: bold;
+    -fx-fill: -fx-white-text;
+}
+
+.text-header-small {
+    -fx-font-size: 25px;
+}
+
+.text-header-smaller {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 18px;
+    -fx-font-weight: normal;
+    -fx-fill: -fx-gray-text;
+}
+
+.label-search {
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 18px;
+    -fx-font-weight: normal; /* Removed bold per your preference */
+}
+
+/* --- Input Fields & Interactivity --- */
+.date-field {
+    -fx-background-color: #e0e4ef;
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+    -fx-text-fill: #1a1f30;
+    -fx-font-size: 14px;
+}
+
+.date-field:hover {
+    -fx-background-color: #edf1f9;
+}
+
+.search-field {
+    -fx-background-color: #c60d16;
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #f0f0f0;
+    -fx-padding: 5 25;
+    -fx-font-size: 20px;
+}
+
+.search-field:hover {
+    -fx-background-color: #df0e18;
+    -fx-cursor: hand;
+}
+
+.search-field:pressed {
+    -fx-background-color: #a30b12;
+}
+
+/* --- Combo Box --- */
+.combo-box {
+    -fx-background-color: #c60d16;
+    -fx-background-radius: 10;
+    -fx-padding: 2;
+}
+
+.combo-box:hover {
+    -fx-background-color: #df0e18;
+    -fx-cursor: hand;
+}
+
+.combo-box .label {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+.combo-box .arrow {
+    -fx-background-color: white;
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z";
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #1c2237;
+}
+
+.combo-box-popup .list-cell {
+    -fx-text-fill: white;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #CB443E;
+}
+
+/* --- Table View --- */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.table-view .column-header-background,
+.table-view .column-header-background .filler,
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: normal;
+}
+
+.table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.table-row-cell:empty {
+    -fx-background-color: transparent;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+}
+
+.table-row-cell:selected {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+}
+
+.table-cell {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-padding: 15;
+    -fx-border-color: transparent;
+}
+
+.table-view .placeholder .label {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+}
+
+.table-view .placeholder {
+    -fx-background-color: transparent;
+}
