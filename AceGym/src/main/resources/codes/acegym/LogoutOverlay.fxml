@@ -11,37 +11,38 @@
 <?import javafx.scene.text.Font?>
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="262.0" prefWidth="428.0" styleClass="logout-card" stylesheets="@../../Css/styles2.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.LogoutOverlayController">
-   <children>
-      <HBox prefHeight="416.0" prefWidth="600.0">
-         <children>
-            <AnchorPane prefHeight="262.0" prefWidth="163.0">
-               <children>
-                  <ImageView fitHeight="90.0" fitWidth="87.0" layoutX="38.0" layoutY="88.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../../image/logout%20(1).png" />
-                     </image></ImageView>
-               </children>
-            </AnchorPane>
-            <VBox prefHeight="262.0" prefWidth="267.0">
-               <children>
-                  <Label alignment="BOTTOM_LEFT" prefHeight="85.0" prefWidth="246.0" styleClass="logout-headerText" text="Confirm Logout" wrapText="true" />
-                  <Label prefHeight="71.0" prefWidth="246.0" styleClass="logout-sub-header" text="Are you sure you want to logout from the Ace Fitness Gym system?" textFill="#f7f5f5e4" wrapText="true">
-                     <font>
-                        <Font size="9.0" />
-                     </font>
-                  </Label>
-                  <HBox alignment="CENTER" prefHeight="73.0" prefWidth="246.0" styleClass="hbox-btn-spacing">
-                     <children>
-                        <Button mnemonicParsing="false" onAction="#cancelLogout" styleClass="logout-cancel-btn" stylesheets="@../../Css/styles2.css" text="Cancel" />
-                        <Button mnemonicParsing="false" onAction="#confirmLogout" styleClass="logout-confirm-btn" stylesheets="@../../Css/styles2.css" text="SIgn Out" />
-                     </children>
-                  </HBox>
-               </children>
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </padding>
-            </VBox>
-         </children>
-      </HBox>
-   </children>
+    <children>
+        <HBox prefHeight="416.0" prefWidth="600.0">
+            <children>
+                <AnchorPane prefHeight="262.0" prefWidth="163.0">
+                    <children>
+                        <ImageView fx:id="logoutIcon" fitHeight="90.0" fitWidth="87.0" layoutX="38.0" layoutY="88.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../../image/logout%20(1).png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                </AnchorPane>
+                <VBox prefHeight="262.0" prefWidth="267.0">
+                    <children>
+                        <Label fx:id="headerLabel" alignment="BOTTOM_LEFT" prefHeight="85.0" prefWidth="246.0" styleClass="logout-headerText" text="Confirm Logout" wrapText="true" />
+                        <Label fx:id="subHeaderLabel" prefHeight="71.0" prefWidth="246.0" styleClass="logout-sub-header" text="Are you sure you want to logout from the Ace Fitness Gym system?" textFill="#f7f5f5e4" wrapText="true">
+                            <font>
+                                <Font size="9.0" />
+                            </font>
+                        </Label>
+                        <HBox fx:id="buttonBox" alignment="CENTER" prefHeight="73.0" prefWidth="246.0" styleClass="hbox-btn-spacing">
+                            <children>
+                                <Button mnemonicParsing="false" onAction="#cancelLogout" styleClass="logout-cancel-btn" stylesheets="@../../Css/styles2.css" text="Cancel" />
+                                <Button mnemonicParsing="false" onAction="#confirmLogout" styleClass="logout-confirm-btn" stylesheets="@../../Css/styles2.css" text="Sign Out" />
+                            </children>
+                        </HBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </padding>
+                </VBox>
+            </children>
+        </HBox>
+    </children>
 </VBox>

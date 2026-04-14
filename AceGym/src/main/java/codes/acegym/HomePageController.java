@@ -252,26 +252,14 @@ public class HomePageController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Parent view = loader.load();
 
-            // 1. Prepare the new view (start invisible and slightly shifted)
-            view.setOpacity(0);
-            view.setTranslateY(10); // Subtle "slide up" effect
-
-            contentArea.getChildren().setAll(view);
             VBox.setVgrow(view, Priority.ALWAYS);
 
-            // 2. Create the Fade Animation
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(700), view);
-            fadeIn.setFromValue(0.0);
-            fadeIn.setToValue(1.0);
+            if (view instanceof javafx.scene.layout.Region region) {
+                region.setMaxWidth(Double.MAX_VALUE);
+                region.setMaxHeight(Double.MAX_VALUE);
+            }
 
-            // 3. Create the Slide Animation
-            TranslateTransition slideIn = new TranslateTransition(Duration.millis(700), view);
-            slideIn.setFromY(10);
-            slideIn.setToY(0);
-
-            // 4. Play them together
-            ParallelTransition parallelTransition = new ParallelTransition(fadeIn, slideIn);
-            parallelTransition.play();
+            contentArea.getChildren().setAll(view); // clean and simple
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -342,27 +330,22 @@ public class HomePageController {
             scene.setFill(null);
             confirmStage.setScene(scene);
 
-            // 1. ADD BLUR TO BACKGROUND
-            ColorAdjust dim = new ColorAdjust();
-            dim.setBrightness(-0.2); // Slightly darken the bg
-            GaussianBlur blur = new GaussianBlur(10); // 10 is the blur strength
+            GaussianBlur blur = new GaussianBlur(10);
             owner.getScene().getRoot().setEffect(blur);
 
-            // 2. CENTERING
             confirmStage.show();
             double centerX = owner.getX() + (owner.getWidth() / 2) - (confirmStage.getWidth() / 2);
             double centerY = owner.getY() + (owner.getHeight() / 2) - (confirmStage.getHeight() / 2);
             confirmStage.setX(centerX);
             confirmStage.setY(centerY);
 
-            // 3. SMOOTH FADE IN ANIMATION
             root.setOpacity(0);
             FadeTransition fadeIn = new FadeTransition(Duration.millis(300), root);
             fadeIn.setFromValue(0);
             fadeIn.setToValue(1);
             fadeIn.play();
 
-            // 4. REMOVE BLUR WHEN CLOSED
+            // ONLY remove blur when overlay closes — login swap is handled by LogoutOverlayController
             confirmStage.setOnHidden(e -> owner.getScene().getRoot().setEffect(null));
 
         } catch (IOException e) {
@@ -384,7 +367,15 @@ public class HomePageController {
     @FXML
     private void handleMaxMin(MouseEvent event) {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setMaximized(!stage.isMaximized());
+
+        if (stage.isMaximized()) {
+            stage.setMaximized(false);
+            stage.setWidth(1200);
+            stage.setHeight(800);
+            stage.centerOnScreen();
+        } else {
+            stage.setMaximized(true);
+        }
     }
 
     private double x = 0;
@@ -402,4 +393,5 @@ public class HomePageController {
         x = event.getSceneX();
         y = event.getSceneY();
     }
+
 }
