@@ -63,7 +63,7 @@
 }
 
 .search-field {
-    -fx-background-color: #c60d16;
+    -fx-background-color: -fx-accent-lighter-red-text;
     -fx-background-radius: 10;
     -fx-text-fill: white;
     -fx-prompt-text-fill: #f0f0f0;
@@ -72,7 +72,7 @@
 }
 
 .search-field:hover {
-    -fx-background-color: #df0e18;
+    -fx-background-color: derive(-fx-accent-lighter-red-text, 15%);
     -fx-cursor: hand;
 }
 
@@ -82,13 +82,13 @@
 
 /* --- Combo Box --- */
 .combo-box {
-    -fx-background-color: #c60d16;
+    -fx-background-color: -fx-accent-lighter-red-text;
     -fx-background-radius: 10;
     -fx-padding: 2;
 }
 
 .combo-box:hover {
-    -fx-background-color: #df0e18;
+    -fx-background-color: derive(-fx-accent-lighter-red-text, 15%);
     -fx-cursor: hand;
 }
 

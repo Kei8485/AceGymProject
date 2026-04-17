@@ -1,76 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.net.URL?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="738.0" prefWidth="888.0" style="-fx-background-color: #0E1223;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane prefHeight="650.0" prefWidth="867.0" style="-fx-background-color: #0E1223;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
     <stylesheets>
         <URL value="@../../Css/styles2.css" />
     </stylesheets>
 
     <children>
-      <AnchorPane layoutX="55.0" layoutY="115.0" prefHeight="321.0" prefWidth="301.0" style="-fx-background-color: #394058;">
-         <children>
-            <ImageView fitHeight="91.0" fitWidth="121.0" layoutX="105.0" layoutY="30.0" pickOnBounds="true" preserveRatio="true">
-                <Image url="@../../image/admin-user.png" />
-            </ImageView>
+        <VBox spacing="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+                <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
+            </padding>
+            <children>
+                <Label style="-fx-text-fill: white;" text="Admin Information">
+                    <font>
+                        <Font name="System Bold" size="36.0" />
+                    </font>
+                </Label>
 
-             <ImageView fitHeight="25.0" fitWidth="22.0" layoutX="83.0" layoutY="121.0" pickOnBounds="true" preserveRatio="true">
-                 <Image url="@../../image/edit.png" />
-             </ImageView>
-            <Label layoutX="110.0" layoutY="119.0" prefHeight="25.0" prefWidth="101.0" styleClass="labelText" text="User Profile" textFill="#ee4f5c">
-               <font>
-                  <Font size="16.0" />
-               </font>
-            </Label>
-            <Label layoutX="42.0" layoutY="160.0" prefHeight="25.0" prefWidth="82.0" styleClass="labelText" text="Username" textFill="#ee4f5c">
-               <font>
-                  <Font size="16.0" />
-               </font>
-            </Label>
-            <Label layoutX="42.0" layoutY="200.0" prefHeight="25.0" prefWidth="91.0" styleClass="labelText" text="Contact No." textFill="#ee4f5c">
-               <font>
-                  <Font size="16.0" />
-               </font>
-            </Label>
-            <Label layoutX="40.0" layoutY="238.0" prefHeight="25.0" prefWidth="113.0" styleClass="labelText" text="Email Address" textFill="#ee4f5c">
-               <font>
-                  <Font size="16.0" />
-               </font>
-            </Label>
-            <Label layoutX="161.0" layoutY="160.0" prefHeight="25.0" prefWidth="128.0" styleClass="labelText" text="David" textFill="#fcfcfc">
-               <font>
-                  <Font size="16.0" />
-               </font>
-            </Label>
-            <Label layoutX="161.0" layoutY="200.0" prefHeight="25.0" prefWidth="128.0" styleClass="labelText" text="09626164040" textFill="#fcfcfc">
-               <font>
-                  <Font size="16.0" />
-               </font>
-            </Label>
-            <Label layoutX="40.0" layoutY="263.0" prefHeight="25.0" prefWidth="241.0" styleClass="labelText" text="david.domingo.811@gmail.com" textFill="#fcfcfc">
-               <font>
-                  <Font size="16.0" />
-               </font>
-            </Label>
-      
+                <HBox spacing="30.0" VBox.vgrow="ALWAYS">
+                    <children>
+                        <VBox alignment="TOP_CENTER" prefWidth="320.0" spacing="15.0" style="-fx-background-color: #192037; -fx-background-radius: 20;">
+                            <padding>
+                                <Insets bottom="25.0" left="20.0" right="20.0" top="25.0" />
+                            </padding>
+                            <children>
+                                <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../../image/admin-user.png" />
+                                    </image>
+                                </ImageView>
 
-         </children>
-      </AnchorPane>
+                                <HBox alignment="CENTER" spacing="8.0">
+                                    <children>
+                                        <ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../../image/edit.png" />
+                                            </image>
+                                        </ImageView>
+                                        <Label styleClass="labelText" text="User Profile" textFill="#ee4f5c">
+                                            <font>
+                                                <Font name="System Bold" size="18.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </HBox>
 
-        <Label layoutX="55.0" layoutY="52.0" style="-fx-text-fill: white;" text="Admin Information" AnchorPane.leftAnchor="55.0" AnchorPane.topAnchor="52.0">
+                                <VBox spacing="10.0">
+                                    <children>
+                                        <VBox>
+                                            <Label styleClass="labelText" text="Username" textFill="#ee4f5c" />
+                                            <Label styleClass="labelText" text="David" textFill="WHITE">
+                                                <font>
+                                                    <Font size="16.0" />
+                                                </font>
+                                            </Label>
+                                        </VBox>
+                                        <VBox>
+                                            <Label styleClass="labelText" text="Contact No." textFill="#ee4f5c" />
+                                            <Label styleClass="labelText" text="09626164040" textFill="WHITE">
+                                                <font>
+                                                    <Font size="16.0" />
+                                                </font>
+                                            </Label>
+                                        </VBox>
+                                        <VBox>
+                                            <Label styleClass="labelText" text="Email Address" textFill="#ee4f5c" />
+                                            <Label styleClass="labelText" text="david.domingo.811@gmail.com" textFill="WHITE" wrapText="true">
+                                                <font>
+                                                    <Font size="14.0" />
+                                                </font>
+                                            </Label>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
 
-            <font>
-                <Font size="36.0" />
-            </font>
-
-        </Label>
-      <AnchorPane layoutX="384.0" layoutY="115.0" prefHeight="263.0" prefWidth="415.0" style="-fx-background-color: #394058;" />
-
+                        <VBox prefWidth="420.0" style="-fx-background-color: #192037; -fx-background-radius: 20;" HBox.hgrow="ALWAYS">
+                            <padding>
+                                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                            </padding>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
     </children>
-
 </AnchorPane>

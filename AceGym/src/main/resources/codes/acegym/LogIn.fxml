@@ -147,7 +147,7 @@
                                     <Image url="@../../image/etoNa.png" />
                                  </image>
                               </ImageView>
-                              <Circle fx:id="logoCircle" fill="#c9433e29" layoutX="234.0" layoutY="186.0" radius="100.0" stroke="#cb443e" strokeType="INSIDE" />
+                              <Circle fx:id="logoCircle" fill="#c7423e29" layoutX="234.0" layoutY="186.0" radius="100.0" stroke="#cb443e" strokeType="INSIDE" />
                               <Circle fx:id="outerCircle2" fill="#a4393900" layoutX="234.0" layoutY="186.0" radius="118.0" stroke="#c7423e99" strokeType="INSIDE" />
                               <Circle fx:id="outerCircle3" fill="#a4393900" layoutX="234.0" layoutY="186.0" radius="128.0" stroke="#c7423e98" strokeType="INSIDE" />
                            </children>
