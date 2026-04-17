@@ -29,7 +29,8 @@
                   </Label>
                   <Label layoutX="68.0" layoutY="44.0" text="10" textFill="#a8a8a8">
                      <font>
-                        <Font name="System Bold" size="54.0" />
+                        <Font name="System Bol
+                        x1d" size="54.0" />
                      </font>
                   </Label>
                </children></Pane>

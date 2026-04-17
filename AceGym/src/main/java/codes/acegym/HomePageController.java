@@ -34,51 +34,25 @@ import java.io.IOException;
 
 public class HomePageController {
 
-    @FXML
-    private ToggleButton CoachList;
+    @FXML private ToggleButton CoachList;
+    @FXML ImageView closeWindowIcon;
+    @FXML ImageView maxMinWindow;
+    @FXML ImageView minimizeWindow;
+    @FXML private ToggleButton ReportForm;
+    @FXML private ToggleButton MembersForm;
+    @FXML private ToggleButton PaymentForm;
+    @FXML private ToggleButton planForm;
+    @FXML private ToggleButton registrationForm;
+    @FXML private ToggleButton adminProfile;
+    @FXML private ToggleButton dashboardBtn;
+    @FXML private Button logoutButton;
+    @FXML private VBox contentArea;
+    @FXML private ToggleGroup menuGroup;
+    @FXML private StackPane homePageBgID;
 
-    @FXML
-    ImageView closeWindowIcon;
-
-    @FXML
-    ImageView maxMinWindow;
-
-    @FXML
-    ImageView minimizeWindow;
-
-    @FXML
-    private ToggleButton ReportForm;
-
-    @FXML
-    private ToggleButton MembersForm;
-
-    @FXML
-    private ToggleButton PaymentForm;
-
-    @FXML
-    private ToggleButton planForm;
-
-    @FXML
-    private ToggleButton registrationForm;
-
-    @FXML
-    private ToggleButton adminProfile;
-
-    @FXML
-    private ToggleButton dashboardBtn;
-
-    // FIXED: Correct fx:id from FXML (logoutButton)
-    @FXML
-    private Button logoutButton;
-
-    @FXML
-    private VBox contentArea;
-
-    @FXML
-    private ToggleGroup menuGroup;
-
-    @FXML
-    private StackPane homePageBgID;
+    private AnimationTimer glowTimer;
+    private double x = 0;
+    private double y = 0;
 
     @FXML
     private void initialize() {
@@ -92,22 +66,47 @@ public class HomePageController {
         setupNavigation();
         setDashboardBackground();
 
-        // Use Platform.runLater to wait for the window to actually exist
         Platform.runLater(() -> {
-            // Get the stage using the scene from ANY node in this FXML
-            // I'm using the first toggle in your menuGroup as an example
             if (!menuGroup.getToggles().isEmpty()) {
                 Node node = (Node) menuGroup.getToggles().get(0);
-                Stage stage = (Stage) node.getScene().getWindow();
-                addResizeListener(stage);
+
+                // 1. Wait for the node to be added to a Scene
+                node.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                    if (newScene != null) {
+
+                        // 2. Wait for the Scene to be added to a Window (Stage)
+                        newScene.windowProperty().addListener((obsW, oldWin, newWin) -> {
+                            if (newWin instanceof Stage stage) {
+                                addResizeListener(stage);
+
+                                // 3. Setup the minimize listener
+                                stage.iconifiedProperty().addListener((o, wasMin, isMin) -> {
+                                    if (isMin) pauseAnimations();
+                                    else resumeAnimations();
+                                });
+                            }
+                        });
+                    }
+                });
             }
         });
     }
 
+    // --- ANIMATION CONTROLS ---
+    public void pauseAnimations() {
+        if (glowTimer != null) glowTimer.stop();
+    }
 
+    public void resumeAnimations() {
+        if (glowTimer != null) glowTimer.start();
+    }
+
+    public void stopAnimations() {
+        if (glowTimer != null) glowTimer.stop();
+    }
 
     public void addResizeListener(Stage stage) {
-        double border = 10; // The "grab" area in pixels
+        double border = 10;
 
         stage.getScene().setOnMouseMoved(e -> {
             double x = e.getX(), y = e.getY();
@@ -133,17 +132,12 @@ public class HomePageController {
             double y = e.getScreenY();
             Cursor cursor = stage.getScene().getCursor();
 
-            // 1. Resize from the RIGHT (East)
             if (cursor == Cursor.E_RESIZE || cursor == Cursor.SE_RESIZE || cursor == Cursor.NE_RESIZE) {
                 stage.setWidth(x - stage.getX());
             }
-
-            // 2. Resize from the BOTTOM (South)
             if (cursor == Cursor.S_RESIZE || cursor == Cursor.SE_RESIZE || cursor == Cursor.SW_RESIZE) {
                 stage.setHeight(y - stage.getY());
             }
-
-            // 3. Resize from the LEFT (West)
             if (cursor == Cursor.W_RESIZE || cursor == Cursor.NW_RESIZE || cursor == Cursor.SW_RESIZE) {
                 double newWidth = stage.getX() + stage.getWidth() - x;
                 if (newWidth > stage.getMinWidth()) {
@@ -151,8 +145,6 @@ public class HomePageController {
                     stage.setWidth(newWidth);
                 }
             }
-
-            // 4. Resize from the TOP (North)
             if (cursor == Cursor.N_RESIZE || cursor == Cursor.NW_RESIZE || cursor == Cursor.NE_RESIZE) {
                 double newHeight = stage.getY() + stage.getHeight() - y;
                 if (newHeight > stage.getMinHeight()) {
@@ -162,10 +154,6 @@ public class HomePageController {
             }
         });
     }
-
-
-
-    private AnimationTimer glowTimer;
 
     private void setDashboardBackground() {
         homePageBgID.setStyle("-fx-background-color: #0D1117;");
@@ -192,9 +180,7 @@ public class HomePageController {
     }
 
     private void startGlowPulse(Canvas canvas) {
-        if (glowTimer != null) {
-            glowTimer.stop();
-        }
+        if (glowTimer != null) glowTimer.stop();
 
         long[] startTime = { System.nanoTime() };
 
@@ -216,11 +202,7 @@ public class HomePageController {
                 gc.fillRect(0, 0, W, H);
 
                 RadialGradient glowBL = new RadialGradient(
-                        0, 0,
-                        0, H,
-                        W * 0.85,
-                        false,
-                        CycleMethod.NO_CYCLE,
+                        0, 0, 0, H, W * 0.85, false, CycleMethod.NO_CYCLE,
                         new Stop(0.0, Color.web("#CB443E", pulseBL)),
                         new Stop(0.4, Color.web("#CB443E", pulseBL * 0.5)),
                         new Stop(1.0, Color.TRANSPARENT)
@@ -229,11 +211,7 @@ public class HomePageController {
                 gc.fillRect(0, 0, W, H);
 
                 RadialGradient glowTR = new RadialGradient(
-                        0, 0,
-                        W, 0,
-                        W * 0.65,
-                        false,
-                        CycleMethod.NO_CYCLE,
+                        0, 0, W, 0, W * 0.65, false, CycleMethod.NO_CYCLE,
                         new Stop(0.0, Color.web("#8B2D2F", pulseTR)),
                         new Stop(0.4, Color.web("#8B2D2F", pulseTR * 0.4)),
                         new Stop(1.0, Color.TRANSPARENT)
@@ -245,7 +223,6 @@ public class HomePageController {
 
         glowTimer.start();
     }
-
 
     private void loadPage(String fxmlFile) {
         try {
@@ -259,7 +236,7 @@ public class HomePageController {
                 region.setMaxHeight(Double.MAX_VALUE);
             }
 
-            contentArea.getChildren().setAll(view); // clean and simple
+            contentArea.getChildren().setAll(view);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -267,58 +244,48 @@ public class HomePageController {
     }
 
     private void setupNavigation() {
-        // 1. Group all buttons into an array for cleaner code
         ToggleButton[] menuButtons = {
                 dashboardBtn, adminProfile, registrationForm, planForm,
                 PaymentForm, MembersForm, ReportForm, CoachList
         };
 
-        // 2. Apply your preferred 200ms animation to all
         for (ToggleButton btn : menuButtons) {
-            addHoverAnimation(btn);
+            if(btn != null) addHoverAnimation(btn);
         }
 
-        // 3. Set actions with a "check if already selected" guard
-        dashboardBtn.setOnAction(e -> handleNavigation(dashboardBtn, "/codes/acegym/Dashboard.fxml"));
-        adminProfile.setOnAction(e -> handleNavigation(adminProfile, "/codes/acegym/AdminProfile.fxml"));
-        ReportForm.setOnAction(e -> handleNavigation(ReportForm, "/codes/acegym/ReportPage.fxml"));
-        // Add the rest of your buttons here following the same pattern...
+        if(dashboardBtn != null) dashboardBtn.setOnAction(e -> handleNavigation(dashboardBtn, "/codes/acegym/Dashboard.fxml"));
+        if(adminProfile != null) adminProfile.setOnAction(e -> handleNavigation(adminProfile, "/codes/acegym/AdminProfile.fxml"));
+        if(ReportForm != null) ReportForm.setOnAction(e -> handleNavigation(ReportForm, "/codes/acegym/ReportPage.fxml"));
     }
 
-    /**
-     * Custom helper to prevent reloading the same page
-     */
     private void handleNavigation(ToggleButton button, String fxmlPath) {
-        // If the button was already selected, do nothing
-        // This prevents the "flash" or "double-load" of the FXML
         if (button.isSelected() && contentArea.getUserData() != null && contentArea.getUserData().equals(fxmlPath)) {
             return;
         }
-
-        // Store the current path so we can check it next time
         contentArea.setUserData(fxmlPath);
         loadPage(fxmlPath);
     }
 
     private void addHoverAnimation(ToggleButton button) {
         ScaleTransition scaleUp = new ScaleTransition(Duration.millis(200), button);
-        scaleUp.setToX(1.05);
-        scaleUp.setToY(1.05);
+        scaleUp.setToX(1.05); scaleUp.setToY(1.05);
 
         ScaleTransition scaleDown = new ScaleTransition(Duration.millis(200), button);
-        scaleDown.setToX(1.0);
-        scaleDown.setToY(1.0);
+        scaleDown.setToX(1.0); scaleDown.setToY(1.0);
 
         button.setOnMouseEntered(e -> scaleUp.playFromStart());
         button.setOnMouseExited(e -> scaleDown.playFromStart());
     }
 
-    // FIXED: Proper logout method
     @FXML
     private void handleLogoutClick(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("LogoutOverlay.fxml"));
             Parent root = loader.load();
+
+            // Pass the current controller to the overlay so it can stop animations
+            LogoutOverlayController overlayController = loader.getController();
+            overlayController.setHomeController(this);
 
             Stage confirmStage = new Stage();
             confirmStage.initStyle(StageStyle.TRANSPARENT);
@@ -346,7 +313,6 @@ public class HomePageController {
             fadeIn.setToValue(1);
             fadeIn.play();
 
-            // ONLY remove blur when overlay closes — login swap is handled by LogoutOverlayController
             confirmStage.setOnHidden(e -> owner.getScene().getRoot().setEffect(null));
 
         } catch (IOException e) {
@@ -354,10 +320,7 @@ public class HomePageController {
         }
     }
 
-    @FXML
-    private void handleClose() {
-        System.exit(0);
-    }
+    @FXML private void handleClose() { System.exit(0); }
 
     @FXML
     private void handleMinimize(MouseEvent event) {
@@ -379,9 +342,6 @@ public class HomePageController {
         }
     }
 
-    private double x = 0;
-    private double y = 0;
-
     @FXML
     private void handleTitleBarDragged(MouseEvent event) {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -394,5 +354,4 @@ public class HomePageController {
         x = event.getSceneX();
         y = event.getSceneY();
     }
-
 }

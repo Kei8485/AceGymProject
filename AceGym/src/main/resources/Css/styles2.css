@@ -17,6 +17,62 @@
 }
 
 
+/* 1. THE MAIN CONTAINER & VIEWPORT */
+.scroll-pane-design {
+    -fx-background-color: #0E1223;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane-design > .viewport {
+    -fx-background-color: #0E1223;
+}
+
+/* 2. THE SCROLLBAR TRACK */
+.scroll-pane-design .scroll-bar:vertical {
+    -fx-padding: 20 0 20 0; /* Top, Right, Bottom, Left */
+    -fx-background-color: transparent; /* Makes the whole bar area blend in */
+}
+
+.scroll-pane-design .scroll-bar:vertical .track {
+    -fx-background-color: #0E1223;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+}
+
+/* 3. THE THUMB (The draggable bar) */
+.scroll-pane-design .scroll-bar:vertical .thumb {
+    /* Using your dark blue color from the previous message */
+    -fx-background-color: #1c2237;
+    -fx-background-radius: 10;
+    -fx-background-insets: 2;
+}
+
+.scroll-pane-design .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #2a3352; /* Slightly lighter so you can tell you're hovering */
+}
+
+/* 4. REMOVE THE RECTANGLE BUTTONS COMPLETELY */
+.scroll-pane-design .scroll-bar .increment-button,
+.scroll-pane-design .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-padding: 0 5 0 5; /* Shrinks the button area */
+}
+
+.scroll-pane-design .scroll-bar .increment-arrow,
+.scroll-pane-design .scroll-bar .decrement-arrow {
+    -fx-shape: ""; /* Removes the arrow */
+    -fx-padding: 0;
+    -fx-max-height: 0;
+}
+
+/* 5. THE CORNER */
+.scroll-pane-design > .corner {
+    -fx-background-color: #0E1223;
+}
+
 
 
 .logout-badge {

@@ -2,7 +2,6 @@ package codes.acegym;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,29 +22,27 @@ public class LogoutOverlayController {
     @FXML private Label subHeaderLabel;
     @FXML private HBox buttonBox;
 
-    // Thread-safe holder for the preloaded login page
     private final AtomicReference<Parent> preloadedLogin = new AtomicReference<>(null);
+    private HomePageController homeController;
+
+    // Receive reference to the main controller to stop its background animations
+    public void setHomeController(HomePageController controller) {
+        this.homeController = controller;
+    }
 
     @FXML
     private void confirmLogout(ActionEvent event) {
-
-        // 1. Update UI immediately
         buttonBox.setVisible(false);
         headerLabel.setText("Logged Out!");
         subHeaderLabel.setText("You have been successfully logged out. See you next time!");
 
-        // 2. Capture stage references before any async work
         Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        Stage mainStage    = (Stage) currentStage.getOwner();
-        boolean wasFullScreen = mainStage.isFullScreen();
-        boolean wasMaximized  = mainStage.isMaximized();
+        Stage mainStage = (Stage) currentStage.getOwner();
 
-        // 3. Load login.fxml in background RIGHT NOW during the 1.5s pause
         Thread loaderThread = new Thread(() -> {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
-                Parent root = loader.load();
-                preloadedLogin.set(root); // thread-safe set
+                preloadedLogin.set(loader.load());
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -53,26 +50,18 @@ public class LogoutOverlayController {
         loaderThread.setDaemon(true);
         loaderThread.start();
 
-        // 4. After 1.5s, fade out then swap — no joining, just check if ready
         PauseTransition pause = new PauseTransition(Duration.millis(1500));
         pause.setOnFinished(e -> {
-
-            FadeTransition fadeOut = new FadeTransition(Duration.millis(300),
-                    currentStage.getScene().getRoot());
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), currentStage.getScene().getRoot());
             fadeOut.setFromValue(1);
             fadeOut.setToValue(0);
             fadeOut.setOnFinished(fe -> {
-
-                Parent loginRoot = preloadedLogin.get();
-
-                if (loginRoot == null) {
-                    // Rare edge case: still loading, wait a tiny bit more
+                if (preloadedLogin.get() == null) {
                     PauseTransition retry = new PauseTransition(Duration.millis(200));
-                    retry.setOnFinished(re -> swapToLogin(currentStage, mainStage,
-                            wasFullScreen, wasMaximized));
+                    retry.setOnFinished(re -> swapToLogin(currentStage, mainStage));
                     retry.play();
                 } else {
-                    swapToLogin(currentStage, mainStage, wasFullScreen, wasMaximized);
+                    swapToLogin(currentStage, mainStage);
                 }
             });
             fadeOut.play();
@@ -81,10 +70,14 @@ public class LogoutOverlayController {
         pause.play();
     }
 
-    private void swapToLogin(Stage currentStage, Stage mainStage,
-                             boolean wasFullScreen, boolean wasMaximized) {
+    private void swapToLogin(Stage currentStage, Stage mainStage) {
         Parent loginRoot = preloadedLogin.get();
         if (loginRoot == null) return;
+
+        // Ensure background tasks in the Home Page completely stop
+        if (homeController != null) {
+            homeController.stopAnimations();
+        }
 
         currentStage.close();
         mainStage.setScene(new Scene(loginRoot));
@@ -93,8 +86,7 @@ public class LogoutOverlayController {
 
     @FXML
     private void cancelLogout(ActionEvent event) {
-        FadeTransition fadeOut = new FadeTransition(Duration.millis(200),
-                ((Node) event.getSource()).getScene().getRoot());
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(200), ((Node) event.getSource()).getScene().getRoot());
         fadeOut.setFromValue(1);
         fadeOut.setToValue(0);
         fadeOut.setOnFinished(e -> {

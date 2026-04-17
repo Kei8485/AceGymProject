@@ -9,7 +9,7 @@
 <StackPane fx:id="homePageBgID" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="1080.0" prefWidth="1920.0" style="-fx-background-radius: 30;" styleClass="main-bg" stylesheets="@../../Css/styles2.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.HomePageController">
 
     <children>
-        <HBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="738.0" prefWidth="1177.0" style="-fx-background-color: transparent; -fx-border-width: 2; -fx-border-radius: 25;">
+        <HBox maxHeight="738.0" maxWidth="1177.0" minHeight="738.0" minWidth="1177.0" prefHeight="738.0" prefWidth="1177.0" style="-fx-background-color: transparent; -fx-border-width: 2; -fx-border-radius: 25;">
             <children>
 
                 <!-- LEFT SIDEBAR -->
@@ -135,16 +135,14 @@
                 </VBox>
             <VBox prefHeight="738.0" prefWidth="775.0">
                <children>
-
-                                    <!-- FLOATING TITLE BAR — overlays on top, transparent bg -->
-                        <AnchorPane mouseTransparent="false" onMouseDragged="#handleTitleBarDragged" onMousePressed="#handleTitleBarPressed" prefHeight="88.0" prefWidth="904.0" style="-fx-background-color: #0E1223; -fx-background-radius: 0 25 0  0;">
-                            <children>
-                                <ImageView fx:id="minimizeWindow" fitHeight="36.0" fitWidth="32.0" layoutX="763.0" layoutY="7.0" onMouseClicked="#handleMinimize" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@../../image/minus-solid.png" />
-                                    </image>
-                                </ImageView>
-                                <ImageView fitHeight="36.0" fitWidth="32.0" layoutX="808.0" layoutY="7.0" onMouseClicked="#handleMaxMin" pickOnBounds="true" preserveRatio="true">
+                   <AnchorPane mouseTransparent="false" onMouseDragged="#handleTitleBarDragged" onMousePressed="#handleTitleBarPressed" prefHeight="88.0" prefWidth="904.0" style="-fx-background-color: #0E1223; -fx-background-radius: 0 25 0  0;">
+                       <children>
+                           <ImageView fx:id="minimizeWindow" fitHeight="36.0" fitWidth="32.0" layoutX="763.0" layoutY="7.0" onMouseClicked="#handleMinimize" pickOnBounds="true" preserveRatio="true">
+                               <image>
+                                   <Image url="@../../image/minus-solid.png" />
+                               </image>
+                           </ImageView>
+                               <ImageView fitHeight="36.0" fitWidth="32.0" layoutX="808.0" layoutY="7.0" onMouseClicked="#handleMaxMin" pickOnBounds="true" preserveRatio="true">
                                     <image>
                                         <Image url="@../../image/window-restore-regular.png" />
                                     </image>
@@ -155,11 +153,9 @@
                                     </image>
                                 </ImageView>
                             </children>
-                        </AnchorPane>
-            
-                              <!-- CONTENT AREA (no AnchorPane inside anymore) -->
-                               <VBox fx:id="contentArea" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS"
-                                     style="-fx-background-color: #0E1223; -fx-background-radius: 0 0 25 25;" />
+                   </AnchorPane>
+                     <VBox fx:id="contentArea" minHeight="650.0" style="-fx-background-color: #0E1223; -fx-background-radius: 0 0 25 25;" />
+
                </children>
             </VBox>
 

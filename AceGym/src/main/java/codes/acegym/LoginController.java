@@ -44,6 +44,13 @@ public class LoginController {
     @FXML Label validationError;
     @FXML StackPane mainBGID;
 
+    // --- ANIMATION VARIABLES ---
+    private AnimationTimer particleTimer;
+    private ParallelTransition waveAnim2;
+    private ParallelTransition waveAnim3;
+    private ScaleTransition pulseLogo;
+    private ScaleTransition pulseImg;
+
     public void initialize() {
         rememberMeCB.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
             Node mark = rememberMeCB.lookup(".mark");
@@ -55,15 +62,21 @@ public class LoginController {
             }
         });
 
-        createWaveAnimation(outerCircle2, 0);
-        createWaveAnimation(outerCircle3, 2000);
-        applyHeartbeat(logoCircle);
-        applyHeartbeat(logoImg);
+        waveAnim2 = createWaveAnimation(outerCircle2, 0);
+        waveAnim3 = createWaveAnimation(outerCircle3, 2000);
+        pulseLogo = applyHeartbeat(logoCircle);
+        pulseImg = applyHeartbeat(logoImg);
         startParticleBackground();
 
         Platform.runLater(() -> {
             Stage stage = (Stage) rememberMeCB.getScene().getWindow();
             addResizeListener(stage);
+
+            // Pause animations when window is minimized
+            stage.iconifiedProperty().addListener((obs, isNotMinimized, isMinimized) -> {
+                if (isMinimized) pauseAllAnimations();
+                else resumeAllAnimations();
+            });
         });
     }
 
@@ -74,13 +87,11 @@ public class LoginController {
         String username = usernameField.getText();
         String password = isPasswordVisible ? textFieldPass.getText() : passwordField.getText();
 
-        // Clear previous errors
         usernameField.getStyleClass().remove("error");
         passwordField.getStyleClass().remove("error");
         textFieldPass.getStyleClass().remove("error");
         validationError.getStyleClass().remove("error-label-visible");
 
-        // Empty field validation (this is fine on FX thread — no DB/IO)
         if (username.isEmpty() || password.isEmpty()) {
             validationError.setText("⚠ Please fill in all fields!");
             validationError.getStyleClass().add("error-label-visible");
@@ -96,23 +107,22 @@ public class LoginController {
             return;
         }
 
-        // Disable inputs so user can't double-click while loading
         setInputsDisabled(true);
         validationError.setText("Logging in...");
         validationError.getStyleClass().add("error-label-visible");
 
-        // STEP 1: DB query off FX thread
         Thread loginThread = new Thread(() -> {
             boolean loginSuccess = DBConnector.login(username, password);
 
             if (loginSuccess) {
-                // STEP 2: FXML load off FX thread
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/codes/acegym/HomePage.fxml"));
                     Parent root = loader.load();
 
-                    // STEP 3: Scene swap on FX thread (near-instant)
                     Platform.runLater(() -> {
+                        // STOP ANIMATIONS BEFORE SWITCHING SCENE
+                        stopAllAnimations();
+
                         Stage stage = (Stage) usernameField.getScene().getWindow();
                         stage.setScene(new Scene(root));
                         stage.show();
@@ -127,10 +137,8 @@ public class LoginController {
                 }
 
             } else {
-                // Back on FX thread to show error
                 Platform.runLater(() -> {
                     setInputsDisabled(false);
-
                     validationError.setText("⚠ Incorrect Email or Password!");
                     validationError.getStyleClass().add("error-label-visible");
 
@@ -146,11 +154,36 @@ public class LoginController {
             }
         });
 
-        loginThread.setDaemon(true); // dies when app closes
+        loginThread.setDaemon(true);
         loginThread.start();
     }
 
-    // Helper to enable/disable all input fields at once
+    // ─── ANIMATION CONTROL METHODS ──────────────────────────────────────────
+    private void pauseAllAnimations() {
+        if (particleTimer != null) particleTimer.stop();
+        if (waveAnim2 != null) waveAnim2.pause();
+        if (waveAnim3 != null) waveAnim3.pause();
+        if (pulseLogo != null) pulseLogo.pause();
+        if (pulseImg != null) pulseImg.pause();
+    }
+
+    private void resumeAllAnimations() {
+        if (particleTimer != null) particleTimer.start();
+        if (waveAnim2 != null) waveAnim2.play();
+        if (waveAnim3 != null) waveAnim3.play();
+        if (pulseLogo != null) pulseLogo.play();
+        if (pulseImg != null) pulseImg.play();
+    }
+
+    private void stopAllAnimations() {
+        if (particleTimer != null) particleTimer.stop();
+        if (waveAnim2 != null) waveAnim2.stop();
+        if (waveAnim3 != null) waveAnim3.stop();
+        if (pulseLogo != null) pulseLogo.stop();
+        if (pulseImg != null) pulseImg.stop();
+    }
+
+    // ─── HELPER METHODS ─────────────────────────────────────────────────────
     private void setInputsDisabled(boolean disabled) {
         usernameField.setDisable(disabled);
         passwordField.setDisable(disabled);
@@ -158,7 +191,6 @@ public class LoginController {
         showAndHidePass.setDisable(disabled);
     }
 
-    // ─── PASSWORD TOGGLE ────────────────────────────────────────────────────
     Image eyeOpen   = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/image/eye-solid.png")));
     Image eyeClosed = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/image/eye-slash-solid.png")));
     boolean isPasswordVisible = false;
@@ -198,7 +230,6 @@ public class LoginController {
         fadeOut.play();
     }
 
-    // ─── SHAKE ANIMATION ────────────────────────────────────────────────────
     @FXML
     private void shakeNode(Node node) {
         TranslateTransition tt = new TranslateTransition(Duration.millis(50), node);
@@ -209,7 +240,6 @@ public class LoginController {
         tt.play();
     }
 
-    // ─── WINDOW CONTROLS ────────────────────────────────────────────────────
     @FXML private void handleClose() { System.exit(0); }
 
     @FXML
@@ -248,7 +278,6 @@ public class LoginController {
 
     public void addResizeListener(Stage stage) {
         double border = 10;
-
         stage.getScene().setOnMouseMoved(e -> {
             double x = e.getX(), y = e.getY();
             double w = stage.getWidth(), h = stage.getHeight();
@@ -334,7 +363,7 @@ public class LoginController {
             bcol[i] = palette[rng.nextInt(palette.length)];
         }
 
-        new AnimationTimer() {
+        particleTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 double W = bgCanvas.getWidth(), H = bgCanvas.getHeight();
@@ -375,12 +404,13 @@ public class LoginController {
                     gc.fillOval(cx - r, cy - r, r * 2, r * 2);
                 }
             }
-        }.start();
+        };
+        particleTimer.start();
     }
 
     // ─── WAVE + HEARTBEAT ───────────────────────────────────────────────────
-    private void createWaveAnimation(Circle circle, double delayMs) {
-        if (circle == null) return;
+    private ParallelTransition createWaveAnimation(Circle circle, double delayMs) {
+        if (circle == null) return null;
         Duration speed = Duration.millis(4000);
         ScaleTransition scale = new ScaleTransition(speed, circle);
         scale.setFromX(1.0); scale.setFromY(1.0);
@@ -393,15 +423,17 @@ public class LoginController {
         wave.setCycleCount(Animation.INDEFINITE);
         wave.setDelay(Duration.millis(delayMs));
         wave.play();
+        return wave;
     }
 
-    private void applyHeartbeat(Node target) {
-        if (target == null) return;
+    private ScaleTransition applyHeartbeat(Node target) {
+        if (target == null) return null;
         ScaleTransition pulse = new ScaleTransition(Duration.millis(2000), target);
         pulse.setByX(0.05); pulse.setByY(0.05);
         pulse.setCycleCount(Animation.INDEFINITE);
         pulse.setAutoReverse(true);
         pulse.setInterpolator(Interpolator.EASE_BOTH);
         pulse.play();
+        return pulse;
     }
 }
