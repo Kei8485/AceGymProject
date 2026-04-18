@@ -166,7 +166,7 @@
     -fx-text-fill: white;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-background-radius: 10;
+    -fx-background-radius: 15;
     -fx-cursor: hand;
 }
 
@@ -187,7 +187,7 @@
     -fx-text-fill: #192037;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-background-radius: 10;
+    -fx-background-radius: 15;
     -fx-cursor: hand;
 }
 

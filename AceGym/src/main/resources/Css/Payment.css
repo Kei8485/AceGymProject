@@ -1,0 +1,139 @@
+/* Custom Variables */
+.root {
+    -fx-accent-lighter-red-text: #CB443E;
+    -fx-white-text: #E8E6E9;
+    -fx-gray-text: #6B7280;
+}
+
+/* Background & Main Card */
+.payment-page-bg {
+    -fx-background-color: #0E1223;
+    -fx-font-family: 'Inter', sans-serif;
+}
+
+.payment-card {
+    -fx-background-color: #192037;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 0);
+}
+
+/* Typography */
+.pos-header {
+    -fx-text-fill: white;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+}
+
+.add-payment-header {
+    -fx-text-fill: white;
+    -fx-font-size: 40px;
+    -fx-font-weight: bold;
+}
+
+.field-label {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-style: italic;
+}
+
+/* --- Input Fields (TextFields) --- */
+.input-field, .payment-card .text-field {
+    -fx-background-color: #E8E6E9;
+    -fx-background-radius: 10;
+    -fx-text-fill: #1a1f30;
+    -fx-font-size: 14px;
+    -fx-border-width: 2;
+    -fx-border-color: transparent; /* Default state */
+    -fx-border-radius: 10;
+}
+
+.payment-card .text-field:hover {
+    -fx-background-color: #edf1f9;
+    -fx-cursor: hand;
+}
+
+/* Focused state: Transparent border to remove the glow/ring */
+.payment-card .text-field:focused {
+    -fx-background-color: white;
+    -fx-border-color: transparent;
+    -fx-focused-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* --- Combo Box Design --- */
+.combo-box {
+    -fx-background-color: #E8E6E9;
+    -fx-background-radius: 10;
+    -fx-padding: 2;
+}
+
+.combo-box:hover {
+    -fx-background-color: #edf1f9;
+    -fx-cursor: hand;
+}
+
+.combo-box:focused {
+
+    -fx-border-color: transparent;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+.combo-box .arrow {
+    -fx-background-color: white;
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z";
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #1c2237;
+    -fx-background-radius: 5;
+    -fx-border-color: #1c2237;
+}
+
+.combo-box-popup .list-cell {
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #E8E6E9;
+    -fx-text-fill: white;
+}
+
+/* --- Buttons --- */
+.btn-save {
+    -fx-background-color: -fx-accent-lighter-red-text;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 15;
+    -fx-cursor: hand;
+    -fx-font-size: 15px;
+}
+
+.btn-save:hover {
+    -fx-background-color: derive(-fx-accent-lighter-red-text, 15%);
+}
+
+.btn-save:pressed {
+    -fx-translate-y: 1;
+}
+
+.btn-cancel {
+    -fx-background-color: white;
+    -fx-text-fill: #192037;
+    -fx-font-weight: bold;
+    -fx-background-radius: 15;
+    -fx-cursor: hand;
+    -fx-font-size: 15px;
+}
+
+.btn-cancel:hover {
+    -fx-background-color: #E8E6E9;
+}
+
+.calendar-icon{
+    -fx-cursor: hand;
+}

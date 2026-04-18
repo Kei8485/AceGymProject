@@ -257,6 +257,7 @@ public class HomePageController {
         if(adminProfile != null) adminProfile.setOnAction(e -> handleNavigation(adminProfile, "/codes/acegym/AdminProfile.fxml"));
         if(ReportForm != null) ReportForm.setOnAction(e -> handleNavigation(ReportForm, "/codes/acegym/ReportPage.fxml"));
         if(MembersForm != null) MembersForm.setOnAction(e -> handleNavigation(MembersForm, "/codes/acegym/ViewMembers.fxml"));
+        if(PaymentForm != null) PaymentForm.setOnAction(e -> handleNavigation(PaymentForm, "/codes/acegym/Payment.fxml"));
 
     }
 

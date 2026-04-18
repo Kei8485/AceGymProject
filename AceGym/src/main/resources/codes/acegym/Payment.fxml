@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="650.0" prefWidth="867.0" styleClass="payment-page-bg" stylesheets="@../../Css/Payment.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <VBox spacing="10.0" AnchorPane.leftAnchor="40.0" AnchorPane.topAnchor="30.0">
+            <children>
+                <Label styleClass="pos-header" text="Point of Sale" />
+                <Label styleClass="add-payment-header" text="Add Payment" />
+            </children>
+        </VBox>
+
+        <VBox layoutX="40.0" layoutY="165.0" prefWidth="787.0" spacing="25.0" styleClass="payment-card">
+            <padding>
+                <Insets bottom="40.0" left="35.0" right="35.0" top="35.0" />
+            </padding>
+            <children>
+                <HBox spacing="20.0">
+                    <children>
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="field-label" text="Name of Member" />
+                                <TextField promptText="Enter Name" styleClass="input-field" />
+                            </children>
+                        </VBox>
+                        <VBox prefWidth="150.0" spacing="8.0">
+                            <children>
+                                <Label styleClass="field-label" text="Plan" />
+                                <ComboBox prefWidth="150.0" styleClass="input-field" />
+                            </children>
+                        </VBox>
+                        <VBox prefWidth="150.0" spacing="8.0">
+                            <children>
+                                <Label styleClass="field-label" text="Price" />
+                                <TextField editable="false" styleClass="input-field" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox maxWidth="350.0" spacing="8.0">
+                    <children>
+                        <Label styleClass="field-label" text="Date of Join" />
+                  <AnchorPane>
+                     <children>
+                        <TextField editable="false" layoutY="-2.0" prefHeight="38.0" prefWidth="380.0" styleClass="custom-date-picker" />
+                        <ImageView fitHeight="31.0" fitWidth="32.0" layoutX="335.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true" styleClass="calendar-icon">
+                           <image>
+                              <Image url="@../../image/calendar-days-regular.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </AnchorPane>
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER_RIGHT" prefWidth="717.0" spacing="15.0">
+                    <children>
+                        <Button mnemonicParsing="false" styleClass="btn-save" text="Save" />
+                        <Button mnemonicParsing="false" styleClass="btn-cancel" text="Cancel" />
+                    </children>
+                    <VBox.margin>
+                        <Insets top="10.0" />
+                    </VBox.margin>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
