@@ -68,15 +68,20 @@ public class LoginController {
         pulseImg = applyHeartbeat(logoImg);
         startParticleBackground();
 
-        Platform.runLater(() -> {
-            Stage stage = (Stage) rememberMeCB.getScene().getWindow();
-            addResizeListener(stage);
+        rememberMeCB.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.windowProperty().addListener((wObs, oldWindow, newWindow) -> {
+                    if (newWindow instanceof Stage stage) {
+                        addResizeListener(stage);
 
-            // Pause animations when window is minimized
-            stage.iconifiedProperty().addListener((obs, isNotMinimized, isMinimized) -> {
-                if (isMinimized) pauseAllAnimations();
-                else resumeAllAnimations();
-            });
+                        // Pause animations when window is minimized
+                        stage.iconifiedProperty().addListener((o, wasNotMin, isMin) -> {
+                            if (isMin) pauseAllAnimations();
+                            else resumeAllAnimations();
+                        });
+                    }
+                });
+            }
         });
     }
 
