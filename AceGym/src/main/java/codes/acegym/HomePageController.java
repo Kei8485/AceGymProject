@@ -256,6 +256,8 @@ public class HomePageController {
         if(dashboardBtn != null) dashboardBtn.setOnAction(e -> handleNavigation(dashboardBtn, "/codes/acegym/Dashboard.fxml"));
         if(adminProfile != null) adminProfile.setOnAction(e -> handleNavigation(adminProfile, "/codes/acegym/AdminProfile.fxml"));
         if(ReportForm != null) ReportForm.setOnAction(e -> handleNavigation(ReportForm, "/codes/acegym/ReportPage.fxml"));
+        if(MembersForm != null) MembersForm.setOnAction(e -> handleNavigation(MembersForm, "/codes/acegym/ViewMembers.fxml"));
+
     }
 
     private void handleNavigation(ToggleButton button, String fxmlPath) {
