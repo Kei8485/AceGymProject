@@ -99,20 +99,17 @@
 }
 
 .logout-card {
-    -fx-background-color: -fx-login-card-bg;
-    -fx-background-radius: 15;
-
-    -fx-border-color: -fx-accent-lighter-red-text;
-    -fx-border-width: 1.5;
-    -fx-border-radius: 15;
-
-
-    -fx-background-insets: 0;
+     -fx-background-color: #111827;
+        -fx-background-radius: 15;
+        -fx-background-color: radial-gradient(center 50% 50%, radius 70%, #1e293b 0%, #111827 100%);
+        -fx-border-color: linear-gradient(to bottom, -fx-accent-lighter-red-text, rgba(203, 68, 62, 0.2));    -fx-border-width: 1.5;
+        -fx-border-radius: 15; /* Match this exactly to background-radius */
+        -fx-effect: dropshadow(three-pass-box, rgba(203, 68, 62, 0.4), 15, 0, 0, 0);
 }
 
 .logout-headerText{
     -fx-text-fill: -fx-accent-lighter-red-text;
-    -fx-font-size: 22px;
+    -fx-font-size: 28px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI", sans-serif;
 }
@@ -121,7 +118,7 @@
 
 .logout-sub-header {
     -fx-font-family: "Segoe UI", sans-serif;
-    -fx-font-size: 15px;
+    -fx-font-size: 20px;
 }
 
 
@@ -130,7 +127,7 @@
     -fx-background-radius: 8;
     -fx-cursor: hand;
     -fx-font-family: "Segoe UI", sans-serif;
-    -fx-font-size: 14px;
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-padding: 10 25;
 }

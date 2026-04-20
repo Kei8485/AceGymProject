@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="800.0" prefWidth="900.0" styleClass="main-content-bg" stylesheets="@../../Css/Registration.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.RegistrationController">
+<AnchorPane prefHeight="800.0" prefWidth="900.0" styleClass="main-content-bg" stylesheets="@../../Css/Registration.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.RegistrationController">
     <children>
         <ScrollPane fitToWidth="true" styleClass="custom-scroll-pane" stylesheets="@../../Css/Registration.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <content>
@@ -45,7 +54,7 @@
                                         </GridPane>
                                         <HBox alignment="CENTER_RIGHT">
                                             <children>
-                                                <Button mnemonicParsing="false" styleClass="btn-manage" text="Register" />
+                                                <Button fx:id="RegisterClientBtn" mnemonicParsing="false" styleClass="btn-manage" text="Register" />
                                             </children>
                                         </HBox>
                                     </children>
@@ -94,7 +103,7 @@
                                         </GridPane>
                                         <HBox alignment="CENTER_RIGHT">
                                             <children>
-                                                <Button mnemonicParsing="false" styleClass="btn-manage" text="Avail Membership" />
+                                                <Button fx:id="AvailMembershipBtn" mnemonicParsing="false" styleClass="btn-manage" text="Avail Membership" />
                                             </children>
                                         </HBox>
                                     </children>

@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@100..900&display=swap');
+
+.root {
+    -fx-base-dark: #0D1117;
+    -fx-accent-lighter-red-text: #CB443E;
+    -fx-white-text: #E8E6E9;
+}
+
+/* Makes the actual window background disappear for rounded corners */
+.main-content-bg {
+    -fx-background-color: transparent;
+}
+
+/* The popup box itself */
+.card-content-area {
+    -fx-background-color: #111827;
+    -fx-background-radius: 15;
+    -fx-background-color: radial-gradient(center 50% 50%, radius 70%, #1e293b 0%, #111827 100%);
+    -fx-border-color: linear-gradient(to bottom, -fx-accent-lighter-red-text, rgba(203, 68, 62, 0.2));    -fx-border-width: 1.5;
+    -fx-border-radius: 15; /* Match this exactly to background-radius */
+    -fx-effect: dropshadow(three-pass-box, rgba(203, 68, 62, 0.4), 15, 0, 0, 0);
+}
+
+/* The message text */
+.text-header-smaller {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 36px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* --- Base Button Styles --- */
+.btn-manage {
+    -fx-background-color: -fx-accent-lighter-red-text;
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+    -fx-padding: 10 25;
+}
+
+.btn-edit {
+    -fx-background-color: white;
+    -fx-text-fill: #0D1117;
+    -fx-background-radius: 20;
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+    -fx-padding: 10 25;
+}
+
+/* --- Hover States (The Hand Cursor) --- */
+.btn-manage:hover, .btn-edit:hover {
+    -fx-cursor: hand;
+}
+
+.btn-manage:hover {
+    -fx-background-color: derive(#CB443E, 20%);
+}
+
+.btn-edit:hover {
+    -fx-background-color: #E8E6E9;
+}
+
+/* --- Pressed States (The Click Effect) --- */
+.btn-manage:pressed, .btn-edit:pressed {
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+.btn-manage:pressed {
+    -fx-background-color: derive(#CB443E, -20%);
+}
+
+.btn-edit:pressed {
+    -fx-background-color: #CCCCCC;
+}
