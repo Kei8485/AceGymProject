@@ -1,0 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@100..900&display=swap');
+
+/* --- Variable Definitions --- */
+.root {
+    -fx-base-dark: #0D1117;
+    -fx-login-card-bg: #111827;
+    -fx-login-info-bg: #0F1923;
+    -fx-accent-darker-red-text: #8B2D2F;
+    -fx-accent-lighter-red-text: #CB443E;
+    -fx-white-text: #E8E6E9;
+    -fx-gray-text: #6B7280;
+}
+
+/* --- Layout Containers --- */
+.main-content-bg {
+    -fx-background-color: #0E1223;
+}
+
+/* Container for the registration forms */
+.card-content-area {
+    -fx-background-color: #1c2237;; /* Matches -fx-login-card-bg */
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 0);
+    -fx-border-color: rgba(255, 255, 255, 0.05);
+    -fx-border-radius: 20;
+}
+
+/* --- Typography --- */
+.text-header {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 35px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-white-text;
+}
+
+.text-header-smaller {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 16px;
+    -fx-font-weight: normal;
+    -fx-text-fill: -fx-white-text; /* Made white for better contrast on dark bg */
+}
+
+/* --- Input Fields (Textfields) --- */
+.date-field {
+    -fx-background-color: #e0e4ef;
+    -fx-background-radius: 10;
+    -fx-padding: 10;
+    -fx-text-fill: #1a1f30;
+    -fx-font-size: 14px;
+    -fx-font-family: "Inter";
+}
+
+.date-field:hover {
+    -fx-background-color: #edf1f9;
+}
+
+
+
+/* --- Buttons --- */
+/* Main Action Buttons (Register / Avail Membership) */
+.btn-manage {
+    -fx-background-color: -fx-accent-lighter-red-text;
+    -fx-background-radius: 20;
+    -fx-text-fill: white;
+    -fx-font-family: "Inter";
+    -fx-font-weight: bold;
+    -fx-padding: 10 30;
+}
+
+.btn-manage:hover {
+    -fx-background-color: derive(#CB443E, 15%);
+    -fx-cursor: hand;
+}
+
+.btn-manage:pressed {
+    -fx-background-color: -fx-accent-darker-red-text;
+}
+
+
+
+/* --- Combo Box (Search & Filter) --- */
+.combo-box {
+    -fx-background-color: -fx-accent-lighter-red-text;
+    -fx-background-radius: 15; /* Matching your search bar radius */
+    -fx-padding: 0; /* Remove padding here so the text-field can fill the space */
+    -fx-display-caret: true;
+}
+
+.combo-box:hover {
+    -fx-background-color: derive(-fx-accent-lighter-red-text, -10%);
+    -fx-cursor: hand;
+}
+
+/* This is the secret: Target the internal TextField for alignment */
+.combo-box .text-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.7);
+    -fx-font-family: "Inter";
+    -fx-font-size: 14px;
+    -fx-padding: 8 15 8 15; /* Top Right Bottom Left - centers the text vertically */
+}
+
+/* This removes that white box/background from the arrow area */
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 15 0 0;
+}
+
+.combo-box .arrow {
+    -fx-background-color: white;
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z"; /* Ensures it stays a clean triangle */
+}
+
+/* --- Dropdown List Styling --- */
+.combo-box-popup .list-view {
+    -fx-background-color: #1c2237;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 10, 0, 0, 0);
+}
+
+.combo-box-popup .list-cell {
+    -fx-text-fill: white;
+    -fx-font-family: "Inter";
+    -fx-padding: 10 15;
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: -fx-accent-lighter-red-text;
+    -fx-text-fill: white;
+}
+
+.combo-box-popup .list-cell:filled:selected {
+    -fx-background-color: -fx-accent-darker-red-text;
+    -fx-text-fill: white;
+}
+
+/* Target the text in a non-editable ComboBox (Filter) */
+.combo-box .label {
+    -fx-text-fill: white; /* This turns the text white */
+    -fx-font-family: "Inter";
+    -fx-font-size: 14px;
+    -fx-padding: 0 0 0 10; /* Adds some space from the left edge */
+}
+
+/* Ensure the background stays red even when selected */
+.combo-box:filled {
+    -fx-background-color: -fx-accent-lighter-red-text;
+    -fx-background-radius: 15;
+}
+
+/* Fix the arrow button specifically for the non-editable box */
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 10 0 0;
+}
+
+/* --- ScrollPane Styling --- */
+.custom-scroll-pane {
+    -fx-background-color: transparent; /* Main background */
+    -fx-background: transparent;      /* Viewport background */
+    -fx-border-color: transparent;
+}
+
+.custom-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Vertical ScrollBar Track */
+.custom-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+}
+
+/* The Draggable Thumb */
+.custom-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #1c2237; /* Match your card-search color */
+    -fx-background-radius: 10;
+}
+
+.custom-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #CB443E; /* Turn red on hover for feedback */
+}
+
+/* Hide the increment/decrement buttons (the small arrows) */
+.custom-scroll-pane .scroll-bar .increment-button,
+.custom-scroll-pane .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.custom-scroll-pane .scroll-bar .increment-arrow,
+.custom-scroll-pane .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+}

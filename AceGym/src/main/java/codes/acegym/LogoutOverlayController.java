@@ -25,7 +25,6 @@ public class LogoutOverlayController {
     private final AtomicReference<Parent> preloadedLogin = new AtomicReference<>(null);
     private HomePageController homeController;
 
-    // Receive reference to the main controller to stop its background animations
     public void setHomeController(HomePageController controller) {
         this.homeController = controller;
     }

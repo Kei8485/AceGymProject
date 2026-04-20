@@ -12,12 +12,10 @@ public class CoachesController {
 
     @FXML
     public void initialize() {
-        // Clear the container to start fresh
         coachContainer.getChildren().clear();
 
         try {
-            // Just load the file and add it.
-            // It will show exactly what you see in Scene Builder.
+
             Node card = FXMLLoader.load(getClass().getResource("CoachCard.fxml"));
 
             coachContainer.getChildren().add(card);

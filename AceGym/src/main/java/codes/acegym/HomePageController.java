@@ -261,9 +261,7 @@ public class HomePageController {
         if(PaymentForm != null) PaymentForm.setOnAction(e -> handleNavigation(PaymentForm, "/codes/acegym/Payment.fxml"));
         if(planForm != null) planForm.setOnAction(e -> handleNavigation(planForm, "/codes/acegym/Plan.fxml"));
         if(CoachList != null) CoachList.setOnAction(e -> handleNavigation(CoachList, "/codes/acegym/Coaches.fxml"));
-
-
-
+        if(registrationForm != null) registrationForm.setOnAction(e -> handleNavigation(registrationForm, "/codes/acegym/Registration.fxml"));
 
 
     }
@@ -293,7 +291,6 @@ public class HomePageController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("LogoutOverlay.fxml"));
             Parent root = loader.load();
 
-            // Pass the current controller to the overlay so it can stop animations
             LogoutOverlayController overlayController = loader.getController();
             overlayController.setHomeController(this);
 
