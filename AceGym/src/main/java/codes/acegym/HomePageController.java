@@ -34,11 +34,12 @@ import java.io.IOException;
 
 public class HomePageController {
 
-    @FXML private ToggleButton CoachList;
+
     @FXML ImageView closeWindowIcon;
     @FXML ImageView maxMinWindow;
     @FXML ImageView minimizeWindow;
     @FXML private ToggleButton ReportForm;
+    @FXML private ToggleButton CoachList;
     @FXML private ToggleButton MembersForm;
     @FXML private ToggleButton PaymentForm;
     @FXML private ToggleButton planForm;
@@ -259,6 +260,8 @@ public class HomePageController {
         if(MembersForm != null) MembersForm.setOnAction(e -> handleNavigation(MembersForm, "/codes/acegym/ViewMembers.fxml"));
         if(PaymentForm != null) PaymentForm.setOnAction(e -> handleNavigation(PaymentForm, "/codes/acegym/Payment.fxml"));
         if(planForm != null) planForm.setOnAction(e -> handleNavigation(planForm, "/codes/acegym/Plan.fxml"));
+        if(CoachList != null) CoachList.setOnAction(e -> handleNavigation(CoachList, "/codes/acegym/Coaches.fxml"));
+
 
 
 

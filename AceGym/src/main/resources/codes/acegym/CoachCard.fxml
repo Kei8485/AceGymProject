@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="320.0" prefWidth="280.0" styleClass="card-container" stylesheets="@../../Css/CoachCard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.CoachCardController">
+    <children>
+        <VBox spacing="15.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
+            <children>
+                <HBox spacing="15.0">
+                    <children>
+                        <ImageView fx:id="coachImage" fitHeight="113.0" fitWidth="109.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../../image/admin-user.png" />
+                            </image>
+                        </ImageView>
+                        <VBox alignment="CENTER_LEFT">
+                            <children>
+                                <Label fx:id="nameLabel" styleClass="coach-name" text="Coach Name" wrapText="true" />
+                                <Label fx:id="idLabel" styleClass="coach-id" text="Coach ID: " wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox spacing="5.0" VBox.vgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="section-title" text="Clients Handling:" />
+                        <VBox fx:id="clientsContainer" spacing="2.0">
+                        </VBox>
+                    </children>
+                </VBox>
+
+                <HBox spacing="10.0">
+                    <children>
+                        <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="23.0" prefWidth="110.0" styleClass="btn-edit" text="Edit Coach" HBox.hgrow="ALWAYS" />
+                        <Button maxWidth="Infinity" mnemonicParsing="false" prefHeight="23.0" prefWidth="130.0" styleClass="btn-manage" text="Manage Clients" HBox.hgrow="ALWAYS" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

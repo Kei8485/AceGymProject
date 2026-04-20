@@ -1,0 +1,90 @@
+/* --- Card Container --- */
+.card-container {
+    -fx-background-color: #1A1F30;
+    -fx-background-radius: 20;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 0);
+    -fx-border-color: rgba(255, 255, 255, 0.03);
+    -fx-border-radius: 20;
+}
+
+/* Add a subtle lift or glow when hovering over the card itself */
+.card-container:hover {
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-cursor: hand;
+}
+
+/* --- Coach Info --- */
+.coach-name {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #E8E6E9;
+}
+
+.coach-id {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 12px;
+    -fx-text-fill: #6B7280;
+}
+
+.section-title {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.client-name {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+    -fx-text-fill: #E8E6E9;
+    -fx-padding: 1 0;
+}
+
+/* --- Action Buttons --- */
+
+/* Edit Coach Button (Gray/Blue style) */
+.btn-edit {
+    -fx-background-color: #e0e4ef;
+    -fx-background-radius: 15;
+    -fx-text-fill: #1a1f30;
+    -fx-font-family: 'Inter';
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+.btn-edit:hover {
+    -fx-background-color: #edf1f9; /* Lighter shade on hover */
+    -fx-cursor: hand;
+}
+
+.btn-edit:pressed {
+    -fx-background-color: #c0c4cf; /* Darker shade when clicked */
+}
+
+/* Manage Clients Button (Red style) */
+.btn-manage {
+    -fx-background-color: #CB443E; /* -fx-accent-lighter-red-text */
+    -fx-background-radius: 15;
+    -fx-text-fill: white;
+    -fx-font-family: 'Inter';
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+.btn-manage:hover {
+    -fx-background-color: derive(#CB443E, 15%); /* Brightens the red */
+    -fx-cursor: hand;
+}
+
+.btn-manage:pressed {
+    /* Matches your -fx-accent-darker-red-text */
+    -fx-background-color: #8B2D2F;
+}
+
+/* --- Image Border --- */
+.coach-image-frame {
+    -fx-border-color: rgba(255, 255, 255, 0.5);
+    -fx-border-width: 1;
+}
