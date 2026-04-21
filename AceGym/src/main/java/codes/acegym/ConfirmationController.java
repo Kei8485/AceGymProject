@@ -16,23 +16,30 @@ public class ConfirmationController {
     @FXML
     private Button cancelBtn;
 
-    // 1. This must match the onAction in your FXML
-    @FXML
-    private void handleConfirm() {
-        System.out.println("User confirmed!");
-        // Add your logic here (save to database, etc.)
-        closeStage();
-    }
+    // This is the "container" for your lambda code
+    private Runnable onConfirmAction;
 
-    // 2. This must match the onAction in your FXML
-    @FXML
-    private void handleCancel() {
-        System.out.println("User cancelled.");
-        closeStage();
+    // This method allows other controllers to "inject" their logic
+    public void setOnConfirm(Runnable action) {
+        this.onConfirmAction = action;
     }
 
     public void setMessage(String text) {
         messageLabel.setText(text);
+    }
+
+    @FXML
+    private void handleConfirm() {
+        // Run the lambda code ONLY when the button is clicked
+        if (onConfirmAction != null) {
+            onConfirmAction.run();
+        }
+        closeStage();
+    }
+
+    @FXML
+    private void handleCancel() {
+        closeStage();
     }
 
     private void closeStage() {

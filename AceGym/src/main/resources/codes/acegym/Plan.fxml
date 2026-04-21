@@ -1,21 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="650.0" prefWidth="867.0" styleClass="main-content-bg" stylesheets="@../../Css/Plan.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.PlanController">
+<AnchorPane prefHeight="650.0" prefWidth="867.0" styleClass="main-content-bg" stylesheets="@../../Css/Plan.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.PlanController">
     <children>
         <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <padding>
@@ -53,8 +43,8 @@
                         </VBox>
                         <HBox alignment="CENTER_RIGHT" prefHeight="14.0" prefWidth="757.0" spacing="15.0">
                             <children>
-                                <Button mnemonicParsing="false" styleClass="btn-save" text="Add Plan" />
-                                <Button mnemonicParsing="false" styleClass="btn-cancel" text="Cancel" />
+                                <Button fx:id="addPlanBtn" mnemonicParsing="false" styleClass="btn-save" text="Add Plan" />
+                                <Button mnemonicParsing="false" styleClass="btn-cancel" text="Edit" />
                             </children>
                         </HBox>
                     </children>

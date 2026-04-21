@@ -74,7 +74,7 @@
 
 /* --- Add Coach Button --- */
 .btn-add-coach {
-    -fx-background-color: white;
+    -fx-background-color: -fx-accent-lighter-red-text;
     -fx-background-radius: 15;
     -fx-text-fill: #0D1117;
     -fx-font-family: "Inter";

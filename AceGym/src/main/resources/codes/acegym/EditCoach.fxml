@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="650.0" prefWidth="500.0" styleClass="main-content-bg" stylesheets="@../../Css/EditCoach.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.EditCoachController">
+    <children>
+        <VBox alignment="TOP_CENTER" spacing="30.0" styleClass="profile-card" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="80.0">
+            <padding>
+                <Insets bottom="30.0" left="40.0" right="40.0" top="20.0" />
+            </padding>
+            <children>
+
+                <StackPane alignment="TOP_CENTER">
+                    <children>
+                        <VBox alignment="CENTER" prefHeight="140.0" prefWidth="350.0" styleClass="header-content-area">
+                            <padding>
+                                <Insets bottom="15.0" left="20.0" right="20.0" top="60.0" />
+                            </padding>
+                            <children>
+                                <Label fx:id="coachNameLabel" styleClass="profile-name" text="Juan Dela Cruz">
+                           <padding>
+                              <Insets top="10.0" />
+                           </padding></Label>
+                                <HBox alignment="CENTER" spacing="5.0">
+                                    <children>
+                                        <Label styleClass="label-static" text="Username:" />
+                                        <Label fx:id="coachUsernameLabel" styleClass="label-dynamic" text="JuanDelaCruz" />
+                                    </children>
+                                </HBox>
+                            </children>
+                            <StackPane.margin>
+                                <Insets top="40.0" />
+                            </StackPane.margin>
+                        </VBox>
+
+                        <StackPane alignment="CENTER" maxHeight="110.0" maxWidth="110.0">
+                            <children>
+                                <ImageView fx:id="coachImageView" fitHeight="110.0" fitWidth="110.0" onMouseClicked="#handleChangeProfile" pickOnBounds="true" preserveRatio="true" styleClass="clickable-profile">
+                           <image>
+                              <Image url="@../../../../../../../../Downloads/recordings_250x250.png" />
+                           </image>
+                           <StackPane.margin>
+                              <Insets bottom="10.0" />
+                           </StackPane.margin></ImageView>
+                                <Label mouseTransparent="true" styleClass="camera-icon-overlay" text="📷" StackPane.alignment="BOTTOM_RIGHT">
+                                    <StackPane.margin>
+                                        <Insets bottom="5.0" right="5.0" />
+                                    </StackPane.margin>
+                                </Label>
+                            </children>
+                        </StackPane>
+                    </children>
+                </StackPane>
+
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <Label styleClass="icon-edit" text="📝" />
+                        <Label styleClass="section-header" text="Update Profile" />
+                    </children>
+                </HBox>
+
+                <VBox spacing="8.0">
+                    <children>
+                        <Label styleClass="input-label" text="Username" />
+                        <TextField fx:id="editUsername" promptText="New Username" styleClass="underlined-input" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="8.0">
+                    <children>
+                        <Label styleClass="input-label" text="Contact No." />
+                        <TextField fx:id="editContact" promptText="New Contact No." styleClass="underlined-input" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="8.0">
+                    <children>
+                        <Label styleClass="input-label" text="Email Address" />
+                        <TextField fx:id="editEmail" promptText="New Email Address" styleClass="underlined-input" />
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER" spacing="15.0">
+                    <children>
+                        <Button fx:id="btnSave" onAction="#handleSave" styleClass="btn-red" text="Save" />
+                        <Button fx:id="btnCancel" onAction="#handleCancel" styleClass="btn-white" text="Cancel" />
+                    </children>
+                    <padding>
+                        <Insets top="10.0" />
+                    </padding>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

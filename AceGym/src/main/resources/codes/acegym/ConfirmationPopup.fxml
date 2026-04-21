@@ -1,40 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="340.0" prefWidth="591.0" styleClass="main-content-bg" stylesheets="@../../Css/ConfirmationPopup.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.ConfirmationController">
+<AnchorPane styleClass="main-content-bg" stylesheets="@../../Css/ConfirmationPopup.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.ConfirmationController">
     <children>
-        <VBox alignment="CENTER" spacing="25.0" styleClass="card-content-area" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+        <VBox alignment="CENTER" minWidth="400.0" spacing="25.0" styleClass="card-content-area" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
             <children>
-                <ImageView fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
+                <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
                     <image>
                         <Image url="@../../image/circle-question-solid.png" />
                     </image>
                 </ImageView>
 
-                <Label fx:id="messageLabel" maxWidth="500.0" styleClass="text-header-smaller" text="Are you sure you want to proceed?" textAlignment="CENTER" wrapText="true">
+                <Label fx:id="messageLabel" maxWidth="500.0" minHeight="-Infinity" styleClass="text-header-smaller" text="Are you sure you want to proceed?" textAlignment="CENTER" wrapText="true">
                     <font>
-                        <Font name="Inter Bold" size="25.0" />
+                        <Font name="Inter Bold" size="22.0" />
                     </font>
                 </Label>
 
-                <HBox alignment="CENTER" spacing="30.0">
+                <HBox alignment="CENTER" spacing="20.0">
                     <children>
-                        <Button fx:id="confirmBtn" mnemonicParsing="false" onAction="#handleConfirm" prefHeight="50.0" prefWidth="160.0" styleClass="btn-manage" text="Confirm" />
-                        <Button fx:id="cancelBtn" mnemonicParsing="false" onAction="#handleCancel" prefHeight="50.0" prefWidth="160.0" styleClass="btn-edit" text="Cancel" />
+                        <Button fx:id="confirmBtn" mnemonicParsing="false" onAction="#handleConfirm" prefHeight="55.0" prefWidth="151.0" styleClass="btn-manage" text="Confirm" />
+                        <Button fx:id="cancelBtn" mnemonicParsing="false" onAction="#handleCancel" prefHeight="45.0" prefWidth="140.0" styleClass="btn-edit" text="Cancel" />
                     </children>
                 </HBox>
             </children>
             <padding>
-                <Insets bottom="30.0" left="20.0" right="20.0" top="30.0" />
+                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
             </padding>
         </VBox>
     </children>

@@ -81,7 +81,7 @@
                                     </graphic>
                                 </ToggleButton>
 
-                                <ToggleButton fx:id="MembersForm" alignment="CENTER_LEFT" graphicTextGap="10" maxHeight="55.0" minHeight="32.0" prefHeight="45.0" prefWidth="207.0" styleClass="menu-button" text="View Members" toggleGroup="$menuGroup">
+                                <ToggleButton fx:id="MembersForm" alignment="CENTER_LEFT" graphicTextGap="10" maxHeight="55.0" minHeight="32.0" prefHeight="45.0" prefWidth="207.0" styleClass="menu-button" text="Client List" toggleGroup="$menuGroup">
                                     <graphic>
                                         <ImageView fitHeight="16.0" fitWidth="16.0" preserveRatio="true">
                                             <Image url="@../../image/members.png" />

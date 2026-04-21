@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="650.0" prefWidth="500.0" styleClass="main-content-bg" stylesheets="@../../Css/AddCoach.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.AddCoachController">
+    <children>
+        <VBox alignment="TOP_CENTER" spacing="25.0" styleClass="profile-card" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="60.0">
+            <padding>
+                <Insets bottom="30.0" left="40.0" right="40.0" top="20.0" />
+            </padding>
+            <children>
+                <StackPane alignment="TOP_CENTER">
+                    <children>
+                        <VBox alignment="CENTER" prefHeight="100.0" prefWidth="350.0" styleClass="header-content-area">
+                            <padding><Insets top="40.0" /></padding>
+                            <children>
+                                <Label styleClass="profile-name" text="New Coach Profile">
+                           <VBox.margin>
+                              <Insets top="12.0" />
+                           </VBox.margin></Label>
+                            </children>
+                            <StackPane.margin><Insets top="40.0" /></StackPane.margin>
+                        </VBox>
+
+                        <StackPane alignment="CENTER" maxHeight="110.0" maxWidth="110.0">
+                            <children>
+                                <ImageView fx:id="coachImageView" fitHeight="110.0" fitWidth="110.0" onMouseClicked="#handleChangeProfile" pickOnBounds="true" preserveRatio="true" styleClass="clickable-profile">
+                                    <image>
+                                        <Image url="@../../image/admin-user.png" />
+                                    </image>
+                                </ImageView>
+                                <Label alignment="CENTER" contentDisplay="CENTER" mouseTransparent="true" prefHeight="0.0" prefWidth="31.0" styleClass="camera-icon-overlay" text="📷" textAlignment="CENTER" StackPane.alignment="BOTTOM_RIGHT">
+                                    <StackPane.margin><Insets bottom="5.0" right="5.0" /></StackPane.margin>
+                                </Label>
+                            </children>
+                        </StackPane>
+                    </children>
+                </StackPane>
+
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <Label styleClass="section-header" text="Coach Information" />
+                    </children>
+                </HBox>
+
+                <VBox spacing="15.0">
+                    <children>
+                        <VBox spacing="5.0">
+                            <Label styleClass="input-label" text="Last Name" />
+                            <TextField fx:id="lastNameField" styleClass="underlined-input" />
+                        </VBox>
+
+                        <VBox spacing="5.0">
+                            <Label styleClass="input-label" text="First Name" />
+                            <TextField fx:id="firstNameField" styleClass="underlined-input" />
+                        </VBox>
+
+                        <VBox spacing="5.0">
+                            <Label styleClass="input-label" text="Training Type" />
+                            <ComboBox fx:id="trainingTypeCombo" prefWidth="400.0" promptText="Select Training Type" styleClass="transparent-combo" />
+                        </VBox>
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER" spacing="15.0">
+                    <children>
+                        <Button fx:id="btnAdd" onAction="#handleAddCoach" styleClass="btn-red" text="Register" />
+                        <Button fx:id="btnCancel" onAction="#handleCancel" styleClass="btn-white" text="Cancel" />
+                    </children>
+                    <padding><Insets top="10.0" /></padding>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

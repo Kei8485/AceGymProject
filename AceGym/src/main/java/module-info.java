@@ -12,6 +12,7 @@ module codes.acegym {
     requires com.almasb.fxgl.all;
     requires java.sql;
     requires javafx.graphics;
+    requires javafx.base;
 
     opens codes.acegym to javafx.fxml;
     exports codes.acegym;

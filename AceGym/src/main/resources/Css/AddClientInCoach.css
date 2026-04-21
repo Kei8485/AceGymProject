@@ -1,0 +1,188 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+.root {
+    /* Color Palette */
+    -fx-accent-lighter-red-text: #CB443E;
+    -fx-accent-darker-red-text: #8B2D2F;
+    -fx-white-text: #E8E6E9;
+    -fx-gray-text: #6B7280;
+    -fx-dark-bg: #0E1223;
+    -fx-card-bg: #111827;
+    -fx-peach: #F7D1CD;
+}
+
+/* --- Base Layout --- */
+.main-content-bg {
+    -fx-background-color: transparent;
+}
+
+.main-container {
+    -fx-background-color: -fx-card-bg;
+    -fx-background-radius: 25;
+    -fx-border-color: rgba(255, 255, 255, 0.05);
+    -fx-border-radius: 25;
+}
+
+/* --- Typography --- */
+.header-text {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-gray-text;
+}
+
+.sub-header {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 22px;
+    -fx-font-weight: 800;
+    -fx-text-fill: white;
+}
+
+/* --- Step Indicator (Identify Client) --- */
+.step-number {
+    -fx-background-color: -fx-accent-lighter-red-text;
+    -fx-text-fill: white;
+    -fx-background-radius: 50;
+    -fx-min-width: 30;
+    -fx-min-height: 30;
+    -fx-alignment: center;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+/* --- Inputs & Fields --- */
+.dark-input {
+    -fx-background-color: #1a1f2b;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: -fx-gray-text;
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-radius: 12;
+    -fx-padding: 12;
+    -fx-font-family: 'Inter';
+}
+
+.display-field {
+    -fx-background-color: #1a1f2b;
+    -fx-text-fill: -fx-white-text;
+    -fx-background-radius: 8;
+    -fx-padding: 8;
+    -fx-font-family: 'Inter';
+    -fx-opacity: 0.8; /* Subtle read-only look */
+}
+
+/* --- Details Card --- */
+.details-card {
+    -fx-background-color: rgba(255, 255, 255, 0.03);
+    -fx-background-radius: 15;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-radius: 15;
+    -fx-padding: 20;
+}
+
+.details-header {
+    -fx-text-fill: -fx-accent-lighter-red-text;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-character-spacing: 1px;
+    -fx-font-family: 'Inter';
+}
+
+.field-label {
+    -fx-text-fill: -fx-gray-text;
+    -fx-font-size: 13px;
+    -fx-font-family: 'Inter';
+}
+
+/* --- Badges & Icons --- */
+.type-badge {
+    -fx-background-color: rgba(203, 68, 62, 0.2);
+    -fx-text-fill: -fx-accent-lighter-red-text;
+    -fx-padding: 5 15;
+    -fx-background-radius: 10;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Inter';
+    -fx-alignment: center;
+}
+
+/* --- Client Cards (Main List) --- */
+.client-card {
+    -fx-background-color: #1c2237;
+    -fx-background-radius: 15;
+    -fx-padding: 15;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.client-name {
+    -fx-text-fill: white;
+    -fx-font-family: 'Inter';
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+.client-id {
+    -fx-text-fill: -fx-accent-lighter-red-text;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 12px;
+}
+
+/* --- Buttons --- */
+.plus-button {
+    -fx-background-color: -fx-accent-lighter-red-text;
+    -fx-background-radius: 12;
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-min-width: 45;
+    -fx-cursor: hand;
+}
+
+.remove-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-accent-lighter-red-text;
+    -fx-border-color: -fx-accent-lighter-red-text;
+    -fx-border-radius: 10;
+    -fx-font-family: 'Inter';
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.cancel-button {
+    -fx-background-color: #1c2237;
+    -fx-text-fill: white;
+    -fx-background-radius: 25;
+    -fx-font-family: 'Inter';
+    -fx-font-weight: bold;
+    -fx-min-width: 120;
+    -fx-min-height: 45;
+    -fx-cursor: hand;
+}
+
+.confirm-button {
+    -fx-background-color: -fx-accent-lighter-red-text;
+    -fx-text-fill: white;
+    -fx-background-radius: 25;
+    -fx-font-family: 'Inter';
+    -fx-font-weight: bold;
+    -fx-min-width: 150;
+    -fx-min-height: 45;
+    -fx-cursor: hand;
+}
+
+.confirm-button:hover {
+    -fx-background-color: -fx-accent-darker-red-text;
+}
+
+/* --- ScrollPane Styling --- */
+.custom-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.custom-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.custom-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #1c2237;
+    -fx-background-radius: 10;
+}

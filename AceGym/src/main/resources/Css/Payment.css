@@ -1,142 +1,459 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@100..900&display=swap');
+/* ============================================================
+   Payment.css  —  AceGym Point of Sale  (Dark Theme)
+   ============================================================ */
 
-
-/* Custom Variables */
-.root {
-    -fx-accent-lighter-red-text: #CB443E;
-    -fx-white-text: #E8E6E9;
-    -fx-gray-text: #6B7280;
-}
-
-/* Background & Main Card */
+/* ── Global / Root ─────────────────────────────────────────── */
 .payment-page-bg {
     -fx-background-color: #0E1223;
-    -fx-font-family: 'Inter', sans-serif;
 }
 
-.payment-card {
-    -fx-background-color: #192037;
-    -fx-background-radius: 20;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 0);
-}
-
-/* Typography */
-.pos-header {
-    -fx-text-fill: white;
-    -fx-font-size: 32px;
-    -fx-font-weight: bold;
-}
-
-.add-payment-header {
-    -fx-text-fill: white;
-    -fx-font-size: 40px;
-    -fx-font-weight: bold;
-}
-
-.field-label {
-    -fx-text-fill: white;
-    -fx-font-size: 16px;
-    -fx-font-style: italic;
-}
-
-/* --- Input Fields (TextFields) --- */
-.input-field, .payment-card .text-field {
-    -fx-background-color: #E8E6E9;
-    -fx-background-radius: 10;
-    -fx-text-fill: #1a1f30;
-    -fx-font-size: 14px;
-    -fx-border-width: 2;
-    -fx-border-color: transparent; /* Default state */
-    -fx-border-radius: 10;
-}
-
-.payment-card .text-field:hover {
-    -fx-background-color: #edf1f9;
-    -fx-cursor: hand;
-}
-
-/* Focused state: Transparent border to remove the glow/ring */
-.payment-card .text-field:focused {
-    -fx-background-color: white;
-    -fx-border-color: transparent;
-    -fx-focused-color: transparent;
-    -fx-faint-focus-color: transparent;
-}
-
-/* --- Combo Box Design --- */
-.combo-box {
-    -fx-background-color: #E8E6E9;
-    -fx-background-radius: 10;
-    -fx-padding: 2;
-}
-
-.combo-box:hover {
-    -fx-background-color: #edf1f9;
-    -fx-cursor: hand;
-}
-
-.combo-box:focused {
-
-    -fx-border-color: transparent;
-}
-
-.combo-box .list-cell {
-    -fx-text-fill: white;
-    -fx-font-size: 14px;
-}
-
-.combo-box .arrow {
-    -fx-background-color: white;
-    -fx-shape: "M 0 0 L 4 4 L 8 0 Z";
-}
-
-.combo-box-popup .list-view {
-    -fx-background-color: #1c2237;
-    -fx-background-radius: 5;
-    -fx-border-color: #1c2237;
-}
-
-.combo-box-popup .list-cell {
-    -fx-text-fill: white;
+.main-container {
     -fx-background-color: transparent;
 }
 
-.combo-box-popup .list-cell:hover {
-    -fx-background-color: #E8E6E9;
-    -fx-text-fill: white;
+/* ScrollPane – completely transparent */
+.custom-scroll-pane {
+    -fx-background-color: transparent; /* Main background */
+    -fx-background: transparent;      /* Viewport background */
+    -fx-border-color: transparent;
 }
 
-/* --- Buttons --- */
-.btn-save {
-    -fx-background-color: -fx-accent-lighter-red-text;
-    -fx-text-fill: white;
+.custom-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Vertical ScrollBar Track */
+.custom-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+}
+
+/* The Draggable Thumb */
+.custom-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #1c2237; /* Match your card-search color */
+    -fx-background-radius: 10;
+}
+
+.custom-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #CB443E; /* Turn red on hover for feedback */
+}
+
+/* Hide the increment/decrement buttons (the small arrows) */
+.custom-scroll-pane .scroll-bar .increment-button,
+.custom-scroll-pane .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.custom-scroll-pane .scroll-bar .increment-arrow,
+.custom-scroll-pane .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+}
+
+/* ── Page Header ────────────────────────────────────────────── */
+.page-header-box {
+    -fx-padding: 0 0 10 0;
+}
+
+.header-icon-box {
+    -fx-min-width: 52px;
+    -fx-min-height: 52px;
+    -fx-max-width: 52px;
+    -fx-max-height: 52px;
+    -fx-background-color: #e53935;
+    -fx-background-radius: 12px;
+}
+
+.header-icon {
+    -fx-font-size: 22px;
+}
+
+.pos-header {
+    -fx-text-fill: #7a7f94;
+    -fx-font-size: 13px;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-weight: normal;
+}
+
+.add-payment-header {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 26px;
+    -fx-font-family: "Segoe UI", sans-serif;
     -fx-font-weight: bold;
-    -fx-background-radius: 15;
-    -fx-cursor: hand;
+}
+
+/* ── Step Cards ─────────────────────────────────────────────── */
+.steps-column {
+    -fx-min-width: 0;
+}
+
+.payment-card-step {
+     -fx-background-color: #1c2237;; /* Matches -fx-login-card-bg */
+        -fx-background-radius: 20;
+        -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 0);
+        -fx-border-color: rgba(255, 255, 255, 0.05);
+        -fx-border-radius: 20;
+    -fx-padding: 20 20 20 20;
+}
+
+.step-number {
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-max-width: 30px;
+    -fx-max-height: 30px;
+    -fx-background-color: #e53935;
+    -fx-background-radius: 50%;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-alignment: center;
+}
+
+.step-title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.step-sub-label {
+    -fx-text-fill: #7a7f94;
+    -fx-font-size: 12px;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* ── Search Field ────────────────────────────────────────────── */
+.search-field-wrapper {
+    -fx-background-color: #1e2130;
+    -fx-background-radius: 8px;
+    -fx-border-color: #2e3349;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-min-height: 42px;
+    -fx-max-height: 42px;
+}
+
+.search-icon {
+    -fx-font-size: 14px;
+}
+
+.search-combo {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-prompt-text-fill: #5a5f72;
+    -fx-max-height: 38px;
+    -fx-padding: 0 0 0 0;
+}
+
+/* Styling for the ComboBox only when editable is true */
+.search-combo:editable {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* Styling the internal input area when editable */
+.search-combo:editable .text-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: #5a5f72;
+    -fx-font-size: 13px;
+    -fx-font-family: "Segoe UI";
+    -fx-padding: 0 0 0 5px; /* Slight left padding for the cursor */
+}
+
+/* Optional: Handle the focus state to prevent default glow */
+.search-combo:editable:focused {
+    -fx-background-color: transparent;
+}
+
+
+
+.search-combo .list-cell {
+    -fx-background-color: #1e2130;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+}
+
+.search-combo .list-view {
+    -fx-background-color: #1e2130;
+    -fx-border-color: #2e3349;
+}
+
+.search-combo .combo-box-popup .list-cell:hover {
+    -fx-background-color: #252a3a;
+}
+
+.search-combo .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.search-combo .arrow {
+    -fx-background-color: #5a5f72;
+}
+
+/* ── Combo Wrappers ──────────────────────────────────────────── */
+.combo-wrapper {
+    -fx-background-color: #1e2130;
+    -fx-background-radius: 8px;
+    -fx-border-color: #2e3349;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-min-height: 44px;
+    -fx-max-height: 44px;
+}
+
+.combo-icon {
     -fx-font-size: 15px;
 }
 
-.btn-save:hover {
-    -fx-background-color: derive(-fx-accent-lighter-red-text, 15%);
+.combo-field {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-prompt-text-fill: #5a5f72;
+    -fx-max-height: 40px;
 }
 
-.btn-save:pressed {
-    -fx-translate-y: 1;
+.combo-field .list-cell {
+    -fx-background-color: #1e2130;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
 }
 
-.btn-cancel {
-    -fx-background-color: white;
-    -fx-text-fill: #192037;
+.combo-field .list-view {
+    -fx-background-color: #1e2130;
+    -fx-border-color: #2e3349;
+}
+
+.combo-field .combo-box-popup .list-cell:hover {
+    -fx-background-color: #252a3a;
+}
+
+.combo-field .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-field .arrow {
+    -fx-background-color: #5a5f72;
+}
+
+/* ── Client Details Box ──────────────────────────────────────── */
+.client-details-box {
+    -fx-background-color: #171c2b;
+    -fx-background-radius: 10px;
+    -fx-border-color: #252a3a;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+}
+
+.details-icon {
+    -fx-font-size: 14px;
+}
+
+.details-header {
+    -fx-text-fill: #e53935;
+    -fx-font-size: 11px;
     -fx-font-weight: bold;
-    -fx-background-radius: 15;
-    -fx-cursor: hand;
-    -fx-font-size: 15px;
+    -fx-font-family: "Segoe UI", sans-serif;
+    letter-spacing: 1.2px;
 }
 
-.btn-cancel:hover {
-    -fx-background-color: #E8E6E9;
+.detail-label {
+    -fx-text-fill: #9da3b4;
+    -fx-font-size: 13px;
+    -fx-font-family: "Segoe UI", sans-serif;
 }
 
-.calendar-icon{
+.input-display {
+    -fx-background-color: #1e2130;
+    -fx-border-color: #2e3349;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-padding: 5 10 5 10;
+    -fx-pref-height: 32px;
+}
+
+.input-display:focused {
+    -fx-border-color: #e53935;
+}
+
+/* Client Type Tags */
+.type-tag-member {
+    -fx-background-color: rgba(229, 57, 53, 0.18);
+    -fx-text-fill: #e53935;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-background-radius: 6px;
+    -fx-border-color: rgba(229, 57, 53, 0.35);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-padding: 4 12 4 12;
+}
+
+.type-tag-guest {
+    -fx-background-color: rgba(37, 99, 235, 0.18);
+    -fx-text-fill: #3b82f6;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-background-radius: 6px;
+    -fx-border-color: rgba(59, 130, 246, 0.35);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-padding: 4 12 4 12;
+}
+
+/* ── Summary Card ────────────────────────────────────────────── */
+.summary-card {
+    -fx-background-color: #1c2237;; /* Matches -fx-login-card-bg */
+       -fx-background-radius: 20;
+       -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 0);
+       -fx-border-color: rgba(255, 255, 255, 0.05);
+       -fx-border-radius: 20;
+    -fx-min-width: 290px;
+    -fx-pref-width: 300px;
+}
+
+.summary-icon {
+    -fx-font-size: 18px;
+}
+
+.summary-header {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.summary-label {
+    -fx-text-fill: #9da3b4;
+    -fx-font-size: 13px;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.summary-value-box {
+    -fx-background-color: #1e2130;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-padding: 5 14 5 14;
+    -fx-background-radius: 6px;
+    -fx-border-color: #2e3349;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+}
+
+.summary-value-red {
+    -fx-text-fill: #e53935;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.summary-divider {
+    -fx-background-color: rgba(255,255,255,0.07);
+    -fx-pref-height: 1px;
+}
+
+/* ── Total Box ───────────────────────────────────────────────── */
+.total-box {
+    -fx-background-color: rgba(229, 57, 53, 0.08);
+    -fx-background-radius: 10px;
+    -fx-border-color: rgba(229, 57, 53, 0.4);
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 10px;
+}
+
+.total-label {
+    -fx-text-fill: #e53935;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.total-amount {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btn-cancel-dark {
+    -fx-background-color: #1e2130;
+    -fx-text-fill: #c0c5d8;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-background-radius: 9px;
+    -fx-border-color: #2e3349;
+    -fx-border-width: 1px;
+    -fx-border-radius: 9px;
     -fx-cursor: hand;
+}
+
+.btn-cancel-dark:hover {
+    -fx-background-color: #252a3a;
+    -fx-border-color: #3e4460;
+    -fx-text-fill: #ffffff;
+}
+
+.btn-cancel-dark:pressed {
+    -fx-background-color: #1a1e2a;
+}
+
+.btn-save-red {
+    -fx-background-color: #e53935;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-background-radius: 9px;
+    -fx-border-color: transparent;
+    -fx-border-radius: 9px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(229,57,53,0.45), 12, 0, 0, 3);
+}
+
+.btn-save-red:hover {
+    -fx-background-color: #c62828;
+    -fx-effect: dropshadow(gaussian, rgba(229,57,53,0.65), 18, 0, 0, 4);
+}
+
+.btn-save-red:pressed {
+    -fx-background-color: #b71c1c;
+    -fx-effect: dropshadow(gaussian, rgba(229,57,53,0.3), 8, 0, 0, 2);
+}
+
+.btn-search-red {
+    -fx-background-color: #e53935;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-background-radius: 8px;
+    -fx-border-color: transparent;
+    -fx-border-radius: 8px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(229,57,53,0.35), 10, 0, 0, 2);
+}
+
+.btn-search-red:hover {
+    -fx-background-color: #c62828;
+}
+
+.btn-search-red:pressed {
+    -fx-background-color: #b71c1c;
 }

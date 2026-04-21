@@ -12,7 +12,7 @@
                 <VBox spacing="10.0">
                     <children>
                         <Label styleClass="text-header" text="Coaches" />
-                        <Button mnemonicParsing="false" styleClass="btn-add-coach" text="Add Coach" />
+                        <Button fx:id="addCoachBtn" mnemonicParsing="false" styleClass="btn-add-coach" text="Add Coach" />
                     </children>
                 </VBox>
 
