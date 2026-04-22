@@ -1,11 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@100..900&display=swap');
 
-/* ── Global & Variables ── */
+/* ── Variables ── */
 .root {
-    -fx-accent-red: #CB443E;
-    -fx-base-dark-bg: #141B32;
-    -fx-card-content-bg: #2C3550;
-    -fx-input-border: #3F4863;
+    -fx-accent-red: #e53935;
+    -fx-base-dark-bg: #0E1223;
+    -fx-card-content-bg: #1c2237;
+    -fx-input-bg: #1e2130;
+    -fx-input-border: #2e3349;
+    -fx-gray-text: #7a7f94;
     -fx-font-family: 'Inter';
 }
 
@@ -15,166 +17,141 @@
 
 /* ── Card Structure ── */
 .profile-card {
-    -fx-background-color: -fx-base-dark-bg;
-    -fx-background-radius: 24;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 15, 0, 0, 8);
+    -fx-background-color: #1c2237;
+    -fx-background-radius: 20;
+    -fx-border-color: #2e3349;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 0);
+    -fx-padding: 20;
 }
 
 .header-content-area {
-    -fx-background-color: -fx-card-content-bg;
-    -fx-background-radius: 20;
+    -fx-background-color: #1e2130;
+    -fx-background-radius: 12;
+    -fx-border-color: #2e3349;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
 }
 
-/* ── Typography ── */
+/* ── Typography (Dirty White Update) ── */
 .profile-name {
-    -fx-font-size: 26px;
-    -fx-font-weight: 800;
-    -fx-text-fill: white;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Bebas Neue';
+    -fx-text-fill: #e0e0e0; /* Dirty White */
 }
 
 .section-header {
-    -fx-font-size: 18px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #E96464;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Inter';
+    -fx-text-fill: #e53935;
 }
 
 .input-label {
-    -fx-font-size: 15px;
+    -fx-font-size: 16px;
     -fx-font-weight: 600;
-    -fx-text-fill: white;
+    -fx-font-family: 'Inter';
+    -fx-text-fill: #e0e0e0; /* Dirty White */
 }
 
-/* ── Modernized Underlined Input ── */
+/* ── Input Fields (Dirty White Update) ── */
 .underlined-input {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent transparent -fx-input-border transparent;
-    -fx-border-width: 0 0 2 0;
-    -fx-text-fill: white;
+    -fx-background-color: #1e2130;
+    -fx-border-color: #2e3349;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-text-fill: #cfd8dc;         /* Softer Off-White */
+    -fx-prompt-text-fill: #7a7f94;
     -fx-font-size: 16px;
     -fx-font-family: 'Inter';
-    -fx-padding: 8 0 8 0;
-    -fx-transition: 0.3s; /* Smooth transition */
+    -fx-padding: 12 16 12 16;
 }
 
 .underlined-input:focused {
-    -fx-border-color: transparent transparent -fx-accent-red transparent;
-    -fx-effect: dropshadow(three-pass-box, rgba(203, 68, 62, 0.3), 10, 0, 0, 2); /* Soft glow */
+    -fx-border-color: #e53935;
+    -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.3), 8, 0, 0, 0);
 }
 
-/* ── Modernized ComboBox ── */
+/* ── ComboBox (Dirty White Update) ── */
 .transparent-combo {
-    -fx-background-color: -fx-card-content-bg;
-    -fx-background-radius: 12;
-    -fx-border-color: -fx-input-border;
-    -fx-border-radius: 12;
-    -fx-border-width: 1.5;
+    -fx-background-color: #1e2130;
+    -fx-background-radius: 8;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
     -fx-font-size: 16px;
     -fx-font-family: 'Inter';
-    -fx-min-height: 48px;
+    -fx-min-height: 40px;
     -fx-padding: 0 10 0 10;
-    -fx-transition: 0.3s; /* Smooth transition */
 }
 
-
-
-/* Targets the Label (selected text) and Prompt text inside the box */
 .transparent-combo .button-cell,
 .transparent-combo .list-cell,
 .transparent-combo .text {
-    -fx-text-fill: white !important;
-    -fx-fill: white !important;
-    -fx-font-size: 16px;
+    -fx-text-fill: #cfd8dc !important; /* Softer Off-White */
+    -fx-fill: #cfd8dc !important;
 }
 
 .transparent-combo .prompt-text {
-    -fx-prompt-text-fill: white !important;
+    -fx-prompt-text-fill: #7a7f94 !important;
 }
 
-/* ── Dropdown Popup Styling ── */
 .transparent-combo .list-view {
-    -fx-background-color: #1E2538;
-
-    -fx-background-radius: 8;
-
+    -fx-background-color: #1e2130;
+    -fx-border-color: #2e3349;
 }
 
 .transparent-combo .list-cell:hover {
-    -fx-background-color: #3d496d;
-    -fx-text-fill: white;
-}
-
-/* ── Arrow Styling ── */
-.transparent-combo .arrow-button {
-    -fx-background-color: transparent;
-}
-
-.transparent-combo .arrow {
-    -fx-background-color: white;
-    -fx-shape: "M 0 0 L 5 5 L 10 0 Z";
+    -fx-background-color: #e53935;
+    -fx-text-fill: #ffffff; /* Contrast white for selection */
 }
 
 /* ── Buttons ── */
 .btn-red {
-    -fx-background-color: -fx-accent-red;
-    -fx-text-fill: white;
-    -fx-background-radius: 12;
-    -fx-font-weight: 800;
+    -fx-background-color: #e53935;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 9;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Inter';
     -fx-font-size: 16px;
-    -fx-min-height: 45;
+    -fx-min-height: 40;
     -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.4), 10, 0, 0, 3);
+}
+
+.btn-red:pressed {
+    -fx-background-color: #c62828;
+    -fx-translate-y: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 4, 0, 0, 1);
 }
 
 .btn-red:hover {
-    -fx-background-color: #d94f4a; /* Lighter hover color */
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 4);
+    -fx-background-color: #c62828;
 }
 
 .btn-white {
-    -fx-background-color: white;
-    -fx-text-fill: #111827;
-    -fx-background-radius: 12;
-    -fx-font-weight: 800;
+    -fx-background-color: #1e2130;
+    -fx-text-fill: #cfd8dc; /* Softer Off-White */
+    -fx-background-radius: 9;
+    -fx-font-family: 'Inter';
     -fx-font-size: 16px;
-    -fx-min-height: 45;
+    -fx-min-height: 40;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 9;
     -fx-cursor: hand;
 }
 
 .btn-white:hover {
-    -fx-background-color: #f3f4f6; /* Subtle hover color */
-    -fx-scale-x: 1.02; /* Pop effect */
-    -fx-scale-y: 1.02;
-}
-
-/* ── Button Pressed States ── */
-
-.btn-red:pressed {
-    /* Darkens the red slightly more than the hover state */
-    -fx-background-color: #b03a35;
-    /* Shrinks the button slightly to simulate a physical press */
-    -fx-scale-x: 0.95;
-    -fx-scale-y: 0.95;
-    /* Removes the hover shadow to make it look like it's touching the 'surface' */
-    -fx-effect: none;
-}
-
-.btn-white:pressed {
-    /* Subtle gray shift for the white button */
-    -fx-background-color: #e5e7eb;
-    /* Shrinks the button slightly */
-    -fx-scale-x: 0.95;
-    -fx-scale-y: 0.95;
-    -fx-effect: none;
+    -fx-background-color: #252a42;
 }
 
 /* ── Profile Image & Icons ── */
-.clickable-profile {
-    -fx-cursor: hand;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 12, 0, 0, 0);
-}
-
 .camera-icon-overlay {
-    -fx-background-color: -fx-accent-red;
-    -fx-text-fill: white;
+    -fx-background-color: #e53935;
+    -fx-text-fill: #ffffff;
     -fx-padding: 8;
     -fx-background-radius: 50;
     -fx-font-size: 12px;

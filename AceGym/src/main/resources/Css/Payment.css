@@ -1,8 +1,7 @@
-/* ============================================================
-   Payment.css  —  AceGym Point of Sale  (Dark Theme)
-   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@100..900&display=swap');
 
-/* ── Global / Root ─────────────────────────────────────────── */
+
+
 .payment-page-bg {
     -fx-background-color: #0E1223;
 }
@@ -52,6 +51,8 @@
 
 /* ── Page Header ────────────────────────────────────────────── */
 .page-header-box {
+    -fx-font-family: 'Bebas Neue';
+
     -fx-padding: 0 0 10 0;
 }
 
@@ -66,19 +67,21 @@
 
 .header-icon {
     -fx-font-size: 22px;
+        -fx-font-family: 'Bebas Neue';
+
 }
 
 .pos-header {
     -fx-text-fill: #7a7f94;
-    -fx-font-size: 13px;
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 22px;
+    -fx-font-family: 'Bebas Neue';
     -fx-font-weight: normal;
 }
 
 .add-payment-header {
     -fx-text-fill: #ffffff;
-    -fx-font-size: 26px;
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 36px;
+    -fx-font-family: 'Bebas Neue';
     -fx-font-weight: bold;
 }
 
@@ -104,23 +107,23 @@
     -fx-background-color: #e53935;
     -fx-background-radius: 50%;
     -fx-text-fill: #ffffff;
-    -fx-font-size: 13px;
+    -fx-font-size: 18px;
     -fx-font-weight: bold;
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-family: 'Bebas Neue';
     -fx-alignment: center;
 }
 
 .step-title {
     -fx-text-fill: #ffffff;
-    -fx-font-size: 17px;
+    -fx-font-size: 22px;
     -fx-font-weight: bold;
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-family: 'Inter';
 }
 
 .step-sub-label {
     -fx-text-fill: #7a7f94;
-    -fx-font-size: 12px;
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 16px;
+    -fx-font-family: 'Inter';
 }
 
 /* ── Search Field ────────────────────────────────────────────── */
@@ -142,8 +145,8 @@
     -fx-background-color: transparent;
     -fx-border-color: transparent;
     -fx-text-fill: #ffffff;
-    -fx-font-size: 13px;
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 18px;
+    -fx-font-family: 'Inter';
     -fx-prompt-text-fill: #5a5f72;
     -fx-max-height: 38px;
     -fx-padding: 0 0 0 0;
@@ -161,7 +164,7 @@
     -fx-text-fill: #ffffff;
     -fx-prompt-text-fill: #5a5f72;
     -fx-font-size: 13px;
-    -fx-font-family: "Segoe UI";
+    -fx-font-family: 'Inter';
     -fx-padding: 0 0 0 5px; /* Slight left padding for the cursor */
 }
 
@@ -214,8 +217,9 @@
     -fx-background-color: transparent;
     -fx-border-color: transparent;
     -fx-text-fill: #ffffff;
-    -fx-font-size: 13px;
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 18px;
+    -fx-font-family: 'Inter';
+
     -fx-prompt-text-fill: #5a5f72;
     -fx-max-height: 40px;
 }
@@ -253,12 +257,12 @@
 }
 
 .details-icon {
-    -fx-font-size: 14px;
+    -fx-font-size: 18px;
 }
 
 .details-header {
     -fx-text-fill: #e53935;
-    -fx-font-size: 11px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI", sans-serif;
     letter-spacing: 1.2px;
@@ -266,7 +270,7 @@
 
 .detail-label {
     -fx-text-fill: #9da3b4;
-    -fx-font-size: 13px;
+    -fx-font-size: 16px;
     -fx-font-family: "Segoe UI", sans-serif;
 }
 
@@ -277,7 +281,7 @@
     -fx-border-radius: 6px;
     -fx-background-radius: 6px;
     -fx-text-fill: #ffffff;
-    -fx-font-size: 13px;
+    -fx-font-size: 16px;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-padding: 5 10 5 10;
     -fx-pref-height: 32px;
@@ -291,7 +295,7 @@
 .type-tag-member {
     -fx-background-color: rgba(229, 57, 53, 0.18);
     -fx-text-fill: #e53935;
-    -fx-font-size: 12px;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-background-radius: 6px;
@@ -331,21 +335,21 @@
 
 .summary-header {
     -fx-text-fill: #ffffff;
-    -fx-font-size: 17px;
+    -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI", sans-serif;
 }
 
 .summary-label {
     -fx-text-fill: #9da3b4;
-    -fx-font-size: 13px;
+    -fx-font-size: 16px;
     -fx-font-family: "Segoe UI", sans-serif;
 }
 
 .summary-value-box {
     -fx-background-color: #1e2130;
     -fx-text-fill: #ffffff;
-    -fx-font-size: 13px;
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-padding: 5 14 5 14;
@@ -357,7 +361,7 @@
 
 .summary-value-red {
     -fx-text-fill: #e53935;
-    -fx-font-size: 13px;
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI", sans-serif;
 }
@@ -378,7 +382,7 @@
 
 .total-label {
     -fx-text-fill: #e53935;
-    -fx-font-size: 11px;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI", sans-serif;
 }
@@ -394,7 +398,7 @@
 .btn-cancel-dark {
     -fx-background-color: #1e2130;
     -fx-text-fill: #c0c5d8;
-    -fx-font-size: 13px;
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-background-radius: 9px;
@@ -417,7 +421,7 @@
 .btn-save-red {
     -fx-background-color: #e53935;
     -fx-text-fill: #ffffff;
-    -fx-font-size: 13px;
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-background-radius: 9px;
@@ -440,7 +444,7 @@
 .btn-search-red {
     -fx-background-color: #e53935;
     -fx-text-fill: #ffffff;
-    -fx-font-size: 13px;
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-background-radius: 8px;

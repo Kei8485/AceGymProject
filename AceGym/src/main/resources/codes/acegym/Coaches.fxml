@@ -1,17 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="700.0" prefWidth="1100.0" style="-fx-background-color: #0E1223;" stylesheets="@../../Css/Coaches.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.CoachesController">
+<AnchorPane prefHeight="700.0" prefWidth="1100.0" style="-fx-background-color: #0E1223;" stylesheets="@../../Css/Coaches.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.CoachesController">
     <children>
         <VBox spacing="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
                 <VBox spacing="10.0">
                     <children>
-                        <Label styleClass="text-header" text="Coaches" />
+                  <HBox alignment="CENTER_LEFT" prefHeight="66.0" prefWidth="1040.0" spacing="20.0">
+                     <children>
+                        <VBox alignment="CENTER" styleClass="header-icon-box">
+                           <children>
+                              <ImageView fitHeight="41.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../../image/arrows-down-to-people-solid.png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </VBox>
+                        <VBox prefHeight="6.0" prefWidth="165.0">
+                           <children>
+                              <Label alignment="BOTTOM_LEFT" contentDisplay="BOTTOM" prefHeight="29.0" prefWidth="174.0" styleClass="pos-header" text="SESSION ASSIGNMENTS">
+                                 <VBox.margin>
+                                    <Insets />
+                                 </VBox.margin></Label>
+                                    <Label maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="44.0" prefWidth="144.0" styleClass="text-header" text="Coaches">
+                                 <padding>
+                                    <Insets top="-10.0" />
+                                 </padding></Label>
+                           </children>
+                        </VBox>
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </HBox>
                         <Button fx:id="addCoachBtn" mnemonicParsing="false" styleClass="btn-add-coach" text="Add Coach" />
                     </children>
                 </VBox>

@@ -26,8 +26,9 @@
 /* --- Typography --- */
 .header-text {
     -fx-font-family: 'Inter';
-    -fx-font-size: 14px;
+    -fx-font-size: 18px;
     -fx-text-fill: -fx-gray-text;
+    -fx-font-weight: 800;
 }
 
 .sub-header {
@@ -59,6 +60,23 @@
     -fx-border-radius: 12;
     -fx-padding: 12;
     -fx-font-family: 'Inter';
+    -fx-font-size: 16px;
+
+}
+
+/* --- Hover State --- */
+.dark-input:hover {
+    /* Only a fraction lighter than your base #1a1f2b */
+    -fx-background-color: #1e2433;
+    -fx-border-color: rgba(255, 255, 255, 0.15);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.4), 5, 0, 0, 0);
+    -fx-cursor: text;
+}
+.dark-input:focused {
+    -fx-background-color: #1a1f2b;
+    -fx-border-color: #333e45 ;
+    -fx-effect: dropshadow(three-pass-box, rgba(207, 216, 220, 0.25), 10, 0, 0, 0);
+    -fx-text-fill: #ffffff;
 }
 
 .display-field {
@@ -68,13 +86,14 @@
     -fx-padding: 8;
     -fx-font-family: 'Inter';
     -fx-opacity: 0.8; /* Subtle read-only look */
+    -fx-font-size: 16px;
 }
 
 /* --- Details Card --- */
 .details-card {
     -fx-background-color: rgba(255, 255, 255, 0.03);
     -fx-background-radius: 15;
-    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-color: #4a1f21;
     -fx-border-radius: 15;
     -fx-padding: 20;
 }
@@ -82,14 +101,14 @@
 .details-header {
     -fx-text-fill: -fx-accent-lighter-red-text;
     -fx-font-weight: bold;
-    -fx-font-size: 13px;
+    -fx-font-size: 16px;
     -fx-character-spacing: 1px;
     -fx-font-family: 'Inter';
 }
 
 .field-label {
     -fx-text-fill: -fx-gray-text;
-    -fx-font-size: 13px;
+    -fx-font-size: 16px;
     -fx-font-family: 'Inter';
 }
 
@@ -102,12 +121,16 @@
     -fx-font-weight: bold;
     -fx-font-family: 'Inter';
     -fx-alignment: center;
+    -fx-font-size: 16px;
 }
 
 /* --- Client Cards (Main List) --- */
 .client-card {
     -fx-background-color: #1c2237;
+    -fx-border-color: #6a3236;
     -fx-background-radius: 15;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 12;
     -fx-padding: 15;
     -fx-alignment: CENTER_LEFT;
 }
@@ -116,13 +139,13 @@
     -fx-text-fill: white;
     -fx-font-family: 'Inter';
     -fx-font-weight: bold;
-    -fx-font-size: 16px;
+    -fx-font-size: 18px;
 }
 
 .client-id {
     -fx-text-fill: -fx-accent-lighter-red-text;
     -fx-font-family: 'Inter';
-    -fx-font-size: 12px;
+    -fx-font-size: 14px;
 }
 
 /* --- Buttons --- */
@@ -144,6 +167,22 @@
     -fx-font-family: 'Inter';
     -fx-font-weight: bold;
     -fx-cursor: hand;
+    -fx-font-size: 14px;
+}
+
+/* --- Remove Button Hover --- */
+.remove-button:hover {
+    -fx-background-color: #4a1f21;
+    -fx-border-color: #e53935;
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(three-pass-box, rgba(229, 57, 53, 0.2), 8, 0, 0, 0);
+}
+
+/* --- Remove Button Pressed --- */
+.remove-button:pressed {
+    -fx-background-color: #e53935; /* Solid brand red when clicked */
+    -fx-text-fill: #ffffff;
+    -fx-translate-y: 1px; /* The 'click' feel */
 }
 
 .cancel-button {
@@ -155,6 +194,12 @@
     -fx-min-width: 120;
     -fx-min-height: 45;
     -fx-cursor: hand;
+    -fx-font-size: 15px;
+
+}
+
+.cancel-button:hover {
+    -fx-background-color: #252a42;
 }
 
 .confirm-button {
@@ -166,6 +211,8 @@
     -fx-min-width: 150;
     -fx-min-height: 45;
     -fx-cursor: hand;
+    -fx-font-size: 15px;
+
 }
 
 .confirm-button:hover {

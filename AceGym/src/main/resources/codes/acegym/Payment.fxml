@@ -7,13 +7,14 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="650.0" prefWidth="867.0" styleClass="payment-page-bg" stylesheets="@../../Css/Payment.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.PaymentController">
     <children>
@@ -28,10 +29,14 @@
                         <!-- Header -->
                         <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="page-header-box">
                             <children>
-                                <VBox styleClass="header-icon-box" alignment="CENTER">
-                                    <children>
-                                        <Label styleClass="header-icon" text="🛒" />
-                                    </children>
+                                <VBox alignment="CENTER" styleClass="header-icon-box">
+                           <children>
+                              <ImageView fitHeight="41.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../../image/cart-shopping-solid.png" />
+                                 </image>
+                              </ImageView>
+                           </children>
                                 </VBox>
                                 <VBox spacing="2.0">
                                     <children>
@@ -47,7 +52,7 @@
                             <children>
 
                                 <!-- LEFT COLUMN: Steps -->
-                                <VBox spacing="16.0" HBox.hgrow="ALWAYS" styleClass="steps-column">
+                                <VBox spacing="16.0" styleClass="steps-column" HBox.hgrow="ALWAYS">
                                     <children>
 
                                         <!-- Step 1: Identify Client -->
@@ -62,7 +67,7 @@
                                                 <Label styleClass="step-sub-label" text="Search Client Name or ID" />
                                                 <HBox spacing="10.0">
                                                     <children>
-                                                        <HBox alignment="CENTER_LEFT" spacing="8.0" HBox.hgrow="ALWAYS" styleClass="search-field-wrapper">
+                                                        <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="search-field-wrapper" HBox.hgrow="ALWAYS">
                                                             <padding>
                                                                 <Insets left="12.0" right="12.0" />
                                                             </padding>
@@ -71,7 +76,7 @@
                                                                 <ComboBox fx:id="clientSearchCombo" editable="true" maxWidth="Infinity" promptText="Enter name or client ID..." styleClass="search-combo" HBox.hgrow="ALWAYS" />
                                                             </children>
                                                         </HBox>
-                                                        <Button styleClass="btn-search-red" text="Search" prefHeight="42.0" prefWidth="100.0" />
+                                                        <Button prefHeight="42.0" prefWidth="100.0" styleClass="btn-search-red" text="Search" />
                                                     </children>
                                                 </HBox>
 
@@ -87,7 +92,7 @@
                                                                 <Label styleClass="details-header" text="CLIENT DETAILS" />
                                                             </children>
                                                         </HBox>
-                                                        <GridPane vgap="8.0" hgap="10.0">
+                                                        <GridPane hgap="10.0" vgap="8.0">
                                                             <columnConstraints>
                                                                 <ColumnConstraints prefWidth="110.0" />
                                                                 <ColumnConstraints hgrow="ALWAYS" />
@@ -174,7 +179,7 @@
                                 </VBox>
 
                                 <!-- RIGHT COLUMN: Financial Summary -->
-                                <VBox prefWidth="300.0" styleClass="summary-card" spacing="0.0">
+                                <VBox prefWidth="300.0" spacing="0.0" styleClass="summary-card">
                                     <padding>
                                         <Insets bottom="25.0" left="22.0" right="22.0" top="25.0" />
                                     </padding>
