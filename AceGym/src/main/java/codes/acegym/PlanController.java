@@ -58,7 +58,7 @@ public class PlanController {
 
     public void initialize() {
 
-        // ── Section 1 — Plan ──
+        // ── Section 1 — Plan Table ──
         planList = FXCollections.observableArrayList(
                 new Plan("Monthly Basic", 1),
                 new Plan("Quarterly Pro", 3),
@@ -110,6 +110,7 @@ public class PlanController {
                 showCancelBtn(cancelPlanBtn);
             }
         });
+        // ── Section 1 — Plan Table ──
 
         // ── Section 2 — Category ──
         hideCancelBtn(cancelCategoryBtn);
@@ -141,6 +142,8 @@ public class PlanController {
             }
         });
 
+        // ── Section 2 — Category ──
+
         // ── Section 3 — Discount ──
         clientTypeCombo.getItems().addAll("Member", "Non-Member");
 
@@ -162,9 +165,12 @@ public class PlanController {
         cancelDiscountBtn.setOnAction(e -> resetDiscountForm());
     }
 
+// ── Section 3 — Discount ──
 
 //    after initialize
 
+
+//    Plan Methods
     private void setupPlanActionsColumn() {
         planActionsCol.setCellFactory(col -> new TableCell<>() {
             private final Button deleteBtn = new Button("Remove");
@@ -189,7 +195,19 @@ public class PlanController {
         });
     }
 
-    // ── Reset helpers ──
+    //    Plan Methods
+
+
+    //    Other Section Methods dito ilalagay
+
+
+
+
+
+    //    Other Section Methods dito ilalagay
+
+
+    // ── Pang Reset ──
     private void resetPlanForm() {
         selectedPlan = null;
         planNameField.clear();
@@ -214,6 +232,8 @@ public class PlanController {
         discountTable.getSelectionModel().clearSelection();
     }
 
+    // ── Pang Reset ──
+
     // ── Show/hide cancel button ──
     private void showCancelBtn(Button btn) {
         btn.setText("Cancel");
@@ -225,6 +245,9 @@ public class PlanController {
         btn.setVisible(false);
         btn.setManaged(false);
     }
+
+    // ── Show/hide cancel button ──
+
 
     // ── Modal ──
     private void showModal(String message, Runnable action) {
@@ -275,3 +298,5 @@ public class PlanController {
         stage.setY(ownerY + (ownerHeight / 2) - (stage.getHeight() / 2));
     }
 }
+
+// ── Modal ──
