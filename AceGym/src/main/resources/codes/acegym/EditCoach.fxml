@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="650.0" prefWidth="500.0" styleClass="main-content-bg" stylesheets="@../../Css/EditCoach.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.EditCoachController">
+<AnchorPane prefHeight="650.0" prefWidth="500.0" styleClass="main-content-bg" stylesheets="@../../Css/EditCoach.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.EditCoachController">
     <children>
         <VBox alignment="TOP_CENTER" spacing="30.0" styleClass="profile-card" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="80.0">
             <padding>

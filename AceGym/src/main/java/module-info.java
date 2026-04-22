@@ -15,5 +15,10 @@ module codes.acegym {
     requires javafx.base;
 
     opens codes.acegym to javafx.fxml;
-    exports codes.acegym;
+    exports codes.acegym.Controllers;
+    opens codes.acegym.Controllers to javafx.fxml;
+    exports codes.acegym.Application_Launcher;
+    opens codes.acegym.Application_Launcher to javafx.fxml;
+    exports codes.acegym.DB;
+    opens codes.acegym.DB to javafx.fxml;
 }

@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="650.0" prefWidth="867.0" style="-fx-background-color: #0E1223;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.DashboardController">
+<AnchorPane prefHeight="650.0" prefWidth="867.0" style="-fx-background-color: #0E1223;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.DashboardController">
     <stylesheets>
         <URL value="@../../Css/styles2.css" />
     </stylesheets>

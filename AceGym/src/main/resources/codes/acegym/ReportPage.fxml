@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:id="reportRoot" maxWidth="1000.0" minHeight="650.0" minWidth="867.0" prefHeight="700.0" prefWidth="950.0" styleClass="payment-page-bg" stylesheets="@../../Css/ReportPage.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.ReportPageController">
+<AnchorPane fx:id="reportRoot" maxWidth="1000.0" minHeight="650.0" minWidth="867.0" prefHeight="700.0" prefWidth="950.0" styleClass="payment-page-bg" stylesheets="@../../Css/ReportPage.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.ReportPageController">
     <children>
         <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <padding>

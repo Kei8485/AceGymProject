@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefWidth="867.0" styleClass="main-content-bg" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.PlanController">
+<AnchorPane prefWidth="867.0" styleClass="main-content-bg" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.PlanController">
     <stylesheets>
         <URL value="@../../Css/Plan.css" />
     </stylesheets>
@@ -127,8 +127,8 @@
                                 <TableView fx:id="planTable" prefHeight="200.0" styleClass="section-table" VBox.vgrow="ALWAYS">
                                     <columns>
                                         <TableColumn fx:id="planNameCol" prefWidth="280.0" text="Plan Name" />
-                                        <TableColumn fx:id="planPeriodCol" prefWidth="200.0" text="Period" />
-                              <TableColumn fx:id="planActionsCol" prefWidth="200.0" text="Actions" />
+                                        <TableColumn fx:id="planPeriodCol" prefWidth="353.0" text="Period" />
+                              <TableColumn fx:id="planActionsCol" prefWidth="97.0" text="Actions" />
                                     </columns>
                                     <columnResizePolicy>
                                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

@@ -1,4 +1,4 @@
-package Objects;
+package codes.acegym.Objects;
 
 public class Plan {
     private String name;

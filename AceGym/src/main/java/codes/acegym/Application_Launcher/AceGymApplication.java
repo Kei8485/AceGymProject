@@ -1,4 +1,4 @@
-package codes.acegym;
+package codes.acegym.Application_Launcher;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -14,7 +14,7 @@ public class AceGymApplication extends Application {
     public void start(Stage stage) throws Exception {
 
         FXMLLoader fxmlLoader =
-                new FXMLLoader(AceGymApplication.class.getResource("Login.fxml"));
+                new FXMLLoader(AceGymApplication.class.getResource("/codes/acegym/Login.fxml"));
 
         Scene scene = new Scene(fxmlLoader.load());
 

@@ -1,5 +1,6 @@
-package codes.acegym;
+package codes.acegym.Controllers;
 
+import codes.acegym.DB.DBConnector;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;

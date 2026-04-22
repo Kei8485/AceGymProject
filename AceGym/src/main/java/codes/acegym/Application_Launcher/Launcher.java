@@ -1,4 +1,4 @@
-package codes.acegym;
+package codes.acegym.Application_Launcher;
 
 import javafx.application.Application;
 

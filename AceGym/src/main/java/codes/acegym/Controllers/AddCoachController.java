@@ -1,4 +1,4 @@
-package codes.acegym;
+package codes.acegym.Controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

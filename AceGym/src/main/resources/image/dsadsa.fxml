@@ -10,7 +10,7 @@
 <AnchorPane prefHeight="650.0" prefWidth="867.0" styleClass="main-content-bg"
     xmlns="http://javafx.com/javafx/17.0.12"
     xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="codes.acegym.ViewMembersController">
+    fx:controller="codes.acegym.Controllers.ViewMembersController">
     <stylesheets>
         <URL value="@../../Css/ViewMembers.css" />
     </stylesheets>

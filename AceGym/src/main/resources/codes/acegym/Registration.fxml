@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="800.0" prefWidth="900.0" styleClass="main-content-bg" stylesheets="@../../Css/Registration.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.RegistrationController">
+<AnchorPane prefHeight="800.0" prefWidth="900.0" styleClass="main-content-bg" stylesheets="@../../Css/Registration.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.RegistrationController">
     <children>
         <ScrollPane fitToWidth="true" styleClass="custom-scroll-pane" stylesheets="@../../Css/Registration.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <content>

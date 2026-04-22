@@ -1,4 +1,4 @@
-package codes.acegym;
+package codes.acegym.Controllers;
 
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
@@ -7,27 +7,35 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.effect.GaussianBlur;
-import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import java.io.IOException;
 
-public class PaymentController {
+public class RegistrationController {
+
+    @FXML private Button AvailMembershipBtn;
+    @FXML private Button RegisterClientBtn;
 
     @FXML
-    private Button AddPaymentBtn;
-
     public void initialize() {
-        // Set action for the payment button
-        AddPaymentBtn.setOnAction(e -> showModal("Confirm Payment Process?", () -> {
-            // Your payment logic goes here
-            System.out.println("Payment processed successfully!");
+        // Button 1: Registration Logic
+        RegisterClientBtn.setOnAction(e -> showModal("Confirm Client Registration?", () -> {
+            System.out.println("Executing Client Registration Logic...");
+            // Your DB save code here
+        }));
+
+        // Button 2: Membership Logic
+        AvailMembershipBtn.setOnAction(e -> showModal("Confirm Membership Availment?", () -> {
+            System.out.println("Executing Membership Availment Logic...");
+            // Your payment/membership code here
         }));
     }
 
+    // Accept the Runnable action as a parameter
     private void showModal(String message, Runnable action) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/codes/acegym/ConfirmationPopup.fxml"));
@@ -35,13 +43,15 @@ public class PaymentController {
 
             ConfirmationController popupController = loader.getController();
             popupController.setMessage(message);
+
+            // Pass the specific lambda to the controller
             popupController.setOnConfirm(action);
 
             Stage confirmStage = new Stage();
             confirmStage.initStyle(StageStyle.TRANSPARENT);
             confirmStage.initModality(Modality.APPLICATION_MODAL);
 
-            Stage owner = (Stage) AddPaymentBtn.getScene().getWindow();
+            Stage owner = (Stage) RegisterClientBtn.getScene().getWindow();
             confirmStage.initOwner(owner);
 
             Scene scene = new Scene(root);
@@ -68,10 +78,10 @@ public class PaymentController {
     }
 
     private void centerStage(Stage stage) {
-        double ownerX = AddPaymentBtn.getScene().getWindow().getX();
-        double ownerY = AddPaymentBtn.getScene().getWindow().getY();
-        double ownerWidth = AddPaymentBtn.getScene().getWindow().getWidth();
-        double ownerHeight = AddPaymentBtn.getScene().getWindow().getHeight();
+        double ownerX = RegisterClientBtn.getScene().getWindow().getX();
+        double ownerY = RegisterClientBtn.getScene().getWindow().getY();
+        double ownerWidth = RegisterClientBtn.getScene().getWindow().getWidth();
+        double ownerHeight = RegisterClientBtn.getScene().getWindow().getHeight();
 
         stage.setX(ownerX + (ownerWidth / 2) - (stage.getWidth() / 2));
         stage.setY(ownerY + (ownerHeight / 2) - (stage.getHeight() / 2));

@@ -1,4 +1,4 @@
-package codes.acegym;
+package codes.acegym.Controllers;
 
 import javafx.animation.*;
 import javafx.application.Platform;
@@ -277,7 +277,7 @@ public class HomePageController {
 
             // Build stage only once
             if (logoutStage == null) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("LogoutOverlay.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/codes/acegym/LogoutOverlay.fxml"));
                 logoutRoot = loader.load();
 
                 LogoutOverlayController overlayController = loader.getController();

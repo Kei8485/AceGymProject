@@ -9,7 +9,7 @@
 <AnchorPane prefHeight="650.0" prefWidth="867.0" styleClass="main-content-bg"
     xmlns="http://javafx.com/javafx/17.0.12"
     xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="codes.acegym.PlanController">
+    fx:controller="codes.acegym.Controllers.PlanController">
     <stylesheets>
         <URL value="@../../Css/Plan.css" />
     </stylesheets>

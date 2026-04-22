@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane styleClass="main-content-bg" stylesheets="@../../Css/ConfirmationPopup.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.ConfirmationController">
+<AnchorPane styleClass="main-content-bg" stylesheets="@../../Css/ConfirmationPopup.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.ConfirmationController">
     <children>
         <VBox alignment="CENTER" minWidth="400.0" spacing="25.0" styleClass="card-content-area" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
             <children>

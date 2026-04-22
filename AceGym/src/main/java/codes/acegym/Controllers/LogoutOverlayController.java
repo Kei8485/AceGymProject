@@ -1,4 +1,4 @@
-package codes.acegym;
+package codes.acegym.Controllers;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
@@ -40,7 +40,8 @@ public class LogoutOverlayController {
 
         Thread loaderThread = new Thread(() -> {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/codes/acegym/Login.fxml"));
+
                 preloadedLogin.set(loader.load());
             } catch (IOException ex) {
                 ex.printStackTrace();

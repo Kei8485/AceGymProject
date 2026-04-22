@@ -8,7 +8,7 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<StackPane fx:id="homePageBgID" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="1080.0" prefWidth="1920.0" style="-fx-background-radius: 30;" styleClass="main-bg" stylesheets="@../../Css/styles2.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.HomePageController">
+<StackPane fx:id="homePageBgID" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="1080.0" prefWidth="1920.0" style="-fx-background-radius: 30;" styleClass="main-bg" stylesheets="@../../Css/styles2.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.HomePageController">
 
     <children>
         <HBox maxHeight="738.0" maxWidth="1177.0" minHeight="738.0" minWidth="1177.0" prefHeight="738.0" prefWidth="1177.0" style="-fx-background-color: transparent; -fx-border-width: 2; -fx-border-radius: 25;">

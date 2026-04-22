@@ -1,4 +1,4 @@
-package codes.acegym;
+package codes.acegym.Controllers;
 
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
@@ -37,7 +37,7 @@ public class CoachesController {
         coachContainer.getChildren().clear();
         try {
             // Loading a single card as a placeholder
-            Node card = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("CoachCard.fxml")));
+            Node card = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/codes/acegym/CoachCard.fxml")));
             coachContainer.getChildren().add(card);
         } catch (IOException e) {
             e.printStackTrace();

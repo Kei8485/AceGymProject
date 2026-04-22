@@ -1,4 +1,4 @@
-package codes.acegym;
+package codes.acegym.DB;
 
 import java.sql.*;
 

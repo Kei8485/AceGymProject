@@ -1,4 +1,4 @@
-package codes.acegym;
+package codes.acegym.Controllers;
 
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
