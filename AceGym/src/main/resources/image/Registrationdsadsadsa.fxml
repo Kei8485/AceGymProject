@@ -43,17 +43,14 @@
                                         <StackPane maxHeight="52" maxWidth="52" minHeight="52" minWidth="52" styleClass="header-icon-badge">
                                             <children>
                                                 <ImageView fitHeight="28.0" fitWidth="28.0" pickOnBounds="true" preserveRatio="true">
-                                                    <image><Image url="@../../image/address-card-regular.png" /></image>
+                                                    <image><Image url="@../../image/user-solid.png" /></image>
                                                 </ImageView>
                                             </children>
                                         </StackPane>
                                         <VBox spacing="3.0">
                                             <children>
-                                                <Label styleClass="page-subtitle" text="Register a new client to the system">
-                                       <padding>
-                                          <Insets bottom="-10.0" />
-                                       </padding></Label>
                                                 <Label styleClass="page-title" text="Client Registration" />
+                                                <Label styleClass="page-subtitle" text="Register a new client to the system" />
                                             </children>
                                         </VBox>
                                     </children>
@@ -147,10 +144,10 @@
                                         <!-- Register Button -->
                                         <HBox alignment="CENTER_RIGHT">
                                             <children>
-                                                <Button fx:id="RegisterClientBtn" prefHeight="40.0" prefWidth="186.0" styleClass="btn-primary" text="Register Client">
+                                                <Button fx:id="RegisterClientBtn" prefHeight="40.0" styleClass="btn-primary" text="Register Client">
                                                     <graphic>
-                                                        <ImageView fitHeight="29.0" fitWidth="23.0" pickOnBounds="true" preserveRatio="true">
-                                                            <image><Image url="@../../image/user-plus-solid.png" /></image>
+                                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                                            <image><Image url="@../../image/user-solid.png" /></image>
                                                         </ImageView>
                                                     </graphic>
                                                 </Button>
@@ -171,20 +168,17 @@
                                 <!-- Section Page Header -->
                                 <HBox alignment="CENTER_LEFT" spacing="16.0">
                                     <children>
-                                        <StackPane maxHeight="52" maxWidth="52" minHeight="52" minWidth="52" styleClass="header-icon-badge">
+                                        <StackPane maxHeight="52" maxWidth="52" minHeight="52" minWidth="52" styleClass="header-icon-badge-alt">
                                             <children>
                                                 <ImageView fitHeight="28.0" fitWidth="28.0" pickOnBounds="true" preserveRatio="true">
-                                                    <image><Image url="@../../image/people-group-solid.png" /></image>
+                                                    <image><Image url="@../../image/id-card-solid.png" /></image>
                                                 </ImageView>
                                             </children>
                                         </StackPane>
                                         <VBox spacing="3.0">
                                             <children>
-                                                <Label styleClass="page-subtitle" text="Search and register membership for a client">
-                                       <padding>
-                                          <Insets bottom="-10.0" />
-                                       </padding></Label>
                                                 <Label styleClass="page-title" text="Membership Registration" />
+                                                <Label styleClass="page-subtitle" text="Search and register membership for a client" />
                                             </children>
                                         </VBox>
                                     </children>
@@ -198,22 +192,14 @@
                                     <children>
 
                                         <!-- Search + Filter Row -->
-                                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                        <HBox spacing="12.0" alignment="CENTER_LEFT">
                                             <children>
                                                 <StackPane HBox.hgrow="ALWAYS">
                                                     <children>
-                                                        <ComboBox fx:id="clientSearchBox" editable="true" maxWidth="Infinity" prefHeight="40.0" promptText="Search client name or ID" styleClass="search-combo" visibleRowCount="7" HBox.hgrow="ALWAYS">
-                                             <padding>
-                                                <Insets left="10.0" />
-                                             </padding>
-                                          </ComboBox>
-                                                        <ImageView fitHeight="18.0" fitWidth="21.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
-                                                            <image>
-                                                <Image url="@../../image/magnifying-glass-solid.png" />
-                                             </image>
-                                                            <StackPane.margin>
-                                                <Insets left="-120.0" right="220.0" />
-                                             </StackPane.margin>
+                                                        <ComboBox fx:id="clientSearchBox" editable="true" maxWidth="Infinity" prefHeight="40.0" promptText="Search client name or ID" styleClass="search-combo" visibleRowCount="7" HBox.hgrow="ALWAYS" />
+                                                        <ImageView fitHeight="14.0" fitWidth="14.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+                                                            <image><Image url="@../../image/magnifying-glass-solid.png" /></image>
+                                                            <StackPane.margin><Insets left="12.0" /></StackPane.margin>
                                                         </ImageView>
                                                     </children>
                                                 </StackPane>
@@ -229,8 +215,8 @@
                                                 <Region HBox.hgrow="ALWAYS" />
                                                 <Button fx:id="resetBtn" prefHeight="40.0" styleClass="btn-secondary" text="Reset">
                                                     <graphic>
-                                                        <ImageView fitHeight="14.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
-                                                            <image><Image url="@../../image/arrows-rotate-solid.png" /></image>
+                                                        <ImageView fitHeight="14.0" fitWidth="14.0" pickOnBounds="true" preserveRatio="true">
+                                                            <image><Image url="@../../image/rotate-solid.png" /></image>
                                                         </ImageView>
                                                     </graphic>
                                                 </Button>
@@ -318,10 +304,10 @@
                                         <!-- Avail Membership Button -->
                                         <HBox alignment="CENTER_RIGHT">
                                             <children>
-                                                <Button fx:id="AvailMembershipBtn" prefHeight="40.0" prefWidth="218.0" styleClass="btn-primary" text="Avail Membership">
+                                                <Button fx:id="AvailMembershipBtn" prefHeight="40.0" styleClass="btn-primary" text="Avail Membership">
                                                     <graphic>
-                                                        <ImageView fitHeight="28.0" fitWidth="34.0" pickOnBounds="true" preserveRatio="true">
-                                                            <image><Image url="@../../image/person-running-solid.png" /></image>
+                                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                                            <image><Image url="@../../image/id-card-solid.png" /></image>
                                                         </ImageView>
                                                     </graphic>
                                                 </Button>
@@ -334,7 +320,7 @@
                                                 <Insets bottom="10.0" left="14.0" right="14.0" top="10.0" />
                                             </padding>
                                             <children>
-                                                <Label alignment="CENTER" contentDisplay="CENTER" styleClass="tip-icon" text="i" textAlignment="CENTER" />
+                                                <Label styleClass="tip-icon" text="i" />
                                                 <Label styleClass="tip-label-bold" text="Tip:" />
                                                 <Label styleClass="tip-label-text" text="Make sure all client details are accurate before registering or availing membership." />
                                             </children>

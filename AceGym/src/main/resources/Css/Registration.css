@@ -1,165 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@100..900&display=swap');
 
-/* --- Variable Definitions --- */
-.root {
-    -fx-base-dark: #0D1117;
-    -fx-login-card-bg: #111827;
-    -fx-login-info-bg: #0F1923;
-    -fx-accent-darker-red-text: #8B2D2F;
-    -fx-accent-lighter-red-text: #CB443E;
-    -fx-white-text: #E8E6E9;
-    -fx-gray-text: #6B7280;
-}
-
-/* --- Layout Containers --- */
+/* ── Base ── */
 .main-content-bg {
     -fx-background-color: #0E1223;
 }
 
-/* Container for the registration forms */
-.card-content-area {
-    -fx-background-color: #1c2237;; /* Matches -fx-login-card-bg */
-    -fx-background-radius: 20;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 0);
-    -fx-border-color: rgba(255, 255, 255, 0.05);
-    -fx-border-radius: 20;
-}
-
-/* --- Typography --- */
-.text-header {
-    -fx-font-family: 'Inter';
-    -fx-font-size: 35px;
-    -fx-font-weight: bold;
-    -fx-text-fill: -fx-white-text;
-}
-
-.text-header-smaller {
-    -fx-font-family: 'Inter';
-    -fx-font-size: 16px;
-    -fx-font-weight: normal;
-    -fx-text-fill: -fx-white-text; /* Made white for better contrast on dark bg */
-}
-
-/* --- Input Fields (Textfields) --- */
-.date-field {
-    -fx-background-color: #e0e4ef;
-    -fx-background-radius: 10;
-    -fx-padding: 10;
-    -fx-text-fill: #1a1f30;
-    -fx-font-size: 14px;
-    -fx-font-family: "Inter";
-}
-
-.date-field:hover {
-    -fx-background-color: #edf1f9;
-}
-
-
-
-/* --- Buttons --- */
-/* Main Action Buttons (Register / Avail Membership) */
-.btn-manage {
-    -fx-background-color: -fx-accent-lighter-red-text;
-    -fx-background-radius: 20;
-    -fx-text-fill: white;
-    -fx-font-family: "Inter";
-    -fx-font-weight: bold;
-    -fx-padding: 10 30;
-}
-
-.btn-manage:hover {
-    -fx-background-color: derive(#CB443E, 15%);
-    -fx-cursor: hand;
-}
-
-.btn-manage:pressed {
-    -fx-background-color: -fx-accent-darker-red-text;
-}
-
-
-
-/* --- Combo Box (Search & Filter) --- */
-.combo-box {
-    -fx-background-color: -fx-accent-lighter-red-text;
-    -fx-background-radius: 15; /* Matching your search bar radius */
-    -fx-padding: 0; /* Remove padding here so the text-field can fill the space */
-    -fx-display-caret: true;
-}
-
-.combo-box:hover {
-    -fx-background-color: derive(-fx-accent-lighter-red-text, -10%);
-    -fx-cursor: hand;
-}
-
-/* This is the secret: Target the internal TextField for alignment */
-.combo-box .text-field {
-    -fx-background-color: transparent;
-    -fx-text-fill: white;
-    -fx-prompt-text-fill: rgba(255, 255, 255, 0.7);
-    -fx-font-family: "Inter";
-    -fx-font-size: 14px;
-    -fx-padding: 8 15 8 15; /* Top Right Bottom Left - centers the text vertically */
-}
-
-/* This removes that white box/background from the arrow area */
-.combo-box .arrow-button {
-    -fx-background-color: transparent;
-    -fx-padding: 0 15 0 0;
-}
-
-.combo-box .arrow {
-    -fx-background-color: white;
-    -fx-shape: "M 0 0 L 4 4 L 8 0 Z"; /* Ensures it stays a clean triangle */
-}
-
-/* --- Dropdown List Styling --- */
-.combo-box-popup .list-view {
-    -fx-background-color: #1c2237;
-    -fx-background-radius: 10;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 10, 0, 0, 0);
-}
-
-.combo-box-popup .list-cell {
-    -fx-text-fill: white;
-    -fx-font-family: "Inter";
-    -fx-padding: 10 15;
-    -fx-background-color: transparent;
-}
-
-.combo-box-popup .list-cell:hover {
-    -fx-background-color: -fx-accent-lighter-red-text;
-    -fx-text-fill: white;
-}
-
-.combo-box-popup .list-cell:filled:selected {
-    -fx-background-color: -fx-accent-darker-red-text;
-    -fx-text-fill: white;
-}
-
-/* Target the text in a non-editable ComboBox (Filter) */
-.combo-box .label {
-    -fx-text-fill: white; /* This turns the text white */
-    -fx-font-family: "Inter";
-    -fx-font-size: 14px;
-    -fx-padding: 0 0 0 10; /* Adds some space from the left edge */
-}
-
-/* Ensure the background stays red even when selected */
-.combo-box:filled {
-    -fx-background-color: -fx-accent-lighter-red-text;
-    -fx-background-radius: 15;
-}
-
-/* Fix the arrow button specifically for the non-editable box */
-.combo-box .arrow-button {
-    -fx-background-color: transparent;
-    -fx-padding: 0 10 0 0;
-}
-
-/* --- ScrollPane Styling --- */
 .custom-scroll-pane {
-    -fx-background-color: transparent; /* Main background */
-    -fx-background: transparent;      /* Viewport background */
+    -fx-background-color: transparent;
+    -fx-background: transparent;
     -fx-border-color: transparent;
 }
 
@@ -167,23 +15,20 @@
     -fx-background-color: transparent;
 }
 
-/* Vertical ScrollBar Track */
 .custom-scroll-pane .scroll-bar:vertical {
     -fx-background-color: transparent;
     -fx-pref-width: 8;
 }
 
-/* The Draggable Thumb */
 .custom-scroll-pane .scroll-bar:vertical .thumb {
-    -fx-background-color: #1c2237; /* Match your card-search color */
+    -fx-background-color: #1c2237;
     -fx-background-radius: 10;
 }
 
 .custom-scroll-pane .scroll-bar:vertical .thumb:hover {
-    -fx-background-color: #CB443E; /* Turn red on hover for feedback */
+    -fx-background-color: #e53935;
 }
 
-/* Hide the increment/decrement buttons (the small arrows) */
 .custom-scroll-pane .scroll-bar .increment-button,
 .custom-scroll-pane .scroll-bar .decrement-button {
     -fx-background-color: transparent;
@@ -193,4 +38,317 @@
 .custom-scroll-pane .scroll-bar .increment-arrow,
 .custom-scroll-pane .scroll-bar .decrement-arrow {
     -fx-shape: "";
+}
+
+/* ── Page Header ── */
+.header-icon-badge {
+    -fx-background-color: #e53935;
+    -fx-background-radius: 14;
+    -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.5), 12, 0, 0, 4);
+}
+
+.header-icon-badge-alt {
+    -fx-background-color: #c0392b;
+    -fx-background-radius: 14;
+    -fx-effect: dropshadow(three-pass-box, rgba(192,57,43,0.5), 12, 0, 0, 4);
+}
+
+.page-title {
+    -fx-font-family: 'Bebas Neue';
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.page-subtitle {
+    -fx-font-family: 'Bebas Neue';
+    -fx-font-size: 20px;
+    -fx-text-fill: #7a7f94;
+}
+
+/* ── Section Card ── */
+.section-card {
+    -fx-background-color: #1c2237;
+    -fx-background-radius: 16;
+    -fx-border-color: #2e3349;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 16;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 12, 0, 0, 0);
+}
+
+/* ── Field Labels ── */
+.field-label {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: white;
+}
+
+/* ── Input Fields ── */
+.input-field-icon {
+    -fx-background-color: #141928;
+    -fx-background-radius: 8;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #4a5068;
+    -fx-padding: 5 12 5 36;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 16px;
+}
+
+.input-field-icon:focused {
+    -fx-border-color: #e53935;
+    -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.2), 8, 0, 0, 0);
+}
+
+.input-field-icon-both {
+    -fx-background-color: #141928;
+    -fx-background-radius: 8;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #4a5068;
+    -fx-padding: 5 36 5 36;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+}
+
+.input-field-icon-both:focused {
+    -fx-border-color: #e53935;
+    -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.2), 8, 0, 0, 0);
+}
+
+/* Read-only variants */
+.input-field-icon-readonly {
+    -fx-background-color: #111624;
+    -fx-background-radius: 8;
+    -fx-border-color: #252b40;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-text-fill: #c0c5d8;
+    -fx-prompt-text-fill: #3a4058;
+    -fx-padding: 5 12 5 36;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 16px;
+    -fx-opacity: 0.85;
+}
+
+.input-field-icon-both-readonly {
+    -fx-background-color: #111624;
+    -fx-background-radius: 8;
+    -fx-border-color: #252b40;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-text-fill: #c0c5d8;
+    -fx-prompt-text-fill: #3a4058;
+    -fx-padding: 5 36 5 36;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+    -fx-opacity: 0.85;
+}
+
+/* ── Field Icons ── */
+.field-icon-left {
+    -fx-opacity: 0.45;
+    StackPane-alignment: CENTER_LEFT;
+}
+
+.field-icon-right {
+    -fx-opacity: 0.45;
+    StackPane-alignment: CENTER_RIGHT;
+}
+
+/* ── Search ComboBox (editable) ── */
+.search-combo {
+    -fx-background-color: #141928;
+    -fx-background-radius: 8;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 16px;
+}
+
+/* This is the editable text input inside the combo */
+.search-combo .text-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #4a5068;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 16px;
+    -fx-padding: 0 0 0 24;
+    -fx-border-color: transparent;
+    -fx-background-radius: 8;
+}
+
+/* Still needed for when an item is selected and shown */
+.search-combo .button-cell {
+    -fx-text-fill: white;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 14px;
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 0 24;
+}
+
+.search-combo .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.search-combo .arrow {
+    -fx-background-color: #7a7f94;
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z";
+}
+
+.search-combo .list-view {
+    -fx-background-color: #1c2237;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.search-combo .list-cell {
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+}
+
+.search-combo .list-cell:hover {
+    -fx-background-color: #e53935;
+    -fx-text-fill: white;
+}
+
+/* ── Filter ComboBox ── */
+.filter-combo {
+    -fx-background-color: #141928;
+    -fx-background-radius: 8;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 16px;
+}
+
+.filter-combo .label,
+.filter-combo .button-cell {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-family: 'Inter';
+    -fx-padding: 0 0 0 24;
+}
+
+.filter-combo .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.filter-combo .arrow {
+    -fx-background-color: #7a7f94;
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z";
+}
+
+.filter-combo .list-view {
+    -fx-background-color: #1c2237;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.filter-combo .list-cell {
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+}
+
+.filter-combo .list-cell:hover {
+    -fx-background-color: #e53935;
+    -fx-text-fill: white;
+}
+
+/* ── Buttons ── */
+.btn-primary {
+    -fx-background-color: #e53935;
+    -fx-text-fill: white;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 9;
+    -fx-padding: 0 20;
+    -fx-cursor: hand;
+    -fx-graphic-text-gap: 8;
+    -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.4), 10, 0, 0, 3);
+}
+
+.btn-primary:hover {
+    -fx-background-color: #c62828;
+}
+
+.btn-primary:pressed {
+    -fx-background-color: #c62828;
+    -fx-translate-y: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 4, 0, 0, 1);
+}
+
+.btn-secondary {
+    -fx-background-color: #1e2130;
+    -fx-text-fill: white;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 9;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 9;
+    -fx-border-width: 1;
+    -fx-padding: 0 18;
+    -fx-cursor: hand;
+    -fx-graphic-text-gap: 8;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #252a42;
+}
+
+.btn-secondary:pressed {
+    -fx-background-color: #1a1f33;
+    -fx-translate-y: 1px;
+}
+
+/* ── Tip Banner ── */
+.tip-banner {
+    -fx-background-color: #141928;
+    -fx-background-radius: 8;
+    -fx-border-color: #2e3349;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+}
+
+.tip-icon {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-color: #e53935;
+    -fx-background-radius: 50;
+    -fx-min-width: 18;
+    -fx-min-height: 18;
+    -fx-max-width: 18;
+    -fx-max-height: 18;
+    -fx-alignment: center;
+}
+
+.tip-label-bold {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #7b8185
+;
+}
+
+.tip-label-text {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 14px;
+    -fx-text-fill: #7a7f94;
 }
