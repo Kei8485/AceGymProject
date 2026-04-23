@@ -91,7 +91,7 @@
                                                         <TextField fx:id="regFirstNameField" prefHeight="40.0" promptText="Enter first name" styleClass="input-field-icon" />
                                                         <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
                                                             <image><Image url="@../../image/user-solid.png" /></image>
-                                                            <StackPane.margin><Insets left="12.0" /></StackPane.margin>
+                                                            <StackPane.margin><Insets right="200.0" /></StackPane.margin>
                                                         </ImageView>
                                                     </children>
                                                 </StackPane>
@@ -100,7 +100,7 @@
                                                         <TextField fx:id="regLastNameField" prefHeight="40.0" promptText="Enter last name" styleClass="input-field-icon" />
                                                         <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
                                                             <image><Image url="@../../image/user-solid.png" /></image>
-                                                            <StackPane.margin><Insets left="12.0" /></StackPane.margin>
+                                                            <StackPane.margin><Insets right="200.0" /></StackPane.margin>
                                                         </ImageView>
                                                     </children>
                                                 </StackPane>
@@ -108,12 +108,8 @@
                                                     <children>
                                                         <TextField fx:id="regDateField" prefHeight="40.0" promptText="MM/DD/YYYY" styleClass="input-field-icon-both" />
                                                         <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
-                                                            <image><Image url="@../../image/calendar-solid.png" /></image>
-                                                            <StackPane.margin><Insets left="12.0" /></StackPane.margin>
-                                                        </ImageView>
-                                                        <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-right">
-                                                            <image><Image url="@../../image/calendar-solid.png" /></image>
-                                                            <StackPane.margin><Insets right="12.0" /></StackPane.margin>
+                                                            <image><Image url="@../../image/calendar-days-solid.png" /></image>
+                                                            <StackPane.margin><Insets right="200.0" /></StackPane.margin>
                                                         </ImageView>
                                                     </children>
                                                 </StackPane>
@@ -128,7 +124,7 @@
                                                         <TextField fx:id="regEmailField" prefHeight="40.0" promptText="Enter email address" styleClass="input-field-icon" />
                                                         <ImageView fitHeight="14.0" fitWidth="14.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
                                                             <image><Image url="@../../image/envelope-solid.png" /></image>
-                                                            <StackPane.margin><Insets left="12.0" /></StackPane.margin>
+                                                            <StackPane.margin><Insets right="440.0" /></StackPane.margin>
                                                         </ImageView>
                                                     </children>
                                                 </StackPane>
@@ -137,7 +133,7 @@
                                                         <TextField fx:id="regContactField" prefHeight="40.0" promptText="Enter contact number" styleClass="input-field-icon" />
                                                         <ImageView fitHeight="14.0" fitWidth="14.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
                                                             <image><Image url="@../../image/phone-solid.png" /></image>
-                                                            <StackPane.margin><Insets left="12.0" /></StackPane.margin>
+                                                            <StackPane.margin><Insets right="200.0" /></StackPane.margin>
                                                         </ImageView>
                                                     </children>
                                                 </StackPane>
@@ -212,7 +208,7 @@
                                                 <Image url="@../../image/magnifying-glass-solid.png" />
                                              </image>
                                                             <StackPane.margin>
-                                                <Insets left="-120.0" right="220.0" />
+                                                <Insets left="-120.0" right="200.0" />
                                              </StackPane.margin>
                                                         </ImageView>
                                                     </children>
@@ -262,7 +258,7 @@
                                                         <TextField fx:id="memFirstNameField" editable="false" prefHeight="40.0" promptText="Enter first name" styleClass="input-field-icon-readonly" />
                                                         <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
                                                             <image><Image url="@../../image/user-solid.png" /></image>
-                                                            <StackPane.margin><Insets left="12.0" /></StackPane.margin>
+                                                            <StackPane.margin><Insets right="200.0" /></StackPane.margin>
                                                         </ImageView>
                                                     </children>
                                                 </StackPane>
@@ -271,7 +267,7 @@
                                                         <TextField fx:id="memLastNameField" editable="false" prefHeight="40.0" promptText="Enter last name" styleClass="input-field-icon-readonly" />
                                                         <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
                                                             <image><Image url="@../../image/user-solid.png" /></image>
-                                                            <StackPane.margin><Insets left="12.0" /></StackPane.margin>
+                                                            <StackPane.margin><Insets right="200.0" /></StackPane.margin>
                                                         </ImageView>
                                                     </children>
                                                 </StackPane>
@@ -279,12 +275,8 @@
                                                     <children>
                                                         <TextField fx:id="memDateField" editable="false" prefHeight="40.0" promptText="MM/DD/YYYY" styleClass="input-field-icon-both-readonly" />
                                                         <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
-                                                            <image><Image url="@../../image/calendar-solid.png" /></image>
-                                                            <StackPane.margin><Insets left="12.0" /></StackPane.margin>
-                                                        </ImageView>
-                                                        <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-right">
-                                                            <image><Image url="@../../image/calendar-solid.png" /></image>
-                                                            <StackPane.margin><Insets right="12.0" /></StackPane.margin>
+                                                            <image><Image url="@../../image/calendar-days-solid.png" /></image>
+                                                            <StackPane.margin><Insets right="200.0" /></StackPane.margin>
                                                         </ImageView>
                                                     </children>
                                                 </StackPane>
@@ -299,7 +291,7 @@
                                                         <TextField fx:id="memEmailField" editable="false" prefHeight="40.0" promptText="Enter email address" styleClass="input-field-icon-readonly" />
                                                         <ImageView fitHeight="14.0" fitWidth="14.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
                                                             <image><Image url="@../../image/envelope-solid.png" /></image>
-                                                            <StackPane.margin><Insets left="12.0" /></StackPane.margin>
+                                                            <StackPane.margin><Insets right="440.0" /></StackPane.margin>
                                                         </ImageView>
                                                     </children>
                                                 </StackPane>
@@ -308,7 +300,7 @@
                                                         <TextField fx:id="memContactField" editable="false" prefHeight="40.0" promptText="Enter contact number" styleClass="input-field-icon-readonly" />
                                                         <ImageView fitHeight="14.0" fitWidth="14.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
                                                             <image><Image url="@../../image/phone-solid.png" /></image>
-                                                            <StackPane.margin><Insets left="12.0" /></StackPane.margin>
+                                                            <StackPane.margin><Insets right="200.0" /></StackPane.margin>
                                                         </ImageView>
                                                     </children>
                                                 </StackPane>

@@ -1,0 +1,348 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@100..900&display=swap');
+
+/* ── Base ── */
+.main-content-bg {
+    -fx-background-color: #0E1223;
+}
+
+.custom-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.custom-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.custom-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+}
+
+.custom-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #1c2237;
+    -fx-background-radius: 10;
+}
+
+.custom-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #e53935;
+}
+
+.custom-scroll-pane .scroll-bar .increment-button,
+.custom-scroll-pane .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.custom-scroll-pane .scroll-bar .increment-arrow,
+.custom-scroll-pane .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+}
+
+/* ── Page Header ── */
+.header-icon-badge {
+    -fx-background-color: #e53935;
+    -fx-background-radius: 14;
+    -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.5), 12, 0, 0, 4);
+}
+
+.page-eyebrow {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #7a7f94;
+}
+
+.page-title {
+    -fx-font-family: 'Bebas Neue';
+    -fx-font-size: 34px;
+    -fx-text-fill: white;
+}
+
+/* ── Clock ── */
+.clock-time {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.clock-date {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 12px;
+    -fx-text-fill: #7a7f94;
+}
+
+/* ══════════════════════════════ */
+/* STAT CARDS                    */
+/* ══════════════════════════════ */
+.stat-card {
+    -fx-background-color: #1c2237;
+    -fx-background-radius: 16;
+    -fx-border-color: #2e3349;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 16;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 0);
+}
+
+.stat-icon-red {
+    -fx-background-color: rgba(229,57,53,0.15);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(229,57,53,0.3);
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.stat-icon-green {
+    -fx-background-color: rgba(46,160,67,0.15);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(46,160,67,0.3);
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.stat-icon-orange {
+    -fx-background-color: rgba(210,130,0,0.15);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(210,130,0,0.3);
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.stat-icon-blue {
+    -fx-background-color: rgba(59,130,246,0.15);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(59,130,246,0.3);
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.stat-label {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 12px;
+    -fx-text-fill: #7a7f94;
+}
+
+.stat-value {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.stat-sub {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 11px;
+    -fx-text-fill: #4a5068;
+}
+
+/* ══════════════════════════════ */
+/* SECTION CARDS                 */
+/* ══════════════════════════════ */
+.section-card {
+    -fx-background-color: #1c2237;
+    -fx-background-radius: 18;
+    -fx-border-color: #2e3349;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 18;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 12, 0, 0, 0);
+}
+
+.section-icon-badge {
+    -fx-background-color: #2c2337;
+    -fx-background-radius: 10;
+    -fx-border-color: #4a1f21;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+}
+
+.section-icon-badge-orange {
+    -fx-background-color: rgba(210,130,0,0.12);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(210,130,0,0.25);
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+}
+
+.section-icon-badge-blue {
+    -fx-background-color: rgba(59,130,246,0.12);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(59,130,246,0.25);
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+}
+
+.section-title {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.section-subtitle {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 12px;
+    -fx-text-fill: #7a7f94;
+}
+
+.card-divider {
+    -fx-background-color: #2e3349;
+    -fx-min-height: 1;
+    -fx-max-height: 1;
+    -fx-pref-height: 1;
+}
+
+/* ══════════════════════════════ */
+/* REVENUE CARD                  */
+/* ══════════════════════════════ */
+.revenue-label {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+    -fx-text-fill: #7a7f94;
+}
+
+.revenue-value {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.revenue-value-red {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e53935;
+}
+
+.total-sales-banner {
+    -fx-background-color: rgba(229,57,53,0.1);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(229,57,53,0.25);
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+}
+
+.total-sales-eyebrow {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e53935;
+}
+
+.total-sales-value {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+/* ══════════════════════════════ */
+/* RENEWAL ROW (built in code)   */
+/* ══════════════════════════════ */
+.renewal-row {
+    -fx-background-color: rgba(210,130,0,0.07);
+    -fx-background-radius: 8;
+    -fx-border-color: rgba(210,130,0,0.15);
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+}
+
+.renewal-name {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: white;
+}
+
+.renewal-date {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 11px;
+    -fx-text-fill: #7a7f94;
+}
+
+.renewal-badge {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-color: #d28200;
+    -fx-background-radius: 6;
+    -fx-padding: 2 8;
+}
+
+/* ══════════════════════════════ */
+/* MINI TABLE (Members/Coaches)  */
+/* ══════════════════════════════ */
+.mini-table-header {
+    -fx-background-color: #1e2130;
+    -fx-background-radius: 8;
+}
+
+.mini-table-col {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #7a7f94;
+}
+
+.mini-table-row {
+    -fx-border-color: transparent transparent rgba(255,255,255,0.05) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.mini-table-row:hover {
+    -fx-background-color: #252d42;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.mini-row-name {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: white;
+}
+
+.mini-row-sub {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 11px;
+    -fx-text-fill: #7a7f94;
+}
+
+.mini-row-value {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 12px;
+    -fx-text-fill: #c0c5d8;
+}
+
+.badge-active {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-color: rgba(46,160,67,0.8);
+    -fx-background-radius: 5;
+    -fx-padding: 2 7;
+}
+
+.badge-expired {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-color: rgba(229,57,53,0.8);
+    -fx-background-radius: 5;
+    -fx-padding: 2 7;
+}
+
+/* ══════════════════════════════ */
+/* EMPTY STATE                   */
+/* ══════════════════════════════ */
+.empty-state-label {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+    -fx-text-fill: #4a5068;
+    -fx-padding: 20 0;
+}
