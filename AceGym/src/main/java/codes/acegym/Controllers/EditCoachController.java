@@ -152,7 +152,14 @@ public class EditCoachController {
             coach.setFirstName(fn);
             coach.setLastName(ln);
             coach.setTrainingTypeID(typeID);
-            if (selectedImagePath != null) coach.setStaffImage(selectedImagePath);
+            if (selectedImagePath != null && !selectedImagePath.isBlank())
+                coach.setStaffImage(selectedImagePath);
+
+            // Also sync the training category display name from the combo selection
+            if (editTrainingType != null && editTrainingType.getValue() != null) {
+                String[] parts = editTrainingType.getValue().split("\\|");
+                if (parts.length > 1) coach.setTrainingCategory(parts[1].trim());
+            }
 
             if (cardController != null) cardController.refreshCard();
             closeStage();

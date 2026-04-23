@@ -113,7 +113,8 @@ public class AddCoachController {
         if (ok) {
             if (onCoachAdded != null) onCoachAdded.run();
             showSuccessPopup("New coach added successfully!");
-            closeWindow();
+            // closeWindow() is now called from inside the popup's OK button
+            // so the popup's owner stage is still alive when the popup opens
         } else {
             showError("Failed to add coach. Please try again.");
         }
@@ -150,7 +151,10 @@ public class AddCoachController {
                 "-fx-background-color: #e53935; -fx-text-fill: white;" +
                         "-fx-font-weight: bold; -fx-font-size: 13px;" +
                         "-fx-background-radius: 8; -fx-padding: 8 28 8 28; -fx-cursor: hand;");
-        okBtn.setOnAction(e -> popup.close());
+        okBtn.setOnAction(e -> {
+            popup.close();
+            closeWindow();  // close the AddCoach form AFTER the popup is dismissed
+        });
 
         box.getChildren().addAll(icon, msg, okBtn);
 

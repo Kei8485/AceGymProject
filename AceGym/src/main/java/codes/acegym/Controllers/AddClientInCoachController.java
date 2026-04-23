@@ -5,6 +5,7 @@ import codes.acegym.DB.CoachDAO;
 import codes.acegym.Objects.Client;
 import codes.acegym.Objects.Coach;
 import javafx.animation.FadeTransition;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -17,35 +18,37 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
-import javafx.util.StringConverter;
 
 public class AddClientInCoachController {
 
-    @FXML private VBox             mainListView;
-    @FXML private VBox             clientDetailsView;
-    @FXML private VBox             clientListContainer;
+    // ── FXML — main list view ────────────────────────────────────────────────
+    @FXML private VBox  mainListView;
+    @FXML private Label headerLabel;
+    @FXML private VBox  clientListContainer;
 
-    // Main list view
-    @FXML private Label            headerLabel;
+    // ── FXML — add-client view ───────────────────────────────────────────────
+    @FXML private VBox              clientDetailsView;
+    @FXML private TextField         searchField;
+    @FXML private ListView<Client>  clientListView;
+    @FXML private TextField         displayClientId;
+    @FXML private TextField         displayFullName;
+    @FXML private TextField         displayClientType;
+    @FXML private TextField         displayContact;
+    @FXML private TextField         displayEmail;
+    @FXML private Label             errorLabel;
 
-    // Add-client view — now a ComboBox instead of search TextField
-    @FXML private ComboBox<Client> clientComboBox;
-    @FXML private TextField        displayClientId;
-    @FXML private TextField        displayFullName;
-    @FXML private TextField        displayClientType;
-    @FXML private TextField        displayContact;
-    @FXML private Label            errorLabel;
-
+    // ── State ────────────────────────────────────────────────────────────────
     private Coach               coach;
     private CoachCardController cardController;
-    private int                 selectedClientID = -1;
+    private Client              selectedClient  = null;
+    private ObservableList<Client> allUnassigned = FXCollections.observableArrayList();
 
     // ── Injected by CoachCardController ─────────────────────────────────────
     public void setCoach(Coach coach, CoachCardController cardController) {
         this.coach          = coach;
         this.cardController = cardController;
         if (headerLabel != null)
-            headerLabel.setText("Manage Clients for Coach " + coach.getFullName());
+            headerLabel.setText("Manage Clients — " + coach.getFullName());
         loadAssignedClients();
     }
 
@@ -59,94 +62,78 @@ public class AddClientInCoachController {
             errorLabel.setManaged(false);
         }
 
-        setupClientComboBox();
+        setupSearch();
+        setupListView();
     }
 
-    // ── ComboBox: editable so user can type to search, selects auto-fills details
-    private void setupClientComboBox() {
-        if (clientComboBox == null) return;
+    // ── Search TextField — filters ListView live ─────────────────────────────
+    private void setupSearch() {
+        if (searchField == null) return;
+        searchField.textProperty().addListener((obs, oldVal, newVal) -> {
+            String q = (newVal == null) ? "" : newVal.trim().toLowerCase();
+            if (q.isEmpty()) {
+                clientListView.setItems(allUnassigned);
+            } else {
+                ObservableList<Client> filtered = FXCollections.observableArrayList();
+                for (Client c : allUnassigned) {
+                    if (c.getFullName().toLowerCase().contains(q)) filtered.add(c);
+                }
+                clientListView.setItems(filtered);
+            }
+            clientListView.getSelectionModel().clearSelection();
+            clearDisplayFields();
+            selectedClient = null;
+        });
+    }
 
-        clientComboBox.setEditable(true);   // allow typing to filter
-        clientComboBox.setPromptText("Type or select a client...");
+    // ── ListView — fills detail panel on selection ───────────────────────────
+    private void setupListView() {
+        if (clientListView == null) return;
 
-        // Style the combo to match the dark theme
-        clientComboBox.setStyle(
+        clientListView.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(Client c, boolean empty) {
+                super.updateItem(c, empty);
+                if (empty || c == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(c.getFullName() + "   [" + c.getClientType() + "]");
+                    setStyle("-fx-text-fill: #e8e8f0; -fx-font-size: 13px;" +
+                            "-fx-background-color: transparent;");
+                }
+            }
+        });
+
+        clientListView.setStyle(
                 "-fx-background-color: #1c2237;" +
                         "-fx-border-color: #2e3349;" +
                         "-fx-border-radius: 8;" +
-                        "-fx-border-width: 1.5;" +
-                        "-fx-text-fill: #e8e8f0;" +
-                        "-fx-font-size: 13px;" +
-                        "-fx-padding: 6 10 6 10;");
+                        "-fx-border-width: 1.5;");
 
-        // Display "First Last" in the combo
-        clientComboBox.setConverter(new StringConverter<>() {
-            @Override public String toString(Client c)   { return c == null ? "" : c.getFullName(); }
-            @Override public Client fromString(String s) {
-                // When user types, find matching client from current items
-                if (s == null || s.isBlank()) return null;
-                for (Client c : clientComboBox.getItems()) {
-                    if (c.getFullName().equalsIgnoreCase(s.trim())) return c;
-                }
-                return null;
-            }
-        });
-
-        // Live filter the dropdown as user types
-        clientComboBox.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal == null) return;
-            // If the user is typing (not a programmatic set from selection)
-            Client currentVal = clientComboBox.getValue();
-            if (currentVal != null && currentVal.getFullName().equals(newVal)) return;
-
-            // Filter shown items to match typed text
-            String lower = newVal.toLowerCase();
-            ObservableList<Client> allItems = (ObservableList<Client>) clientComboBox.getUserData();
-            if (allItems == null) return;
-
-            javafx.collections.ObservableList<Client> filtered =
-                    javafx.collections.FXCollections.observableArrayList();
-            for (Client c : allItems) {
-                if (c.getFullName().toLowerCase().contains(lower)) filtered.add(c);
-            }
-            clientComboBox.setItems(filtered);
-            if (!filtered.isEmpty()) clientComboBox.show();
-
-            // Clear display if user is typing a new search
-            selectedClientID = -1;
-            clearDisplayFields();
-        });
-
-        // Auto-fill details when a client is selected from dropdown
-        clientComboBox.setOnAction(e -> {
-            Client selected = clientComboBox.getValue();
-            if (selected != null) {
-                selectedClientID = selected.getClientID();
-                displayClientId.setText("ST" + String.format("%03d", selected.getClientID()));
-                displayFullName.setText(selected.getFullName());
-                displayClientType.setText(selected.getClientType());
-                displayContact.setText(
-                        selected.getContact() == null || selected.getContact().isBlank()
-                                ? "N/A" : selected.getContact());
-                hideError();
-            }
-        });
+        clientListView.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldVal, newClient) -> {
+                    if (newClient == null) {
+                        clearDisplayFields();
+                        selectedClient = null;
+                        return;
+                    }
+                    selectedClient = newClient;
+                    displayClientId.setText("CL" + String.format("%03d", newClient.getClientID()));
+                    displayFullName.setText(newClient.getFullName());
+                    displayClientType.setText(newClient.getClientType());
+                    displayContact.setText(
+                            newClient.getContact() == null || newClient.getContact().isBlank()
+                                    ? "N/A" : newClient.getContact());
+                    if (displayEmail != null)
+                        displayEmail.setText(
+                                newClient.getEmail() == null || newClient.getEmail().isBlank()
+                                        ? "N/A" : newClient.getEmail());
+                    hideError();
+                });
     }
 
-    // ── Load unassigned clients into the combo (called when switching view) ──
-    private void refreshComboBox() {
-        if (clientComboBox == null || coach == null) return;
-        ObservableList<Client> unassigned = ClientDAO.getUnassignedClients(coach.getStaffID());
-        // Store master list in userData so the live-filter can always reset to it
-        clientComboBox.setUserData(unassigned);
-        clientComboBox.setItems(javafx.collections.FXCollections.observableArrayList(unassigned));
-        clientComboBox.setValue(null);
-        clientComboBox.getEditor().clear();
-        clearDisplayFields();
-        selectedClientID = -1;
-    }
-
-    // ── Load currently assigned clients from DB into the main list ───────────
+    // ── Load currently assigned clients ──────────────────────────────────────
     private void loadAssignedClients() {
         if (clientListContainer == null || coach == null) return;
         clientListContainer.getChildren().clear();
@@ -158,18 +145,11 @@ public class AddClientInCoachController {
             clientListContainer.getChildren().add(none);
             return;
         }
-
         for (String[] row : assigned) {
-            // row: [assignmentID, clientID, firstName, lastName, coachingPrice]
-            addClientRowToList(
-                    row[2] + " " + row[3],
-                    row[1],
-                    Integer.parseInt(row[0])
-            );
+            addClientRowToList(row[2] + " " + row[3], row[1], Integer.parseInt(row[0]));
         }
     }
 
-    // ── Build a single client row card in the assigned list ──────────────────
     private void addClientRowToList(String name, String clientIDStr, int assignmentID) {
         HBox card = new HBox();
         card.setStyle(
@@ -183,23 +163,20 @@ public class AddClientInCoachController {
 
         VBox info = new VBox(4);
         Label nameLabel = new Label(name);
-        nameLabel.setStyle("-fx-text-fill: #e8e8f0; -fx-font-size: 13px; -fx-font-weight: bold;");
-        Label idLabel = new Label("Client ID: " + clientIDStr);
-        idLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 11px;");
-        info.getChildren().addAll(nameLabel, idLabel);
+        nameLabel.setStyle("-fx-text-fill: #e8e8f0; -fx-font-size: 18px; -fx-font-weight: bold;");
+        Label idLbl = new Label("Client ID: CL" +
+                String.format("%03d", Integer.parseInt(clientIDStr)));
+        idLbl.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 16px;");
+        info.getChildren().addAll(nameLabel, idLbl);
         HBox.setHgrow(info, Priority.ALWAYS);
 
         Button removeBtn = new Button("Remove");
         removeBtn.setStyle(
                 "-fx-background-color: transparent;" +
-                        "-fx-border-color: #e53935;" +
-                        "-fx-border-radius: 6;" +
-                        "-fx-text-fill: #e53935;" +
-                        "-fx-font-size: 12px;" +
-                        "-fx-padding: 5 14 5 14;" +
-                        "-fx-cursor: hand;");
+                        "-fx-border-color: #e53935; -fx-border-radius: 6;" +
+                        "-fx-text-fill: #e53935; -fx-font-size: 16px;" +
+                        "-fx-padding: 5 14 5 14; -fx-cursor: hand;");
 
-        // ── Remove requires confirmation popup ───────────────────────────────
         removeBtn.setOnAction(e -> showConfirmPopup(
                 "Remove " + name + " from this coach?",
                 () -> {
@@ -219,32 +196,32 @@ public class AddClientInCoachController {
         clientListContainer.getChildren().add(card);
     }
 
-    // ── Switch to the add-client view ────────────────────────────────────────
     @FXML
     private void handleSwitchToSelection() {
         mainListView.setVisible(false);
         clientDetailsView.setVisible(true);
-        refreshComboBox();
+
+        allUnassigned = ClientDAO.getUnassignedClients(coach.getStaffID());
+        clientListView.setItems(allUnassigned);
+        clientListView.getSelectionModel().clearSelection();
+
+        if (searchField != null) searchField.clear();
+        clearDisplayFields();
+        selectedClient = null;
         hideError();
     }
 
-    // ── Confirm adding the selected client ───────────────────────────────────
     @FXML
     private void handleConfirmAddClient() {
-        if (selectedClientID < 0) {
+        if (selectedClient == null) {
             showError("Please select a client from the list.");
-            if (clientComboBox != null) {
-                clientComboBox.setStyle(
-                        clientComboBox.getStyle() +
-                                "; -fx-border-color: #e53935; -fx-border-width: 2;");
-            }
             return;
         }
-
         showConfirmPopup(
-                "Add " + displayFullName.getText() + " to this coach?",
+                "Add " + selectedClient.getFullName() + " to this coach?",
                 () -> {
-                    boolean ok = CoachDAO.assignClient(coach.getStaffID(), selectedClientID, 0);
+                    boolean ok = CoachDAO.assignClient(
+                            coach.getStaffID(), selectedClient.getClientID(), 0);
                     if (ok) {
                         if (cardController != null) cardController.refreshClientsList();
                         handleBackToMain();
@@ -269,57 +246,58 @@ public class AddClientInCoachController {
         stage.close();
     }
 
-    // ── Confirmation popup (reusable inline) ─────────────────────────────────
     private void showConfirmPopup(String message, Runnable onConfirm) {
         Stage popup = new Stage();
         popup.initModality(Modality.APPLICATION_MODAL);
         popup.initStyle(StageStyle.TRANSPARENT);
         popup.initOwner((Stage) mainListView.getScene().getWindow());
 
-        VBox root = new VBox(20);
-        root.setPadding(new Insets(30, 28, 24, 28));
+        VBox root = new VBox(25); // Slightly more breathing room
+        root.setPadding(new Insets(35, 30, 30, 30));
         root.setAlignment(Pos.CENTER);
-        root.setPrefWidth(360);
-        root.setStyle(
-                "-fx-background-color: #1c2237;" +
-                        "-fx-background-radius: 16;" +
-                        "-fx-border-color: #2e3349;" +
-                        "-fx-border-radius: 16;" +
-                        "-fx-border-width: 1.5;" +
-                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.85), 40, 0, 0, 0);");
+        root.setPrefWidth(400); // Wider for bigger text
 
-        Label icon = new Label("❓");
-        icon.setStyle("-fx-font-size: 30px;");
+        // Updated to match your .main-container design
+        root.setStyle(
+                "-fx-background-color: #1e2130;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-border-color: #c2423d;" +
+                        "-fx-border-radius: 20;" +
+                        "-fx-border-width: 1.5;" +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 40, 0, 0, 0);");
+
+        Label icon = new Label("?");
+        // Using Bebas Neue for the icon to match your step-numbers
+        icon.setStyle("-fx-font-family: 'Bebas Neue'; -fx-font-size: 55px; -fx-text-fill: #CB443E;");
 
         Label msg = new Label(message);
-        msg.setStyle("-fx-text-fill: #c9cdd6; -fx-font-size: 14px;");
-        msg.setWrapText(true);
+        // Bigger, bolder text using Inter
+        msg.setStyle("-fx-text-fill: #E8E6E9; " +
+                "-fx-font-family: 'Inter'; " +
+                "-fx-font-size: 20px; " +
+                "-fx-font-weight: 800; " +
+                "-fx-alignment: CENTER;"); // Centering added here        msg.setWrapText(true);
         msg.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+        msg.setPrefWidth(340);
 
-        HBox btnRow = new HBox(12);
+        HBox btnRow = new HBox(15);
         btnRow.setAlignment(Pos.CENTER);
 
         Button cancelBtn = new Button("Cancel");
-        cancelBtn.setStyle(
-                "-fx-background-color: transparent;" +
-                        "-fx-border-color: #4b5563;" +
-                        "-fx-border-radius: 8;" +
-                        "-fx-text-fill: #9ca3af;" +
-                        "-fx-font-size: 13px;" +
-                        "-fx-padding: 8 20 8 20;" +
-                        "-fx-cursor: hand;");
+        // Matches your .cancel-button
+        cancelBtn.setStyle("-fx-background-color: #1e2130; -fx-text-fill: #cfd8dc; " +
+                "-fx-background-radius: 9; -fx-border-color: #2e3349; -fx-border-radius: 9; " +
+                "-fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 14px; " +
+                "-fx-min-width: 110; -fx-min-height: 40; -fx-cursor: hand;");
 
         Button confirmBtn = new Button("Confirm");
-        confirmBtn.setStyle(
-                "-fx-background-color: #e53935;" +
-                        "-fx-text-fill: white;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-font-size: 13px;" +
-                        "-fx-background-radius: 8;" +
-                        "-fx-padding: 8 20 8 20;" +
-                        "-fx-cursor: hand;");
+        // Matches your .confirm-button
+        confirmBtn.setStyle("-fx-background-color: #e53935; -fx-text-fill: white; " +
+                "-fx-background-radius: 9; -fx-font-family: 'Inter'; -fx-font-weight: bold; " +
+                "-fx-font-size: 14px; -fx-min-width: 130; -fx-min-height: 40; -fx-cursor: hand; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.3), 10, 0, 0, 2);");
 
-        cancelBtn.setOnAction(e  -> popup.close());
+        cancelBtn.setOnAction(e -> popup.close());
         confirmBtn.setOnAction(e -> { popup.close(); onConfirm.run(); });
 
         btnRow.getChildren().addAll(cancelBtn, confirmBtn);
@@ -328,7 +306,6 @@ public class AddClientInCoachController {
         Scene scene = new Scene(root);
         scene.setFill(Color.TRANSPARENT);
         popup.setScene(scene);
-
         popup.show();
 
         Stage owner = (Stage) mainListView.getScene().getWindow();
@@ -336,7 +313,7 @@ public class AddClientInCoachController {
         popup.setY(owner.getY() + (owner.getHeight() / 2) - (popup.getHeight() / 2));
 
         root.setOpacity(0);
-        FadeTransition ft = new FadeTransition(Duration.millis(180), root);
+        FadeTransition ft = new FadeTransition(Duration.millis(200), root);
         ft.setFromValue(0); ft.setToValue(1); ft.play();
     }
 
@@ -345,6 +322,7 @@ public class AddClientInCoachController {
         if (displayFullName   != null) displayFullName.clear();
         if (displayClientType != null) displayClientType.clear();
         if (displayContact    != null) displayContact.clear();
+        if (displayEmail      != null) displayEmail.clear();
     }
 
     private void showError(String message) {

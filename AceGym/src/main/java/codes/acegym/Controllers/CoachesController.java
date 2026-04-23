@@ -2,6 +2,7 @@ package codes.acegym.Controllers;
 
 import codes.acegym.DB.CoachDAO;
 import codes.acegym.Objects.Coach;
+import javafx.application.Platform;
 import javafx.animation.FadeTransition;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -174,8 +175,10 @@ public class CoachesController {
             modalStage.setScene(scene);
 
             owner.getScene().getRoot().setEffect(new GaussianBlur(15));
-            centerStage(modalStage, owner);
             modalStage.show();
+
+            // Center AFTER show() so width/height are known
+            Platform.runLater(() -> centerStage(modalStage, owner));
 
             root.setOpacity(0);
             FadeTransition ft = new FadeTransition(Duration.millis(300), root);
@@ -189,9 +192,7 @@ public class CoachesController {
     }
 
     private void centerStage(Stage stage, Stage owner) {
-        stage.widthProperty().addListener((obs, o, n) ->
-                stage.setX(owner.getX() + (owner.getWidth()  / 2) - (n.doubleValue() / 2)));
-        stage.heightProperty().addListener((obs, o, n) ->
-                stage.setY(owner.getY() + (owner.getHeight() / 2) - (n.doubleValue() / 2)));
+        stage.setX(owner.getX() + (owner.getWidth()  / 2) - (stage.getWidth()  / 2));
+        stage.setY(owner.getY() + (owner.getHeight() / 2) - (stage.getHeight() / 2));
     }
 }

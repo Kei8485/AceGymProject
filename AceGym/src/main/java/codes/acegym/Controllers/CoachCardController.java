@@ -117,12 +117,12 @@ public class CoachCardController {
         ObservableList<String> names = CoachDAO.getClientNamesForCoach(coach.getStaffID());
         if (names.isEmpty()) {
             Label none = new Label("No clients assigned");
-            none.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 12px; -fx-font-style: italic;");
+            none.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 16px; -fx-font-style: italic;");
             clientsContainer.getChildren().add(none);
         } else {
             for (String name : names) {
                 Label lbl = new Label("• " + name);
-                lbl.setStyle("-fx-text-fill: #c9cdd6; -fx-font-size: 12px;");
+                lbl.setStyle("-fx-text-fill: #c9cdd6; -fx-font-size: 16px;");
                 lbl.setWrapText(true);
                 clientsContainer.getChildren().add(lbl);
             }
@@ -245,7 +245,9 @@ public class CoachCardController {
     }
 
     private void centerStage(Stage stage) {
-        Stage owner = (Stage) editCoachBtn.getScene().getWindow();
+        // Use nameLabel as the anchor — it is always in the scene regardless of
+        // which button triggered the popup (edit, manage, or remove).
+        Stage owner = (Stage) nameLabel.getScene().getWindow();
         stage.setX(owner.getX() + (owner.getWidth()  / 2) - (stage.getWidth()  / 2));
         stage.setY(owner.getY() + (owner.getHeight() / 2) - (stage.getHeight() / 2));
     }

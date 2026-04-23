@@ -133,3 +133,105 @@
     -fx-font-family: 'Bebas Neue';
     -fx-font-weight: normal;
 }
+
+/* --- Custom ComboBox / Dropdown --- */
+.custom-combo-box {
+    -fx-background-color: #1c2237; /* Matches your card-bg */
+    -fx-background-radius: 12;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 12;
+    -fx-border-width: 1.5;
+    -fx-padding: 5 10 5 10;
+    -fx-font-family: "Inter";
+    -fx-font-size: 16px;
+    -fx-text-fill: white;
+}
+
+.custom-combo-box:hover {
+    -fx-border-color: -fx-accent-lighter-red-text;
+    -fx-cursor: hand;
+}
+
+/* Styling the arrow button */
+.custom-combo-box .arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 3 0 3;
+}
+
+/* Styling the actual arrow shape */
+.custom-combo-box .arrow {
+    -fx-background-color: #7a7f94; /* Muted gray arrow */
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z"; /* Clean triangle shape */
+}
+
+/* Styling the popup list that appears when clicked */
+.custom-combo-box .list-view {
+    -fx-background-color: #1c2237;
+    -fx-background-radius: 10;
+    -fx-border-color: #2e3349;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 5);
+}
+
+.custom-combo-box .list-cell {
+    -fx-text-fill: #E8E6E9;
+    -fx-padding: 10;
+    -fx-font-size: 15px;
+    -fx-background-color: transparent;
+}
+
+.custom-combo-box .list-cell:hover {
+    -fx-background-color: #2e3349;
+    -fx-text-fill: -fx-accent-lighter-red-text;
+}
+
+/* ── ScrollPane ── */
+.custom-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.custom-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Vertical ScrollBar Track */
+.custom-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+}
+
+/* The Draggable Thumb */
+.custom-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #1c2237;
+    -fx-background-radius: 10;
+}
+
+.custom-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #CB443E;
+}
+
+/* ── REMOVE ARROW BUTTONS COMPLETELY ── */
+.custom-scroll-pane .scroll-bar .increment-button,
+.custom-scroll-pane .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-padding: 0 10 0 0; /* Forces height to zero */
+}
+
+.custom-scroll-pane .scroll-bar .increment-arrow,
+.custom-scroll-pane .scroll-bar .decrement-arrow {
+    -fx-shape: "";         /* Erases the triangle */
+    -fx-padding: 0;        /* Removes the bounding box */
+    -fx-max-height: 0;
+    -fx-max-width: 0;
+}
+
+.tile-pane {
+    /* Centers the entire grid inside the parent container */
+    -fx-alignment: CENTER;
+
+    /* Centers the content (labels, images) inside each individual tile */
+    -fx-tile-alignment: CENTER;
+}

@@ -6,12 +6,17 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxWidth="1000.0" prefHeight="700.0" prefWidth="950.0" styleClass="main-content-bg" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.ViewMembersController">
+<AnchorPane maxWidth="1200.0" prefHeight="700.0" prefWidth="1100.0" styleClass="main-content-bg"
+            xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="codes.acegym.Controllers.ViewMembersController">
     <stylesheets>
         <URL value="@../../Css/ViewMembers.css" />
     </stylesheets>
     <children>
-        <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <VBox spacing="20.0"
+              AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <padding>
                 <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
             </padding>
@@ -20,21 +25,20 @@
                 <!-- ── Page Header ── -->
                 <HBox alignment="CENTER_LEFT" spacing="16.0">
                     <children>
-                        <!-- Icon Badge -->
-                        <StackPane maxHeight="52" maxWidth="52" minHeight="52" minWidth="52" styleClass="header-icon-badge">
+                        <StackPane maxHeight="52" maxWidth="52" minHeight="52" minWidth="52"
+                                   styleClass="header-icon-badge">
                             <children>
-                                <ImageView fitHeight="45.0" fitWidth="44.0" pickOnBounds="true" preserveRatio="true">
+                                <ImageView fitHeight="45.0" fitWidth="44.0"
+                                           pickOnBounds="true" preserveRatio="true">
                                     <image><Image url="@../../image/hand-fist-solid.png" /></image>
                                 </ImageView>
                             </children>
                         </StackPane>
-                        <!-- Title block -->
                         <VBox spacing="2.0">
                             <children>
                                 <Label styleClass="page-eyebrow" text="GYM MANAGEMENT">
-                           <padding>
-                              <Insets bottom="-10.0" top="-10.0" />
-                           </padding></Label>
+                                    <padding><Insets bottom="-10.0" top="-10.0" /></padding>
+                                </Label>
                                 <Label styleClass="page-title" text="Gym Clients" />
                             </children>
                         </VBox>
@@ -54,55 +58,58 @@
                                 <VBox spacing="2.0">
                                     <children>
                                         <Label styleClass="card-title" text="Members List" />
-                                        <Label fx:id="memberCountLabel" styleClass="card-subtitle" text="0 members total" />
+                                        <Label fx:id="memberCountLabel" styleClass="card-subtitle"
+                                               text="Loading…" />
                                     </children>
                                 </VBox>
 
                                 <Region HBox.hgrow="ALWAYS" />
 
-                                <!-- Show Entities -->
-                                <Label styleClass="toolbar-label" text="Filter Search" />
-                                <ComboBox fx:id="entriesCombo" prefHeight="36.0" prefWidth="106.0" promptText="None" styleClass="combo-field" />
+                                <!-- View Filter -->
+                                <Label styleClass="toolbar-label" text="View" />
+                                <ComboBox fx:id="entriesCombo" prefHeight="36.0" prefWidth="160.0"
+                                          promptText="All Clients" styleClass="combo-field" />
 
                                 <!-- Search -->
-                                <StackPane alignment="CENTER_LEFT" prefHeight="37.0" prefWidth="231.0">
+                                <StackPane alignment="CENTER_LEFT" prefHeight="37.0" prefWidth="220.0">
                                     <children>
-                                        <TextField fx:id="searchField" prefHeight="36.0" prefWidth="283.0" promptText="Search members..." styleClass="search-field" />
-                                        <ImageView fitHeight="15.0" fitWidth="43.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+                                        <TextField fx:id="searchField" prefHeight="36.0" prefWidth="220.0"
+                                                   promptText="Search clients…" styleClass="search-field" />
+                                        <ImageView fitHeight="14.0" fitWidth="14.0"
+                                                   mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
                                             <image><Image url="@../../image/magnifying-glass-solid.png" /></image>
-                                            <StackPane.margin><Insets left="7.0" /></StackPane.margin>
+                                            <StackPane.margin><Insets left="8.0" /></StackPane.margin>
                                         </ImageView>
                                     </children>
                                     <HBox.margin><Insets left="4.0" /></HBox.margin>
                                 </StackPane>
 
-                                <!-- Add Member Button -->
-                                <Button fx:id="addMemberBtn" prefHeight="36.0" styleClass="btn-search" text="Search Member" />
+                                <!-- Refresh -->
+                                <Button fx:id="refreshBtn" prefHeight="36.0"
+                                        styleClass="btn-search" text="↻ Refresh" />
                             </children>
                         </HBox>
 
                         <!-- ── Divider ── -->
                         <Region maxHeight="1.0" minHeight="1.0" styleClass="card-divider" />
 
-                        <!-- ── Table ── -->
+                        <!-- ── Table (columns injected by controller) ── -->
                         <TableView fx:id="membersTable" styleClass="members-table" VBox.vgrow="ALWAYS">
-                            <columns>
-                                <TableColumn fx:id="nameCol" prefWidth="200.0" text="Name" />
-                                <TableColumn fx:id="idCol" prefWidth="140.0" text="Member ID" />
-                                <TableColumn fx:id="enrolledCol" prefWidth="150.0" text="Date Enrolled" />
-                                <TableColumn fx:id="expirationCol" prefWidth="150.0" text="Expiration" />
-                                <TableColumn fx:id="statusCol" prefWidth="80.0" text="Status" />
-                                <TableColumn fx:id="actionsCol" prefWidth="100.0" text="Actions" />
-                            </columns>
                             <columnResizePolicy>
                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                             </columnResizePolicy>
+                            <placeholder>
+                                <Label text="No clients found." />
+                            </placeholder>
                         </TableView>
 
-                        <!-- ── Footer / Pagination ── -->
+                        <!-- ── Footer ── -->
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                             <children>
+                                <Label fx:id="hintLabel" styleClass="card-subtitle"
+                                       text="💡 Double-click any row for full client details" />
                                 <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="filteredCountLabel" styleClass="card-subtitle" text="" />
                             </children>
                         </HBox>
 

@@ -21,7 +21,7 @@ public class CoachDAO {
                         "       COALESCE(tt.TrainingCategory, 'Unassigned') AS TrainingCategory " +
                         "FROM StaffTable s " +
                         "LEFT JOIN TrainingTypeTable tt ON s.TrainingTypeID = tt.TrainingTypeID " +
-                        "WHERE LOWER(s.SystemRole) = 'coach' " +
+                        "WHERE LOWER(s.SystemRole) = 'staff' " +
                         "ORDER BY s.StaffFirstName";
 
         try (Connection con = DBConnector.connect();
@@ -96,7 +96,7 @@ public class CoachDAO {
 
         String sql = "INSERT INTO StaffTable " +
                 "(StaffFirstName, StaffLastName, TrainingTypeID, SystemRole, StaffImage) " +
-                "VALUES (?, ?, ?, 'Coach', ?)";
+                "VALUES (?, ?, ?, 'Staff', ?)";
         try (Connection con = DBConnector.connect();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, firstName.trim());

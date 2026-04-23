@@ -1,235 +1,422 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@100..900&display=swap');
 
+/* ── Variables ── */
 .root {
-    /* Color Palette */
-    -fx-accent-lighter-red-text: #CB443E;
-    -fx-accent-darker-red-text: #8B2D2F;
-    -fx-white-text: #E8E6E9;
-    -fx-gray-text: #6B7280;
-    -fx-dark-bg: #0E1223;
-    -fx-card-bg: #111827;
-    -fx-peach: #F7D1CD;
+    -fx-accent-red:      #e53935;
+    -fx-accent-red-dark: #8B2D2F;
+    -fx-accent-red-dim:  #CB443E;
+    -fx-card-bg:         #1c2237;
+    -fx-input-bg:        #1e2130;
+    -fx-input-border:    #2e3349;
+    -fx-white-text:      #E8E6E9;
+    -fx-gray-text:       #7a7f94;
 }
 
-/* --- Base Layout --- */
+/* ── Base Layout ── */
 .main-content-bg {
     -fx-background-color: transparent;
 }
 
 .main-container {
     -fx-background-color: -fx-card-bg;
-    -fx-background-radius: 25;
+    -fx-background-radius: 20;
     -fx-border-color: rgba(255, 255, 255, 0.05);
-    -fx-border-radius: 25;
+    -fx-border-radius: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 20, 0, 0, 0);
 }
 
-/* --- Typography --- */
+/* ── Typography ── */
 .header-text {
     -fx-font-family: 'Inter';
-    -fx-font-size: 18px;
+    -fx-font-size: 16px;
     -fx-text-fill: -fx-gray-text;
-    -fx-font-weight: 800;
+    -fx-font-weight: 700;
 }
 
 .sub-header {
     -fx-font-family: 'Inter';
-    -fx-font-size: 22px;
+    -fx-font-size: 24px;
     -fx-font-weight: 800;
-    -fx-text-fill: white;
+    -fx-text-fill: -fx-white-text;
 }
 
-/* --- Step Indicator (Identify Client) --- */
+/* ── Step Circle ── */
 .step-number {
-    -fx-background-color: -fx-accent-lighter-red-text;
+    -fx-background-color: -fx-accent-red;
     -fx-text-fill: white;
     -fx-background-radius: 50;
-    -fx-min-width: 30;
-    -fx-min-height: 30;
+    -fx-min-width: 28;
+    -fx-max-width: 28;
+    -fx-min-height: 28;
+    -fx-max-height: 28;
     -fx-alignment: center;
     -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-font-family: 'Bebas Neue';
+}
+
+/* ── Search TextField ── */
+.underlined-input {
+    -fx-background-color: -fx-input-bg;
+    -fx-border-color: -fx-input-border;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-text-fill: #cfd8dc;
+    -fx-prompt-text-fill: -fx-gray-text;
+    -fx-font-size: 17px;
+    -fx-font-family: 'Inter';
+    -fx-padding: 10 14 10 14;
+}
+
+.underlined-input:focused {
+    -fx-border-color: -fx-accent-red;
+    -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.25), 8, 0, 0, 0);
+}
+
+/* ── Read-only Display Fields ── */
+.display-field {
+    -fx-background-color: -fx-input-bg;
+    -fx-text-fill: #cfd8dc;
+    -fx-prompt-text-fill: -fx-gray-text;
+    -fx-background-radius: 6;
+    -fx-border-color: -fx-input-border;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-padding: 7 12 7 12;
+    -fx-font-family: 'Inter';
     -fx-font-size: 14px;
 }
 
-/* --- Inputs & Fields --- */
-.dark-input {
-    -fx-background-color: #1a1f2b;
-    -fx-text-fill: white;
-    -fx-prompt-text-fill: -fx-gray-text;
-    -fx-background-radius: 12;
-    -fx-border-color: rgba(255, 255, 255, 0.1);
-    -fx-border-radius: 12;
-    -fx-padding: 12;
+/* ── Red Accent Display Field ── */
+.display-field-red {
+    -fx-background-color: rgba(229, 57, 53, 0.05); /* Very subtle red tint */
+    -fx-border-color: -fx-accent-red-dim;          /* #CB443E from your variables */
+    -fx-text-fill: -fx-accent-red-dim;             /* Matching text color */
+}
+
+/* ── Field Labels ── */
+.field-label {
+    -fx-text-fill: -fx-gray-text;
+    -fx-font-size: 14px;
     -fx-font-family: 'Inter';
-    -fx-font-size: 16px;
-
 }
 
-/* --- Hover State --- */
-.dark-input:hover {
-    /* Only a fraction lighter than your base #1a1f2b */
-    -fx-background-color: #1e2433;
-    -fx-border-color: rgba(255, 255, 255, 0.15);
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.4), 5, 0, 0, 0);
-    -fx-cursor: text;
-}
-.dark-input:focused {
-    -fx-background-color: #1a1f2b;
-    -fx-border-color: #333e45 ;
-    -fx-effect: dropshadow(three-pass-box, rgba(207, 216, 220, 0.25), 10, 0, 0, 0);
-    -fx-text-fill: #ffffff;
-}
-
-.display-field {
-    -fx-background-color: #1a1f2b;
-    -fx-text-fill: -fx-white-text;
-    -fx-background-radius: 8;
-    -fx-padding: 8;
-    -fx-font-family: 'Inter';
-    -fx-opacity: 0.8; /* Subtle read-only look */
-    -fx-font-size: 16px;
-}
-
-/* --- Details Card --- */
+/* ── Details Card ── */
 .details-card {
-    -fx-background-color: rgba(255, 255, 255, 0.03);
-    -fx-background-radius: 15;
-    -fx-border-color: #4a1f21;
-    -fx-border-radius: 15;
-    -fx-padding: 20;
+    -fx-background-color: rgba(255, 255, 255, 0.02);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(229, 57, 53, 0.2);
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 16;
 }
 
 .details-header {
-    -fx-text-fill: -fx-accent-lighter-red-text;
+    -fx-text-fill: -fx-accent-red-dim;
     -fx-font-weight: bold;
-    -fx-font-size: 16px;
-    -fx-character-spacing: 1px;
+    -fx-font-size: 17px;
     -fx-font-family: 'Inter';
 }
 
-.field-label {
-    -fx-text-fill: -fx-gray-text;
-    -fx-font-size: 16px;
-    -fx-font-family: 'Inter';
-}
-
-/* --- Badges & Icons --- */
-.type-badge {
-    -fx-background-color: rgba(203, 68, 62, 0.2);
-    -fx-text-fill: -fx-accent-lighter-red-text;
-    -fx-padding: 5 15;
-    -fx-background-radius: 10;
-    -fx-font-weight: bold;
-    -fx-font-family: 'Inter';
-    -fx-alignment: center;
-    -fx-font-size: 16px;
-}
-
-/* --- Client Cards (Main List) --- */
+/* ── Assigned Client Cards ── */
 .client-card {
-    -fx-background-color: #1c2237;
-    -fx-border-color: #6a3236;
-    -fx-background-radius: 15;
-    -fx-border-width: 1.5;
+    -fx-background-color: -fx-input-bg;
+    -fx-border-color: rgba(229, 57, 53, 0.18);
+    -fx-background-radius: 12;
+    -fx-border-width: 1;
     -fx-border-radius: 12;
-    -fx-padding: 15;
+    -fx-padding: 12 16 12 16;
     -fx-alignment: CENTER_LEFT;
 }
 
 .client-name {
-    -fx-text-fill: white;
+    -fx-text-fill: -fx-white-text;
     -fx-font-family: 'Inter';
     -fx-font-weight: bold;
-    -fx-font-size: 18px;
+    -fx-font-size: 24px;
 }
 
 .client-id {
-    -fx-text-fill: -fx-accent-lighter-red-text;
+    -fx-text-fill: -fx-accent-red-dim;
     -fx-font-family: 'Inter';
-    -fx-font-size: 14px;
-}
-
-/* --- Buttons --- */
-.plus-button {
-    -fx-background-color: -fx-accent-lighter-red-text;
-    -fx-background-radius: 12;
-    -fx-text-fill: white;
     -fx-font-size: 20px;
-    -fx-font-weight: bold;
-    -fx-min-width: 45;
-    -fx-cursor: hand;
 }
 
+/* ── Add Client Button ── */
+.plus-button {
+    -fx-background-color: -fx-accent-red;
+    -fx-background-radius: 9;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Inter';
+    -fx-padding: 10 0 10 0;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.35), 8, 0, 0, 2);
+}
+
+.plus-button:hover {
+    -fx-background-color: #c62828;
+    -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.55), 10, 0, 0, 2);
+}
+
+.plus-button:pressed {
+    -fx-background-color: -fx-accent-red-dark;
+    -fx-translate-y: 1px;
+    -fx-effect: none;
+}
+
+/* ── Remove Button ── */
 .remove-button {
     -fx-background-color: transparent;
-    -fx-text-fill: -fx-accent-lighter-red-text;
-    -fx-border-color: -fx-accent-lighter-red-text;
-    -fx-border-radius: 10;
+    -fx-text-fill: -fx-accent-red-dim;
+    -fx-border-color: rgba(203, 68, 62, 0.5);
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-border-width: 1;
     -fx-font-family: 'Inter';
     -fx-font-weight: bold;
     -fx-cursor: hand;
-    -fx-font-size: 14px;
+    -fx-font-size: 16px;
+    -fx-padding: 5 14 5 14;
 }
 
-/* --- Remove Button Hover --- */
 .remove-button:hover {
-    -fx-background-color: #4a1f21;
-    -fx-border-color: #e53935;
+    -fx-background-color: rgba(229, 57, 53, 0.1);
+    -fx-border-color: -fx-accent-red;
     -fx-text-fill: #ffffff;
-    -fx-effect: dropshadow(three-pass-box, rgba(229, 57, 53, 0.2), 8, 0, 0, 0);
 }
 
-/* --- Remove Button Pressed --- */
 .remove-button:pressed {
-    -fx-background-color: #e53935; /* Solid brand red when clicked */
+    -fx-background-color: -fx-accent-red;
     -fx-text-fill: #ffffff;
-    -fx-translate-y: 1px; /* The 'click' feel */
+    -fx-translate-y: 1px;
 }
 
+/* ── Cancel / Close Button ── */
 .cancel-button {
-    -fx-background-color: #1c2237;
-    -fx-text-fill: white;
-    -fx-background-radius: 25;
+    -fx-background-color: -fx-input-bg;
+    -fx-text-fill: #cfd8dc;
+    -fx-background-radius: 9;
+    -fx-border-color: -fx-input-border;
+    -fx-border-radius: 9;
+    -fx-border-width: 1;
     -fx-font-family: 'Inter';
     -fx-font-weight: bold;
-    -fx-min-width: 120;
-    -fx-min-height: 45;
+    -fx-min-width: 110;
+    -fx-min-height: 40;
     -fx-cursor: hand;
-    -fx-font-size: 15px;
-
+    -fx-font-size: 18px;
 }
 
 .cancel-button:hover {
     -fx-background-color: #252a42;
+    -fx-border-color: #3e4460;
+    -fx-text-fill: #ffffff;
 }
 
+.cancel-button:pressed {
+    -fx-background-color: #1a1e2a;
+    -fx-translate-y: 1px;
+}
+
+/* ── Confirm / Add Client Button ── */
 .confirm-button {
-    -fx-background-color: -fx-accent-lighter-red-text;
+    -fx-background-color: -fx-accent-red;
     -fx-text-fill: white;
-    -fx-background-radius: 25;
+    -fx-background-radius: 9;
     -fx-font-family: 'Inter';
     -fx-font-weight: bold;
-    -fx-min-width: 150;
-    -fx-min-height: 45;
+    -fx-min-width: 130;
+    -fx-min-height: 40;
     -fx-cursor: hand;
-    -fx-font-size: 15px;
-
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.4), 10, 0, 0, 3);
 }
 
 .confirm-button:hover {
-    -fx-background-color: -fx-accent-darker-red-text;
+    -fx-background-color: #c62828;
+    -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.6), 12, 0, 0, 3);
 }
 
-/* --- ScrollPane Styling --- */
+.confirm-button:pressed {
+    -fx-background-color: -fx-accent-red-dark;
+    -fx-translate-y: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 4, 0, 0, 1);
+}
+
+/* ── ScrollPane ── */
 .custom-scroll-pane {
     -fx-background-color: transparent;
     -fx-background: transparent;
+    -fx-border-color: transparent;
 }
 
 .custom-scroll-pane .viewport {
     -fx-background-color: transparent;
 }
 
+.custom-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+}
+
 .custom-scroll-pane .scroll-bar:vertical .thumb {
-    -fx-background-color: #1c2237;
+    -fx-background-color: #2e3349;
     -fx-background-radius: 10;
+}
+
+.custom-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: -fx-accent-red-dim;
+}
+
+.custom-scroll-pane .scroll-bar .increment-button,
+.custom-scroll-pane .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.custom-scroll-pane .scroll-bar .increment-arrow,
+.custom-scroll-pane .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+}
+
+/* ── The Cool ListView Container ── */
+.custom-list-view {
+    -fx-background-color: linear-gradient(to bottom right, #1c2237, #161b2e);
+    -fx-background-radius: 15;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-width: 1.5;
+    -fx-border-radius: 15;
+    -fx-padding: 8;
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 0);
+}
+
+/* ── The "Cool Item" (List Cell) ── */
+.custom-list-view .list-cell {
+    -fx-background-color: rgba(255, 255, 255, 0.03);
+    -fx-text-fill: #e0e0e0;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+    -fx-padding: 12 20 12 20;
+    -fx-background-radius: 10;
+    -fx-margin: 4 0 4 0; /* Adds spacing between items */
+    -fx-border-color: transparent;
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+/* ── Hover State: Glow and Lift ── */
+.custom-list-view .list-cell:hover {
+    -fx-background-color: rgba(229, 57, 53, 0.15);
+    -fx-text-fill: white;
+    -fx-border-color: rgba(229, 57, 53, 0.3);
+    -fx-border-radius: 10;
+    -fx-cursor: hand;
+    /* Subtle glow effect */
+    -fx-effect: dropshadow(three-pass-box, rgba(229, 57, 53, 0.2), 10, 0, 0, 0);
+}
+
+/* ── Pressed State: Physical Click Effect ── */
+.custom-list-view .list-cell:pressed {
+    -fx-background-color: #8B2D2F;
+    -fx-scale-x: 0.98; /* Makes it shrink slightly */
+    -fx-scale-y: 0.98;
+    -fx-translate-y: 2; /* Moves it down 2 pixels */
+    -fx-effect: none;
+}
+
+/* ── Selected State: Solid Accent ── */
+.custom-list-view .list-cell:selected {
+    -fx-background-color: linear-gradient(to right, -fx-accent-red, -fx-accent-red-dim);
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0, 0, 2);
+}
+
+/* Clean up background and scrollbars */
+.custom-list-view .virtual-flow,
+.custom-list-view .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Hide empty cells so they don't show borders/bg */
+.custom-list-view .list-cell:empty {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-effect: none;
+}
+
+/* ── ListView Internal ScrollBar Styling ── */
+
+/* The main scrollbar track (Vertical) */
+.custom-list-view .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+    -fx-padding: 0 2 0 0; /* Slight offset from the right edge */
+}
+
+/* The Draggable Thumb */
+.custom-list-view .scroll-bar:vertical .thumb {
+    -fx-background-color: #2e3349; /* Slightly lighter than the bg to be visible */
+    -fx-background-radius: 10;
+}
+
+/* Hover effect for the thumb */
+.custom-list-view .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #CB443E; /* Your accent red dim color */
+}
+
+/* Pressed effect for the thumb */
+.custom-list-view .scroll-bar:vertical .thumb:pressed {
+    -fx-background-color: #e53935; /* Brighter red when dragging */
+}
+
+/* ── Cleaning up the Track & Buttons ── */
+
+/* Remove the background of the track */
+.custom-list-view .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* Hide the increment/decrement buttons (Arrows) */
+.custom-list-view .scroll-bar .increment-button,
+.custom-list-view .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.custom-list-view .scroll-bar .increment-arrow,
+.custom-list-view .scroll-bar .decrement-arrow {
+    -fx-shape: ""; /* Removes the arrow shape entirely */
+}
+
+/* Remove the horizontal scrollbar entirely (optional) */
+.custom-list-view .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-pref-height: 0;
+}
+
+/* Hide the increment (bottom) and decrement (top) buttons */
+.custom-list-view .scroll-bar .increment-button,
+.custom-list-view .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-max-height: 0;
+    -fx-opacity: 0;
+}
+
+/* Remove the arrow shapes inside the buttons */
+.custom-list-view .scroll-bar .increment-arrow,
+.custom-list-view .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+}
+
+/* Ensure the track extends to the full height */
+.custom-list-view .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
 }
