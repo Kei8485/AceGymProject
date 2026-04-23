@@ -14,11 +14,14 @@ module codes.acegym {
     requires javafx.graphics;
     requires javafx.base;
 
+    opens codes.acegym.Objects to javafx.base, javafx.fxml;
+
     opens codes.acegym to javafx.fxml;
     exports codes.acegym.Controllers;
     opens codes.acegym.Controllers to javafx.fxml;
     exports codes.acegym.Application_Launcher;
     opens codes.acegym.Application_Launcher to javafx.fxml;
     exports codes.acegym.DB;
+    exports codes.acegym.Objects;
     opens codes.acegym.DB to javafx.fxml;
 }

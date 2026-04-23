@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
-<?import javafx.scene.text.*?>
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
 
-<StackPane fx:id="mainBGID" prefHeight="739.0" prefWidth="1137.0" styleClass="main-bg" stylesheets="@../../Css/styles.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.LoginController">
+<StackPane fx:id="mainBGID" prefHeight="739.0" prefWidth="1137.0" styleClass="main-bg" stylesheets="@../../Css/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.LoginController">
    <children>
       <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="765.0" prefWidth="1137.0">
          <children>
@@ -58,7 +66,7 @@
                         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="165.0" prefWidth="456.0" styleClass="login-V-Box" stylesheets="@../../Css/styles.css">
                            <children>
                               <Label alignment="TOP_LEFT" prefHeight="0.0" prefWidth="456.0" styleClass="sub-header" stylesheets="@../../Css/styles.css" text="Email" />
-                              <TextField fx:id="usernameField" maxWidth="-Infinity" prefHeight="40.0" prefWidth="400.0" promptText="you@acefitness.com" styleClass="text-field-login" stylesheets="@../../Css/styles.css">
+                              <TextField fx:id="usernameField" maxWidth="-Infinity" prefHeight="40.0" prefWidth="400.0" promptText="you@acefitness.com" styleClass="text-field-login" stylesheets="@../../Css/styles.css" text="ynand">
                                  <VBox.margin>
                                     <Insets top="6.0" />
                                  </VBox.margin>
@@ -72,7 +80,7 @@
 
                                  <TextField fx:id="textFieldPass" opacity="0.0" prefHeight="40" prefWidth="400" styleClass="text-field-login" />
 
-                                 <PasswordField fx:id="passwordField" prefHeight="40" prefWidth="400" styleClass="password-field-login" />
+                                 <PasswordField fx:id="passwordField" prefHeight="40" prefWidth="400" styleClass="password-field-login" text="123" />
 
                                  <StackPane maxWidth="40" onMouseClicked="#togglePassword" prefWidth="40" style="-fx-cursor: hand;" StackPane.alignment="CENTER_RIGHT">
 

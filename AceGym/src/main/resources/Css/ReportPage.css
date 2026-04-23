@@ -79,6 +79,7 @@
 .table-view .column-header-background {
     -fx-background-color: #1e2130;
     -fx-background-radius: 12 12 0 0;
+    -fx-alignment: CENTER;
 }
 
 .table-view .column-header {
@@ -87,14 +88,35 @@
 }
 
 .table-view .column-header .label {
+    -fx-alignment: CENTER;
+    -fx-text-alignment: CENTER;
     -fx-text-fill: #ffffff;
     -fx-font-size: 12px;
     -fx-font-weight: bold;
-    -fx-font-family: 'Inter';
 }
 
 .table-view .filler {
     -fx-background-color: #1e2130;
+}
+
+.table-view .table-column {
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+
+.table-view,
+.table-view:focused {
+    -fx-background-insets: 0;
+    -fx-faint-focus-color: transparent;
+    -fx-focus-color: transparent;
+}
+
+.table-cell {
+    -fx-text-fill: #ffffff;
+    -fx-alignment: center;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+    -fx-border-color: transparent;
 }
 
 .table-view .corner {
@@ -106,6 +128,7 @@
     -fx-cell-size: 45px;
     -fx-border-color: transparent transparent rgba(255,255,255,0.05) transparent;
     -fx-border-width: 0 0 1 0;
+    -fx-cursor: hand;
 }
 
 .table-row-cell:odd {
@@ -120,13 +143,6 @@
     -fx-background-color: #2c2337;
 }
 
-.table-cell {
-    -fx-text-fill: #ffffff;
-    -fx-alignment: center-left;
-    -fx-font-family: 'Inter';
-    -fx-font-size: 13px;
-}
-
 .table-view .placeholder .label {
     -fx-text-fill: #ffffff;
     -fx-font-family: 'Inter';
@@ -134,7 +150,6 @@
     -fx-opacity: 0.5;
 }
 
-/* Scrollbar inside table */
 .table-view .scroll-bar:vertical {
     -fx-background-color: #1c2237;
 }
@@ -186,14 +201,11 @@
     -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.4), 10, 0, 0, 3);
 }
 
-
-/* --- Button Pressed State --- */
 .btn-save-red:pressed {
     -fx-background-color: #c62828;
     -fx-translate-y: 1px;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 4, 0, 0, 1);
 }
-
 
 .btn-save-red:hover {
     -fx-background-color: #c62828;
@@ -266,4 +278,242 @@
     -fx-font-size: 22px;
     -fx-font-family: 'Bebas Neue';
     -fx-font-weight: normal;
+}
+
+
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DATE PICKER  —  dark theme override
+   ═══════════════════════════════════════════════════════════════════ */
+
+.date-picker {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.date-picker .text-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: #7a7f94;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 14px;
+}
+
+.date-picker .arrow-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+
+.date-picker .arrow-button .arrow {
+    -fx-background-color: #7a7f94;
+}
+
+/* ── Calendar popup window ── */
+.date-picker-popup {
+    -fx-background-color: #1c2237;
+    -fx-border-color: #2e3349;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.75), 24, 0, 0, 6);
+}
+
+/* --- Month / Year Navigation Bar --- */
+.month-year-pane {
+    -fx-background-color: #1e2130 !important;
+}
+
+.date-picker-popup > * > .month-year-pane {
+    -fx-background-color: #1e2130;
+    -fx-background-insets: 0;
+    -fx-background-radius: 12 12 0 0;
+    -fx-padding: 10;
+}
+
+.date-picker-popup > * > .month-year-pane .label {
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-font-family: "Inter";
+}
+
+.date-picker-popup > * > .month-year-pane .button .left-arrow,
+.date-picker-popup > * > .month-year-pane .button .right-arrow {
+    -fx-background-color: #ffffff;
+}
+
+.date-picker-popup > * > .month-year-pane .button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+
+.date-picker-popup > * > .month-year-pane .button:hover {
+    -fx-background-color: #2e3349;
+}
+
+.date-picker-popup > * > .month-year-pane .left-arrow,
+.date-picker-popup > * > .month-year-pane .right-arrow {
+    -fx-background-color: #ffffff;
+}
+
+/* Spinner */
+.date-picker-popup .spinner {
+    -fx-background-color: transparent;
+}
+
+.date-picker-popup .spinner .label {
+    -fx-text-fill: #ffffff;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.date-picker-popup .spinner .button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-background-radius: 6;
+    -fx-padding: 4 8 4 8;
+}
+
+.date-picker-popup .spinner .button:hover {
+    -fx-background-color: #2e3349;
+}
+
+.date-picker-popup .spinner .left-arrow,
+.date-picker-popup .spinner .right-arrow {
+    -fx-background-color: #ffffff;
+}
+
+/* ── Calendar grid background ── */
+.date-picker-popup .calendar-grid {
+    -fx-background-color: #0E1223;   /* CHANGED: was #1c2237 */
+    -fx-padding: 6 10 10 10;
+    -fx-vgap: 2;
+    -fx-hgap: 2;
+}
+
+/* ── Day-of-week header cells ── */
+.date-picker-popup .day-name-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #7a7f94;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-padding: 4 0 6 0;
+}
+
+/* Week number cells */
+.date-picker-popup .week-number-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #3a3f55;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 11px;
+    -fx-alignment: center;
+}
+
+/* ── Regular day cells ── */
+.date-picker-popup .day-cell {
+    -fx-background-color: transparent;
+    -fx-background-radius: 7;
+    -fx-border-color: #2e3349;       /* CHANGED: was white default */
+    -fx-border-width: 0.5;
+    -fx-border-radius: 7;
+    -fx-text-fill: #d0d4e8;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+    -fx-alignment: center;
+    -fx-padding: 5;
+    -fx-cursor: hand;
+    -fx-min-width: 32px;
+    -fx-min-height: 32px;
+    -fx-pref-width: 32px;
+    -fx-pref-height: 32px;
+}
+
+.date-picker-popup .day-cell:hover {
+    -fx-background-color: #2e3349;
+    -fx-background-radius: 7;
+    -fx-text-fill: #ffffff;
+}
+
+/* Days from previous / next month — dimmed */
+.date-picker-popup .day-cell.previous-month,
+.date-picker-popup .day-cell.next-month {
+    -fx-text-fill: #3a3f55;
+}
+
+.date-picker-popup .day-cell.previous-month:hover,
+.date-picker-popup .day-cell.next-month:hover {
+    -fx-background-color: #242840;
+    -fx-text-fill: #5a5f7a;
+}
+
+/* Today's date — CHANGED: solid red fill + white text */
+.date-picker-popup .day-cell.today {
+    -fx-background-color: #2c2337;
+    -fx-background-radius: 7;
+    -fx-border-color: #dd4e50;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.5), 8, 0, 0, 2);
+}
+
+.date-picker-popup .day-cell.today:hover {
+    -fx-background-color: #c62828;
+}
+
+/* Selected date — CHANGED: red border + red text (was solid fill) */
+/* Selected date */
+.date-picker-popup .day-cell.selected {
+    -fx-background-color: rgba(229, 57, 53, 0.18);
+    -fx-background-radius: 7;
+    -fx-border-color: #e53935;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 7;
+    -fx-text-fill: #e53935;
+    -fx-font-weight: bold;
+    -fx-effect: none;
+}
+
+.date-picker-popup .day-cell.selected:hover {
+    -fx-background-color: rgba(229, 57, 53, 0.32);
+}
+
+/* Today AND selected */
+.date-picker-popup .day-cell.today.selected {
+    -fx-background-color: #e53935;
+    -fx-border-color: transparent;
+    -fx-text-fill: #ffffff;
+}
+
+/* ── ContextMenu that wraps the DatePicker inline ── */
+.date-picker-context-menu {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.context-menu {
+    -fx-background-color: #1c2237;
+    -fx-border-color: #2e3349;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 20, 0, 0, 5);
+    -fx-padding: 4;
+}
+
+.context-menu .menu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.context-menu .menu-item:focused,
+.context-menu .menu-item:hover {
+    -fx-background-color: transparent;
+}
+
+.context-menu .separator {
+    -fx-background-color: #2e3349;
 }
