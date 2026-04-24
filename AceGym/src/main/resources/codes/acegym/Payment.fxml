@@ -5,7 +5,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="1.7976931348623157E308" prefWidth="867.0" styleClass="payment-page-bg" stylesheets="@../../Css/Payment.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.PaymentController">
+<AnchorPane maxHeight="1.7976931348623157E308" prefWidth="900.0" styleClass="payment-page-bg" stylesheets="@../../Css/Payment.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.PaymentController">
     <children>
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="custom-scroll-pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <content>
@@ -15,17 +15,17 @@
                     </padding>
                     <children>
 
-                        <!-- Header -->
+                        <!-- ── Header ── -->
                         <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="page-header-box">
                             <children>
                                 <VBox alignment="CENTER" styleClass="header-icon-box">
-                           <children>
-                              <ImageView fitHeight="41.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../../image/cart-shopping-solid.png" />
-                                 </image>
-                              </ImageView>
-                           </children>
+                                    <children>
+                                        <ImageView fitHeight="41.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../../image/cart-shopping-solid.png" />
+                                            </image>
+                                        </ImageView>
+                                    </children>
                                 </VBox>
                                 <VBox spacing="2.0">
                                     <children>
@@ -36,15 +36,15 @@
                             </children>
                         </HBox>
 
-                        <!-- Body -->
-                        <HBox spacing="20.0">
+                        <!-- ── Body ── -->
+                        <HBox spacing="20.0" VBox.vgrow="ALWAYS">
                             <children>
 
-                                <!-- LEFT COLUMN: Steps -->
+                                <!-- ════ LEFT COLUMN: Steps ════ -->
                                 <VBox spacing="16.0" styleClass="steps-column" HBox.hgrow="ALWAYS">
                                     <children>
 
-                                        <!-- Step 1: Identify Client -->
+                                        <!-- ── Step 1: Identify Client ── -->
                                         <VBox spacing="14.0" styleClass="payment-card-step">
                                             <children>
                                                 <HBox alignment="CENTER_LEFT" spacing="12.0">
@@ -53,19 +53,16 @@
                                                         <Label styleClass="step-title" text="Identify Client" />
                                                     </children>
                                                 </HBox>
-                                                <Label styleClass="step-sub-label" text="Search Client Name or ID" />
-                                                <HBox spacing="10.0">
+                                                <Label styleClass="step-sub-label" text="Type a name or ID — select from the dropdown" />
+
+                                                <!-- Editable search combo (no search button) -->
+                                                <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="search-field-wrapper">
+                                                    <padding>
+                                                        <Insets left="12.0" right="12.0" />
+                                                    </padding>
                                                     <children>
-                                                        <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="search-field-wrapper" HBox.hgrow="ALWAYS">
-                                                            <padding>
-                                                                <Insets left="12.0" right="12.0" />
-                                                            </padding>
-                                                            <children>
-                                                                <Label styleClass="search-icon" text="🔍" />
-                                                                <ComboBox fx:id="clientSearchCombo" editable="true" maxWidth="Infinity" promptText="Enter name or client ID..." styleClass="search-combo" HBox.hgrow="ALWAYS" />
-                                                            </children>
-                                                        </HBox>
-                                                        <Button prefHeight="42.0" prefWidth="100.0" styleClass="btn-search-red" text="Search" />
+                                                        <Label styleClass="search-icon" text="🔍" />
+                                                        <ComboBox fx:id="clientSearchCombo" editable="true" maxWidth="Infinity" promptText="Enter name or client ID…" styleClass="search-combo" HBox.hgrow="ALWAYS" />
                                                     </children>
                                                 </HBox>
 
@@ -91,6 +88,7 @@
                                                                 <RowConstraints minHeight="32.0" />
                                                                 <RowConstraints minHeight="32.0" />
                                                                 <RowConstraints minHeight="32.0" />
+                                                                <RowConstraints minHeight="32.0" />
                                                             </rowConstraints>
                                                             <children>
                                                                 <Label styleClass="detail-label" text="Client ID:" GridPane.rowIndex="0" />
@@ -99,11 +97,14 @@
                                                                 <Label styleClass="detail-label" text="Full Name:" GridPane.rowIndex="1" />
                                                                 <TextField fx:id="clientNameDisplay" editable="false" styleClass="input-display" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                                                                <Label styleClass="detail-label" text="Email:" GridPane.rowIndex="2" />
-                                                                <TextField fx:id="clientEmailDisplay" editable="false" styleClass="input-display" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                                <Label styleClass="detail-label" text="Contact:" GridPane.rowIndex="2" />
+                                                                <TextField fx:id="clientContactDisplay" editable="false" styleClass="input-display" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                                                                <Label styleClass="detail-label" text="Client Type:" GridPane.rowIndex="3" />
-                                                                <Label fx:id="clientTypeTag" styleClass="type-tag-member" text="Member" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                                <Label styleClass="detail-label" text="Email:" GridPane.rowIndex="3" />
+                                                                <TextField fx:id="clientEmailDisplay" editable="false" styleClass="input-display" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                                                                <Label styleClass="detail-label" text="Client Type:" GridPane.rowIndex="4" />
+                                                                <Label fx:id="clientTypeTag" styleClass="type-tag-none" text="—" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                                             </children>
                                                         </GridPane>
                                                     </children>
@@ -111,7 +112,7 @@
                                             </children>
                                         </VBox>
 
-                                        <!-- Step 2: Configure Training -->
+                                        <!-- ── Step 2: Configure Training ── -->
                                         <VBox spacing="12.0" styleClass="payment-card-step">
                                             <children>
                                                 <HBox alignment="CENTER_LEFT" spacing="12.0">
@@ -120,6 +121,8 @@
                                                         <Label styleClass="step-title" text="Configure Training" />
                                                     </children>
                                                 </HBox>
+
+                                                <!-- Payment Period -->
                                                 <Label styleClass="step-sub-label" text="Payment Period" />
                                                 <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="combo-wrapper">
                                                     <padding>
@@ -130,6 +133,8 @@
                                                         <ComboBox fx:id="periodCombo" maxWidth="Infinity" promptText="Select Payment Period" styleClass="combo-field" HBox.hgrow="ALWAYS" />
                                                     </children>
                                                 </HBox>
+
+                                                <!-- Training Type -->
                                                 <Label styleClass="step-sub-label" text="Training Type" />
                                                 <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="combo-wrapper">
                                                     <padding>
@@ -140,10 +145,26 @@
                                                         <ComboBox fx:id="typeCombo" maxWidth="Infinity" promptText="Select Training Type" styleClass="combo-field" HBox.hgrow="ALWAYS" />
                                                     </children>
                                                 </HBox>
+
+                                                <!-- Coach (optional) -->
+                                                <Label styleClass="step-sub-label" text="Coach (Optional — adds coaching fee)" />
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="combo-wrapper">
+                                                    <padding>
+                                                        <Insets left="12.0" right="12.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label styleClass="combo-icon" text="🧑‍🏫" />
+                                                        <ComboBox fx:id="coachCombo" maxWidth="Infinity" promptText="No Coach (walk-in)" styleClass="combo-field" HBox.hgrow="ALWAYS" />
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- Coaching fee hint label -->
+                                                <Label fx:id="coachFeeHint" styleClass="step-sub-label" text="" />
+
                                             </children>
                                         </VBox>
 
-                                        <!-- Step 3: Select Payment Method -->
+                                        <!-- ── Step 3: Select Payment Method ── -->
                                         <VBox spacing="12.0" styleClass="payment-card-step">
                                             <children>
                                                 <HBox alignment="CENTER_LEFT" spacing="12.0">
@@ -167,8 +188,8 @@
                                     </children>
                                 </VBox>
 
-                                <!-- RIGHT COLUMN: Financial Summary -->
-                                <VBox prefWidth="300.0" spacing="0.0" styleClass="summary-card">
+                                <!-- ════ RIGHT COLUMN: Financial Summary ════ -->
+                                <VBox prefWidth="310.0" spacing="0.0" styleClass="summary-card">
                                     <padding>
                                         <Insets bottom="25.0" left="22.0" right="22.0" top="25.0" />
                                     </padding>
@@ -182,26 +203,61 @@
 
                                         <VBox spacing="14.0">
                                             <VBox.margin>
-                                                <Insets top="28.0" />
+                                                <Insets top="24.0" />
                                             </VBox.margin>
                                             <children>
-                                                <!-- Price Row -->
+
+                                                <!-- Client -->
                                                 <HBox alignment="CENTER_LEFT">
                                                     <children>
-                                                        <Label maxWidth="Infinity" styleClass="summary-label" text="Price of Training" HBox.hgrow="ALWAYS" />
+                                                        <Label maxWidth="Infinity" styleClass="summary-label" text="Client" HBox.hgrow="ALWAYS" />
+                                                        <Label fx:id="sumClientLabel" styleClass="summary-value-box" text="—" />
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- Training Type -->
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <children>
+                                                        <Label maxWidth="Infinity" styleClass="summary-label" text="Training" HBox.hgrow="ALWAYS" />
+                                                        <Label fx:id="sumTrainingLabel" styleClass="summary-value-box" text="—" />
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- Period -->
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <children>
+                                                        <Label maxWidth="Infinity" styleClass="summary-label" text="Period" HBox.hgrow="ALWAYS" />
+                                                        <Label fx:id="sumPeriodLabel" styleClass="summary-value-box" text="—" />
+                                                    </children>
+                                                </HBox>
+
+                                                <Separator styleClass="summary-divider" />
+
+                                                <!-- Base Price -->
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <children>
+                                                        <Label maxWidth="Infinity" styleClass="summary-label" text="Base Price" HBox.hgrow="ALWAYS" />
                                                         <Label fx:id="priceLabel" styleClass="summary-value-box" text="₱0.00" />
                                                     </children>
                                                 </HBox>
 
-                                                <!-- Discount Row -->
+                                                <!-- Coaching Fee -->
                                                 <HBox alignment="CENTER_LEFT">
                                                     <children>
-                                                        <Label maxWidth="Infinity" styleClass="summary-label" text="Discount" HBox.hgrow="ALWAYS" />
-                                                        <Label fx:id="discountLabel" styleClass="summary-value-red" text="- ₱0.00" />
+                                                        <Label maxWidth="Infinity" styleClass="summary-label" text="Coaching Fee" HBox.hgrow="ALWAYS" />
+                                                        <Label fx:id="coachingFeeLabel" styleClass="summary-value-box" text="₱0.00" />
                                                     </children>
                                                 </HBox>
 
-                                                <!-- Subtotal Row -->
+                                                <!-- Discount -->
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <children>
+                                                        <Label maxWidth="Infinity" styleClass="summary-label" text="Member Discount" HBox.hgrow="ALWAYS" />
+                                                        <Label fx:id="discountLabel" styleClass="summary-value-red" text="— ₱0.00" />
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- Subtotal -->
                                                 <HBox alignment="CENTER_LEFT">
                                                     <children>
                                                         <Label maxWidth="Infinity" styleClass="summary-label" text="Subtotal" HBox.hgrow="ALWAYS" />
@@ -211,16 +267,28 @@
 
                                                 <Separator styleClass="summary-divider" />
 
-                                                <!-- Total Box -->
+                                                <!-- Total -->
                                                 <VBox alignment="CENTER" spacing="8.0" styleClass="total-box">
                                                     <padding>
                                                         <Insets bottom="20.0" top="20.0" />
                                                     </padding>
                                                     <children>
-                                                        <Label styleClass="total-label" text="TOTAL PRICE" />
+                                                        <Label styleClass="total-label" text="TOTAL AMOUNT" />
                                                         <Label fx:id="totalPriceLabel" styleClass="total-amount" text="₱0.00" />
                                                     </children>
                                                 </VBox>
+
+                                                <!-- Payment method echo -->
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <children>
+                                                        <Label maxWidth="Infinity" styleClass="summary-label" text="Via" HBox.hgrow="ALWAYS" />
+                                                        <Label fx:id="sumMethodLabel" styleClass="summary-value-box" text="—" />
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- Validation error banner (hidden by default) -->
+                                                <Label fx:id="validationLabel" managed="false" styleClass="validation-error" text="" visible="false" wrapText="true" />
+
                                             </children>
                                         </VBox>
                                     </children>
@@ -229,11 +297,11 @@
                             </children>
                         </HBox>
 
-                        <!-- Action Buttons -->
+                        <!-- ── Action Buttons ── -->
                         <HBox alignment="CENTER_RIGHT" spacing="12.0">
                             <children>
-                                <Button fx:id="ClearBtn" mnemonicParsing="false" prefHeight="45.0" prefWidth="120.0" styleClass="btn-cancel-dark" text="✕  Cancel" />
-                                <Button fx:id="AddPaymentBtn" mnemonicParsing="false" prefHeight="45.0" prefWidth="180.0" styleClass="btn-save-red" text="💾  Save Payment" />
+                                <Button fx:id="ClearBtn" mnemonicParsing="false" prefHeight="45.0" prefWidth="130.0" styleClass="btn-cancel-dark" text="✕  Clear" />
+                                <Button fx:id="AddPaymentBtn" mnemonicParsing="false" prefHeight="45.0" prefWidth="190.0" styleClass="btn-save-red" text="💾  Save Payment" />
                             </children>
                         </HBox>
 

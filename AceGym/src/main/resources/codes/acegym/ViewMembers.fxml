@@ -95,9 +95,6 @@
 
                         <!-- ── Table (columns injected by controller) ── -->
                         <TableView fx:id="membersTable" styleClass="members-table" VBox.vgrow="ALWAYS">
-                            <columnResizePolicy>
-                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                            </columnResizePolicy>
                             <placeholder>
                                 <Label text="No clients found." />
                             </placeholder>

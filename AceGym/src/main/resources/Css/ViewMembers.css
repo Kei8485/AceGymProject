@@ -329,3 +329,35 @@
     -fx-cursor: hand;
     -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.4), 10, 0, 0, 3);
 }
+
+/* ── Horizontal Scrollbar ── */
+.members-table .scroll-bar:horizontal {
+    -fx-background-color: #1c2237;
+    -fx-pref-height: 10px;
+}
+
+.members-table .scroll-bar:horizontal .thumb {
+    -fx-background-color: #2e3349;
+    -fx-background-radius: 4;
+}
+
+.members-table .scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: #e53935;
+}
+
+.members-table .scroll-bar:horizontal .track {
+    -fx-background-color: transparent;
+}
+
+.members-table .scroll-bar:horizontal .increment-button,
+.members-table .scroll-bar:horizontal .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.members-table .scroll-bar:horizontal .increment-arrow,
+.members-table .scroll-bar:horizontal .decrement-arrow {
+    -fx-background-color: #2e3349;
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
