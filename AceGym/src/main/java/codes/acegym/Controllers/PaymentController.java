@@ -80,6 +80,8 @@ public class PaymentController implements Initializable {
     private final Map<String, Map<String, long[]>> rateMap         = new LinkedHashMap<>();
     private final Map<String, long[]>              coachMap        = new LinkedHashMap<>();
     private final Map<String, Integer>             paymentTypeMap  = new LinkedHashMap<>();
+    // Add this near your other maps
+    private final Map<Integer, Double> clientDiscountMap = new LinkedHashMap<>();
 
     private Client selectedClient = null;
 
@@ -144,6 +146,18 @@ public class PaymentController implements Initializable {
     }
 
     private void loadTrainingData() {
+        // 1. Load Discounts ONCE (Move this outside the loop)
+        clientDiscountMap.clear();
+        codes.acegym.DB.PlanDAO.getAllClientTypes().forEach(ct -> {
+            String raw = ct.getDiscount().replace("%", "").trim();
+            try {
+                double val = Double.parseDouble(raw) / 100.0;
+                clientDiscountMap.put(ct.getId(), val);
+            } catch (NumberFormatException e) {
+                clientDiscountMap.put(ct.getId(), 0.0);
+            }
+        });
+
         String sql =
                 "SELECT tt.TrainingTypeID, tt.TrainingCategory, tt.Coaching_Fee, " +
                         "       pp.PaymentPeriodID, pp.PaymentPeriod, pp.Days, " +
@@ -156,10 +170,12 @@ public class PaymentController implements Initializable {
         try (Connection con = DBConnector.connect();
              Statement st   = con.createStatement();
              ResultSet rs   = st.executeQuery(sql)) {
+
             while (rs.next()) {
                 String cat   = rs.getString("TrainingCategory");
                 int    ttID  = rs.getInt("TrainingTypeID");
                 long   cfee  = (long)(rs.getDouble("Coaching_Fee") * 100);
+
                 String per   = rs.getString("PaymentPeriod");
                 int    ppID  = rs.getInt("PaymentPeriodID");
                 long   price = (long)(rs.getDouble("FinalPrice") * 100);
@@ -167,6 +183,8 @@ public class PaymentController implements Initializable {
 
                 trainingTypeMap.putIfAbsent(cat, new int[]{ttID, 0, (int) cfee});
                 rateMap.putIfAbsent(cat, new LinkedHashMap<>());
+
+                // This key (per + "_" + ctID) matches recalculate()
                 rateMap.get(cat).put(per + "_" + ctID,
                         new long[]{ppID, rs.getInt("Days"), price});
             }
@@ -174,7 +192,6 @@ public class PaymentController implements Initializable {
 
         typeCombo.setItems(FXCollections.observableArrayList(trainingTypeMap.keySet()));
     }
-
     private void loadPaymentMethods() {
         String sql = "SELECT PaymentTypeID, PaymentType FROM PaymentTypeTable ORDER BY PaymentTypeID";
         try (Connection con = DBConnector.connect();
@@ -295,9 +312,18 @@ public class PaymentController implements Initializable {
     //  SETUP — COMBOS & BUTTONS
     // ════════════════════════════════════════════════════════════════════════
     private void setupCombos() {
-        periodCombo.setItems(FXCollections.observableArrayList("Daily", "Monthly", "Yearly"));
+        // Fetch dynamic periods from PlanDAO
+        ObservableList<String> periodNames = FXCollections.observableArrayList();
+        codes.acegym.DB.PlanDAO.getAllPaymentPeriods().forEach(p -> {
+            periodNames.add(p.getName()); // p.getName() returns the "PaymentPeriod" string from DB
+        });
+
+        periodCombo.setItems(periodNames);
+
+        // Listeners
         periodCombo.setOnAction(e -> recalculate());
         typeCombo.setOnAction(e -> recalculate());
+
         methodCombo.setOnAction(e -> sumMethodLabel.setText(
                 methodCombo.getValue() != null ? methodCombo.getValue() : "—"));
 
@@ -372,9 +398,7 @@ public class PaymentController implements Initializable {
     //  LIVE CALCULATION
     // ════════════════════════════════════════════════════════════════════════
     private void recalculate() {
-        if (selectedClient == null
-                || typeCombo.getValue() == null
-                || periodCombo.getValue() == null) {
+        if (selectedClient == null || typeCombo.getValue() == null || periodCombo.getValue() == null) {
             sumTrainingLabel.setText(typeCombo.getValue() != null ? typeCombo.getValue() : "—");
             sumPeriodLabel.setText(periodCombo.getValue()  != null ? periodCombo.getValue()  : "—");
             return;
@@ -395,6 +419,10 @@ public class PaymentController implements Initializable {
 
         double basePrice = rate[2] / 100.0;
 
+        // ── DYNAMIC DISCOUNT CALCULATION ──
+        double discountPercent = clientDiscountMap.getOrDefault(clientTypeID, 0.0);
+        double discount = basePrice * discountPercent;
+
         double coachFee = 0.0;
         String coachSel = coachCombo.getValue();
         if (coachSel != null && !coachSel.equals(NO_COACH)) {
@@ -402,16 +430,17 @@ public class PaymentController implements Initializable {
             if (cd != null) coachFee = cd[2] / 100.0;
         }
 
-        double discount = isMember ? basePrice * 0.40 : 0.0;
         double subtotal = basePrice - discount + coachFee;
 
         priceLabel.setText("₱" + fmt(basePrice));
         coachingFeeLabel.setText("₱" + fmt(coachFee));
-        discountLabel.setText("— ₱" + fmt(discount));
+
+        // Show the actual percentage in the summary if you want
+        discountLabel.setText(String.format("— ₱%s (%.0f%%)", fmt(discount), discountPercent * 100));
+
         subtotalLabel.setText("₱" + fmt(subtotal));
         totalPriceLabel.setText("₱" + fmt(subtotal));
     }
-
     private String fmt(double v) { return String.format("%,.2f", v); }
 
     // ════════════════════════════════════════════════════════════════════════
