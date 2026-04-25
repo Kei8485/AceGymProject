@@ -87,12 +87,19 @@ public class HomePageController {
     private Label     loadingLabel;
     private ProgressBar loadingBar; // kept as unused field for compatibility, not shown
 
+    // ── Static registry — lets other controllers (e.g. RegistrationController)
+    //    navigate pages without holding a direct reference to HomePageController. ──
+    private static HomePageController instance;
+    public  static HomePageController getInstance() { return instance; }
+
     // ═══════════════════════════════════════════════════════════════
     // INIT
     // ═══════════════════════════════════════════════════════════════
 
     @FXML
     private void initialize() {
+        instance = this; // register so RegistrationController can find us via getInstance()
+
         menuGroup.selectedToggleProperty().addListener((obs, oldT, newT) -> {
             if (newT == null && oldT != null) oldT.setSelected(true);
         });
@@ -526,10 +533,34 @@ public class HomePageController {
         switchTimeline.play();
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // NAVIGATION
-    // ═══════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════════════════
+    //  PAYMENT NAVIGATION  — called by RegistrationController after the user
+    //  confirms "Avail Membership". Switches to the Payment page and pre-fills
+    //  the client in PaymentController so the user can complete the payment.
+    // ════════════════════════════════════════════════════════════════════════
+    public void navigateToPaymentTab(codes.acegym.Objects.Client client) {
+        // 1. Select the nav toggle so the UI stays consistent
+        if (PaymentForm != null) {
+            menuGroup.selectToggle(PaymentForm);
+        }
 
+        // 2. Switch to the Payment page via the same mechanism as the nav buttons
+        showPage("/codes/acegym/Payment.fxml");
+
+        // 3. Get the PaymentController from the view cache and pre-select the client.
+        //    Defer by one pulse so the page-switch animation starts first.
+        Parent paymentView = viewCache.get("/codes/acegym/Payment.fxml");
+        if (paymentView != null) {
+            Object ctrl = paymentView.getProperties().get("controller");
+            if (ctrl instanceof PaymentController pc) {
+                javafx.application.Platform.runLater(() -> pc.preSelectClient(client));
+            }
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  NAVIGATION
+    // ════════════════════════════════════════════════════════════════════════
     private void setupNavigation() {
         ToggleButton[] menuButtons = {
                 dashboardBtn, adminProfile, registrationForm, planForm,

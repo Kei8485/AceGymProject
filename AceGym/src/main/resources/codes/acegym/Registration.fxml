@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.net.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefWidth="900.0" styleClass="main-content-bg" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.RegistrationController">
+<AnchorPane prefWidth="900.0" styleClass="main-content-bg" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.RegistrationController">
     <stylesheets>
         <URL value="@../../Css/Registration.css" />
     </stylesheets>
@@ -25,7 +37,7 @@
                         <VBox spacing="14.0">
                             <children>
 
-                                <!-- Section Page Header -->
+                                <!-- Section Header -->
                                 <HBox alignment="CENTER_LEFT" spacing="16.0">
                                     <children>
                                         <StackPane maxHeight="52" maxWidth="52" minHeight="52" minWidth="52" styleClass="header-icon-badge">
@@ -38,9 +50,8 @@
                                         <VBox spacing="3.0">
                                             <children>
                                                 <Label styleClass="page-subtitle" text="Register a new client to the system">
-                                       <padding>
-                                          <Insets bottom="-10.0" />
-                                       </padding></Label>
+                                                    <padding><Insets bottom="-10.0" /></padding>
+                                                </Label>
                                                 <Label styleClass="page-title" text="Client Registration" />
                                             </children>
                                         </VBox>
@@ -54,8 +65,8 @@
                                     </padding>
                                     <children>
 
-                                        <!-- Row 1: First Name | Last Name | Date of Registration -->
-                                        <GridPane hgap="16.0" prefHeight="156.0" prefWidth="756.0" vgap="10.0">
+                                        <!-- Row 1 & 2: Form Fields -->
+                                        <GridPane hgap="16.0" vgap="10.0">
                                             <columnConstraints>
                                                 <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
                                                 <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
@@ -71,6 +82,7 @@
                                                 <!-- Labels Row 1 -->
                                                 <Label styleClass="field-label" text="First Name" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                                 <Label styleClass="field-label" text="Last Name" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                                <Label styleClass="field-label" text="Contact No." GridPane.columnIndex="2" GridPane.rowIndex="0" />
 
                                                 <!-- Fields Row 1 -->
                                                 <StackPane GridPane.columnIndex="0" GridPane.rowIndex="1">
@@ -92,36 +104,44 @@
                                                     </children>
                                                 </StackPane>
                                                 <StackPane GridPane.columnIndex="2" GridPane.rowIndex="1">
-                                       <children>
+                                                    <children>
                                                         <TextField fx:id="regContactField" prefHeight="40.0" promptText="Enter contact number" styleClass="input-field-icon" />
                                                         <ImageView fitHeight="14.0" fitWidth="14.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
                                                             <image><Image url="@../../image/phone-solid.png" /></image>
                                                             <StackPane.margin><Insets right="200.0" /></StackPane.margin>
                                                         </ImageView>
-                                       </children>
+                                                    </children>
                                                 </StackPane>
 
                                                 <!-- Labels Row 2 -->
                                                 <Label styleClass="field-label" text="Email Address" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                                <Label styleClass="field-label" text="Contact No." GridPane.columnIndex="2" />
 
                                                 <!-- Fields Row 2 -->
-                                                <StackPane GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="3">
+                                                <StackPane GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.rowIndex="3">
                                                     <children>
-                                                        <TextField fx:id="regEmailField" prefHeight="40.0" prefWidth="469.0" promptText="Enter email address" styleClass="input-field-icon" />
+                                                        <TextField fx:id="regEmailField" prefHeight="40.0" promptText="Enter email address" styleClass="input-field-icon" />
                                                         <ImageView fitHeight="14.0" fitWidth="14.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
                                                             <image><Image url="@../../image/envelope-solid.png" /></image>
                                                             <StackPane.margin><Insets right="460.0" /></StackPane.margin>
                                                         </ImageView>
                                                     </children>
                                                 </StackPane>
-                                                <StackPane GridPane.columnIndex="2" GridPane.rowIndex="3" />
                                             </children>
                                         </GridPane>
 
-                                        <!-- Register Button -->
-                                        <HBox alignment="CENTER_RIGHT">
+                                        <!-- Validation Box (Section 1) — hidden by default -->
+                                        <VBox fx:id="regValidationBox" managed="false" visible="false" />
+
+                                        <!-- Register + Reset Buttons -->
+                                        <HBox alignment="CENTER_RIGHT" spacing="12.0">
                                             <children>
+                                                <Button fx:id="ResetRegBtn" prefHeight="40.0" styleClass="btn-secondary" text="Reset">
+                                                    <graphic>
+                                                        <ImageView fitHeight="14.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
+                                                            <image><Image url="@../../image/arrows-rotate-solid.png" /></image>
+                                                        </ImageView>
+                                                    </graphic>
+                                                </Button>
                                                 <Button fx:id="RegisterClientBtn" prefHeight="40.0" prefWidth="186.0" styleClass="btn-primary" text="Register Client">
                                                     <graphic>
                                                         <ImageView fitHeight="29.0" fitWidth="23.0" pickOnBounds="true" preserveRatio="true">
@@ -143,7 +163,7 @@
                         <VBox spacing="14.0">
                             <children>
 
-                                <!-- Section Page Header -->
+                                <!-- Section Header -->
                                 <HBox alignment="CENTER_LEFT" spacing="16.0">
                                     <children>
                                         <StackPane maxHeight="52" maxWidth="52" minHeight="52" minWidth="52" styleClass="header-icon-badge">
@@ -156,9 +176,8 @@
                                         <VBox spacing="3.0">
                                             <children>
                                                 <Label styleClass="page-subtitle" text="Search and register membership for a client">
-                                       <padding>
-                                          <Insets bottom="-10.0" />
-                                       </padding></Label>
+                                                    <padding><Insets bottom="-10.0" /></padding>
+                                                </Label>
                                                 <Label styleClass="page-title" text="Membership Registration" />
                                             </children>
                                         </VBox>
@@ -172,32 +191,17 @@
                                     </padding>
                                     <children>
 
-                                        <!-- Search + Filter Row -->
+                                        <!-- Search Row (no filter combo) -->
                                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                                             <children>
                                                 <StackPane HBox.hgrow="ALWAYS">
                                                     <children>
-                                                        <ComboBox fx:id="clientSearchBox" editable="true" maxWidth="Infinity" prefHeight="40.0" promptText="Search client name or ID" styleClass="search-combo" visibleRowCount="7" HBox.hgrow="ALWAYS">
-                                             <padding>
-                                                <Insets left="10.0" />
-                                             </padding>
-                                          </ComboBox>
+                                                        <ComboBox fx:id="clientSearchBox" editable="true" maxWidth="Infinity" prefHeight="40.0" promptText="Search by first or last name" styleClass="search-combo" visibleRowCount="7" HBox.hgrow="ALWAYS">
+                                                            <padding><Insets left="10.0" /></padding>
+                                                        </ComboBox>
                                                         <ImageView fitHeight="18.0" fitWidth="21.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
-                                                            <image>
-                                                <Image url="@../../image/magnifying-glass-solid.png" />
-                                             </image>
-                                                            <StackPane.margin>
-                                                <Insets left="-120.0" right="200.0" />
-                                             </StackPane.margin>
-                                                        </ImageView>
-                                                    </children>
-                                                </StackPane>
-                                                <StackPane>
-                                                    <children>
-                                                        <ComboBox fx:id="filterCombo" prefHeight="40.0" prefWidth="130.0" promptText="Filter" styleClass="filter-combo" visibleRowCount="7" />
-                                                        <ImageView fitHeight="14.0" fitWidth="14.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
-                                                            <image><Image url="@../../image/filter-solid.png" /></image>
-                                                            <StackPane.margin><Insets left="12.0" /></StackPane.margin>
+                                                            <image><Image url="@../../image/magnifying-glass-solid.png" /></image>
+                                                            <StackPane.margin><Insets left="-120.0" right="200.0" /></StackPane.margin>
                                                         </ImageView>
                                                     </children>
                                                 </StackPane>
@@ -229,12 +233,11 @@
                                                 <!-- Labels Row 1 -->
                                                 <Label styleClass="field-label" text="First Name" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                                 <Label styleClass="field-label" text="Last Name" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                                                <Label styleClass="field-label" text="Date of Registration" GridPane.columnIndex="2" GridPane.rowIndex="0" />
 
                                                 <!-- Fields Row 1 -->
                                                 <StackPane GridPane.columnIndex="0" GridPane.rowIndex="1">
                                                     <children>
-                                                        <TextField fx:id="memFirstNameField" editable="false" prefHeight="40.0" promptText="Enter first name" styleClass="input-field-icon-readonly" />
+                                                        <TextField fx:id="memFirstNameField" editable="false" prefHeight="40.0" promptText="First name" styleClass="input-field-icon-readonly" />
                                                         <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
                                                             <image><Image url="@../../image/user-solid.png" /></image>
                                                             <StackPane.margin><Insets right="200.0" /></StackPane.margin>
@@ -243,7 +246,7 @@
                                                 </StackPane>
                                                 <StackPane GridPane.columnIndex="1" GridPane.rowIndex="1">
                                                     <children>
-                                                        <TextField fx:id="memLastNameField" editable="false" prefHeight="40.0" promptText="Enter last name" styleClass="input-field-icon-readonly" />
+                                                        <TextField fx:id="memLastNameField" editable="false" prefHeight="40.0" promptText="Last name" styleClass="input-field-icon-readonly" />
                                                         <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
                                                             <image><Image url="@../../image/user-solid.png" /></image>
                                                             <StackPane.margin><Insets right="200.0" /></StackPane.margin>
@@ -251,40 +254,35 @@
                                                     </children>
                                                 </StackPane>
                                                 <StackPane GridPane.columnIndex="2" GridPane.rowIndex="1">
-                                                    <children>
-                                                        <TextField fx:id="memDateField" editable="false" prefHeight="40.0" promptText="MM/DD/YYYY" styleClass="input-field-icon-both-readonly" />
-                                                        <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
-                                                            <image><Image url="@../../image/calendar-days-solid.png" /></image>
+                                       <children>
+                                                        <TextField fx:id="memContactField" editable="false" prefHeight="40.0" promptText="Contact number" styleClass="input-field-icon-readonly" />
+                                                        <ImageView fitHeight="14.0" fitWidth="14.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
+                                                            <image><Image url="@../../image/phone-solid.png" /></image>
                                                             <StackPane.margin><Insets right="200.0" /></StackPane.margin>
                                                         </ImageView>
-                                                    </children>
+                                       </children>
                                                 </StackPane>
 
                                                 <!-- Labels Row 2 -->
                                                 <Label styleClass="field-label" text="Email Address" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                                <Label styleClass="field-label" text="Contact No." GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                <Label styleClass="field-label" text="Contact No." GridPane.columnIndex="2" />
 
                                                 <!-- Fields Row 2 -->
                                                 <StackPane GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="3">
                                                     <children>
-                                                        <TextField fx:id="memEmailField" editable="false" prefHeight="40.0" promptText="Enter email address" styleClass="input-field-icon-readonly" />
+                                                        <TextField fx:id="memEmailField" editable="false" prefHeight="40.0" promptText="Email address" styleClass="input-field-icon-readonly" />
                                                         <ImageView fitHeight="14.0" fitWidth="14.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
                                                             <image><Image url="@../../image/envelope-solid.png" /></image>
                                                             <StackPane.margin><Insets right="460.0" /></StackPane.margin>
                                                         </ImageView>
                                                     </children>
                                                 </StackPane>
-                                                <StackPane GridPane.columnIndex="2" GridPane.rowIndex="3">
-                                                    <children>
-                                                        <TextField fx:id="memContactField" editable="false" prefHeight="40.0" promptText="Enter contact number" styleClass="input-field-icon-readonly" />
-                                                        <ImageView fitHeight="14.0" fitWidth="14.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true" styleClass="field-icon-left">
-                                                            <image><Image url="@../../image/phone-solid.png" /></image>
-                                                            <StackPane.margin><Insets right="200.0" /></StackPane.margin>
-                                                        </ImageView>
-                                                    </children>
-                                                </StackPane>
+                                                <StackPane GridPane.columnIndex="2" GridPane.rowIndex="3" />
                                             </children>
                                         </GridPane>
+
+                                        <!-- Validation Box (Section 2) — hidden by default -->
+                                        <VBox fx:id="memValidationBox" managed="false" visible="false" />
 
                                         <!-- Avail Membership Button -->
                                         <HBox alignment="CENTER_RIGHT">
@@ -307,7 +305,7 @@
                                             <children>
                                                 <Label alignment="CENTER" contentDisplay="CENTER" styleClass="tip-icon" text="i" textAlignment="CENTER" />
                                                 <Label styleClass="tip-label-bold" text="Tip:" />
-                                                <Label styleClass="tip-label-text" text="Make sure all client details are accurate before registering or availing membership." />
+                                                <Label styleClass="tip-label-text" text="Only non-member clients appear in the search. A client becomes a Member only after payment is saved in the Payment tab." />
                                             </children>
                                         </HBox>
 

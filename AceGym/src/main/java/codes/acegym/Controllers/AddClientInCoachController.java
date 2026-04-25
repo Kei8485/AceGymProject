@@ -41,7 +41,11 @@ public class AddClientInCoachController {
     private Coach               coach;
     private CoachCardController cardController;
     private Client              selectedClient  = null;
-    private ObservableList<Client> allUnassigned = FXCollections.observableArrayList();
+    private ObservableList<Client> allUnassigned    = FXCollections.observableArrayList();
+    // Stable list bound to the ListView ONCE — never replaced via setItems().
+    // Filtered by mutating in place inside Platform.runLater() to avoid the
+    // JavaFX 21 IndexOutOfBoundsException when a click is in-flight.
+    private final ObservableList<Client> displayedClients = FXCollections.observableArrayList();
 
     // ── Injected by CoachCardController ─────────────────────────────────────
     public void setCoach(Coach coach, CoachCardController cardController) {
@@ -71,18 +75,27 @@ public class AddClientInCoachController {
         if (searchField == null) return;
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
             String q = (newVal == null) ? "" : newVal.trim().toLowerCase();
+
+            // Build the result list immediately (safe — no UI mutation yet)
+            final java.util.List<Client> next = new java.util.ArrayList<>();
             if (q.isEmpty()) {
-                clientListView.setItems(allUnassigned);
+                next.addAll(allUnassigned);
             } else {
-                ObservableList<Client> filtered = FXCollections.observableArrayList();
                 for (Client c : allUnassigned) {
-                    if (c.getFullName().toLowerCase().contains(q)) filtered.add(c);
+                    if (c.getFullName().toLowerCase().contains(q)) next.add(c);
                 }
-                clientListView.setItems(filtered);
             }
-            clientListView.getSelectionModel().clearSelection();
-            clearDisplayFields();
-            selectedClient = null;
+
+            // Defer the mutation to the next pulse so we never touch the
+            // ListView's backing list while a mouse-click event is in-flight.
+            // JavaFX 21 IndexOutOfBoundsException fix — same root cause as
+            // the ComboBox/TableView crashes fixed elsewhere in this project.
+            javafx.application.Platform.runLater(() -> {
+                clientListView.getSelectionModel().clearSelection();
+                displayedClients.setAll(next);   // mutates in place — setItems() never called again
+                clearDisplayFields();
+                selectedClient = null;
+            });
         });
     }
 
@@ -110,6 +123,9 @@ public class AddClientInCoachController {
                         "-fx-border-color: #2e3349;" +
                         "-fx-border-radius: 8;" +
                         "-fx-border-width: 1.5;");
+
+        // Bind the ListView to the stable list ONCE — setupSearch() filters it in place.
+        clientListView.setItems(displayedClients);
 
         clientListView.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldVal, newClient) -> {
@@ -202,8 +218,11 @@ public class AddClientInCoachController {
         clientDetailsView.setVisible(true);
 
         allUnassigned = ClientDAO.getUnassignedClients(coach.getStaffID());
-        clientListView.setItems(allUnassigned);
-        clientListView.getSelectionModel().clearSelection();
+        // Mutate the stable list in place — never call setItems() again
+        javafx.application.Platform.runLater(() -> {
+            displayedClients.setAll(allUnassigned);
+            clientListView.getSelectionModel().clearSelection();
+        });
 
         if (searchField != null) searchField.clear();
         clearDisplayFields();

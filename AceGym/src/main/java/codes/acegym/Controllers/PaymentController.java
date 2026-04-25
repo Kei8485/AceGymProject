@@ -65,7 +65,10 @@ public class PaymentController implements Initializable {
     @FXML private Label totalPriceLabel;
     @FXML private Label sumMethodLabel;
 
-    // ── Upgrade info label (optional — add fx:id="upgradeBadge" in FXML) ────
+    // ── Membership fee label (optional — add fx:id="membershipFeeLabel" in FXML) ─
+    @FXML private Label membershipFeeLabel;
+
+    // ── Upgrade info label ───────────────────────────────────────────────────
     @FXML private Label upgradeBadge;
 
     // ── Validation area ──────────────────────────────────────────────────────
@@ -85,21 +88,45 @@ public class PaymentController implements Initializable {
 
     // ── State ────────────────────────────────────────────────────────────────
     private Client        selectedClient  = null;
-    private UpgradeResult currentUpgrade  = null; // null = no active plan / not yet checked
+    private UpgradeResult currentUpgrade  = null;
+
+    /**
+     * TRUE when this payment comes from the "Avail Membership" flow in
+     * RegistrationController.  In this mode:
+     *  - The membership fee (₱1000) is added to the total.
+     *  - The coach combo is always enabled (client is about to become a Member).
+     *  - If the client already has an active Monthly/Yearly plan, the period and
+     *    type combos are locked (they keep their plan, just pay the membership fee).
+     */
+    private boolean isFromRegistration = false;
+
+    /**
+     * TRUE when the client coming from registration already has an active
+     * Monthly or Yearly plan.  In that case we hide/lock the plan pickers and
+     * only charge the membership fee.
+     */
+    private boolean clientHasActivePlan = false;
 
     private boolean suppressSearch = false;
     private boolean pendingFilter  = false;
     private String  pendingQuery   = "";
 
     private ObservableList<Client> allClients;
+    private final ObservableList<Client> displayedClients =
+            FXCollections.observableArrayList();
 
     private static final String NO_COACH = "No Coach (walk-in)";
+
+    // ── Static registry ──────────────────────────────────────────────────────
+    private static PaymentController instance;
+    public  static PaymentController getInstance() { return instance; }
 
     // ════════════════════════════════════════════════════════════════════════
     //  INITIALIZE
     // ════════════════════════════════════════════════════════════════════════
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        instance = this;
         loadFonts();
         loadClients();
         loadTrainingData();
@@ -110,8 +137,7 @@ public class PaymentController implements Initializable {
         resetSummary();
         hideValidation();
         hideUpgradeBadge();
-        ExpiryResetDAO.runExpiryResets(); // ← add this line
-
+        ExpiryResetDAO.runExpiryResets();
     }
 
     // ════════════════════════════════════════════════════════════════════════
@@ -131,7 +157,9 @@ public class PaymentController implements Initializable {
     // ════════════════════════════════════════════════════════════════════════
     private void loadClients() {
         allClients = ClientDAO.getAllClients();
-        clientSearchCombo.setItems(FXCollections.observableArrayList(allClients));
+        displayedClients.setAll(allClients);
+        clientSearchCombo.setItems(displayedClients);
+
         clientSearchCombo.setConverter(new StringConverter<>() {
             @Override public String toString(Client c) {
                 return c == null ? "" : c.getFullName() + "  (#" + c.getClientID() + ")";
@@ -148,7 +176,7 @@ public class PaymentController implements Initializable {
 
     private void loadTrainingData() {
         clientDiscountMap.clear();
-        codes.acegym.DB.PlanDAO.getAllClientTypes().forEach(ct -> {
+        PlanDAO.getAllClientTypes().forEach(ct -> {
             String raw = ct.getDiscount().replace("%", "").trim();
             try {
                 double val = Double.parseDouble(raw) / 100.0;
@@ -204,13 +232,12 @@ public class PaymentController implements Initializable {
 
     /**
      * Loads coaches filtered by the selected training category.
-     * Coaches tagged "Both" always appear; exact-category coaches also appear.
+     * Always loads coaches when isFromRegistration=true (client is becoming a Member).
      */
     private void loadCoachesForClient(Client client) {
         coachMap.clear();
         coachMap.put(NO_COACH, new long[]{-1, -1, 0});
 
-        // If a training type is already selected, filter coaches by compatibility.
         String selectedCat = typeCombo.getValue();
         String categoryFilter = (selectedCat != null && !selectedCat.isBlank())
                 ? "AND (" +
@@ -275,6 +302,9 @@ public class PaymentController implements Initializable {
         clientSearchCombo.setOnAction(e -> {
             Client c = clientSearchCombo.getValue();
             if (c == null) return;
+            // BUG FIX #4: set suppressSearch BEFORE populateClientDetails so the
+            // text-change listener (fired by setValue inside preSelectClient) doesn't
+            // trigger applyFilter("") → clearClientDetails() while we are populating.
             suppressSearch = true;
             populateClientDetails(c);
             Platform.runLater(() -> suppressSearch = false);
@@ -287,38 +317,60 @@ public class PaymentController implements Initializable {
     }
 
     private void applyFilter(String q) {
+        // BUG FIX #4: Never clear client details from inside applyFilter.
+        // The text listener fires while suppressSearch is still true during
+        // preSelectClient — we must guard here so we don't wipe the just-selected client.
+        if (suppressSearch) return;
+
+        final List<Client> next = new ArrayList<>();
         if (q == null || q.isBlank()) {
-            clientSearchCombo.setItems(FXCollections.observableArrayList(allClients));
-            clearClientDetails();
-            return;
-        }
-        ObservableList<Client> filtered = FXCollections.observableArrayList();
-        for (Client c : allClients) {
-            if (c.getFullName().toLowerCase().contains(q)
-                    || String.valueOf(c.getClientID()).contains(q)) {
-                filtered.add(c);
+            next.addAll(allClients);
+        } else {
+            for (Client c : allClients) {
+                if (c.getFullName().toLowerCase().contains(q)
+                        || String.valueOf(c.getClientID()).contains(q)) {
+                    next.add(c);
+                }
             }
         }
-        clientSearchCombo.setItems(filtered);
-        if (!clientSearchCombo.isShowing() && !filtered.isEmpty())
-            clientSearchCombo.show();
+
+        if (clientSearchCombo.isShowing()) clientSearchCombo.hide();
+
+        Platform.runLater(() -> {
+            displayedClients.setAll(next);
+            // Only clear details if the user explicitly cleared the search box
+            // AND no client is selected yet.
+            if ((q == null || q.isBlank()) && selectedClient == null) {
+                clearClientDetails();
+            } else if (!next.isEmpty() && !suppressSearch && !q.isBlank()) {
+                clientSearchCombo.show();
+            }
+        });
     }
 
     // ════════════════════════════════════════════════════════════════════════
     //  SETUP — COMBOS & BUTTONS
     // ════════════════════════════════════════════════════════════════════════
     private void setupCombos() {
+        // Load period names directly from PaymentPeriodTable — same pattern as
+        // typeCombo (trainingTypeMap) and methodCombo (loadPaymentMethods).
+        // This guarantees the displayed names match the keys in rateMap exactly.
         ObservableList<String> periodNames = FXCollections.observableArrayList();
-        codes.acegym.DB.PlanDAO.getAllPaymentPeriods().forEach(p -> periodNames.add(p.getName()));
+        String periodSQL = "SELECT PaymentPeriod FROM PaymentPeriodTable ORDER BY Days";
+        try (Connection con = DBConnector.connect();
+             Statement st   = con.createStatement();
+             ResultSet rs   = st.executeQuery(periodSQL)) {
+            while (rs.next()) periodNames.add(rs.getString("PaymentPeriod"));
+        } catch (SQLException e) { e.printStackTrace(); }
         periodCombo.setItems(periodNames);
 
-        // When training type changes: re-filter coaches, then recalculate
         typeCombo.setOnAction(e -> {
             if (selectedClient != null) {
-                // Check membership gate before allowing coach selection
-                boolean hasMembership = UpgradeDAO.hasActiveMembership(selectedClient.getClientID());
-                coachCombo.setDisable(!hasMembership);
-                if (hasMembership) {
+                // BUG FIX #3: When coming from registration, always enable coach combo.
+                // The client is about to become a Member — they should be able to pick a coach now.
+                boolean canSelectCoach = isFromRegistration || UpgradeDAO.hasActiveMembership(selectedClient.getClientID());
+                coachCombo.setDisable(!canSelectCoach);
+                if (canSelectCoach) {
                     loadCoachesForClient(selectedClient);
                 } else {
                     coachMap.clear();
@@ -364,22 +416,81 @@ public class PaymentController implements Initializable {
         clientNameDisplay.setText(c.getFullName());
         clientContactDisplay.setText(c.getContact());
         clientEmailDisplay.setText(email);
-        clientTypeTag.setText(c.getClientType());
+        clientTypeTag.setText(isFromRegistration ? "Non Member → Member" : c.getClientType());
 
-        // ── Membership gate: disable coach combo for non-members/expired ──────
+        // BUG FIX #3: Coach combo enabled when:
+        //   a) client has active membership already, OR
+        //   b) coming from registration (about to become member on save)
         boolean hasMembership = UpgradeDAO.hasActiveMembership(c.getClientID());
-        coachCombo.setDisable(!hasMembership);
-        if (!hasMembership) {
+        boolean canSelectCoach = isFromRegistration || hasMembership;
+        coachCombo.setDisable(!canSelectCoach);
+
+        if (!canSelectCoach) {
             coachFeeHint.setText("Select a Membership plan to enable coach assignment.");
+        } else {
+            coachFeeHint.setText("");
+        }
+
+        // BUG FIX #1: Check if client already has an active Monthly/Yearly plan.
+        // If yes and coming from registration → lock plan combos, only charge membership fee.
+        if (isFromRegistration) {
+            clientHasActivePlan = PaymentDAO.hasActiveNonDailyPlan(c.getClientID());
+            if (clientHasActivePlan) {
+                // Lock plan pickers — client keeps their existing plan
+                typeCombo.setDisable(true);
+                periodCombo.setDisable(true);
+                showUpgradeBadge(
+                        "ℹ This client already has an active Monthly/Yearly plan. " +
+                                "Only the membership fee (₱" + fmt(PaymentDAO.getMembershipFee(2)) + ") will be charged.",
+                        "#60a5fa", false);
+            } else {
+                // Let them choose a plan (Daily is OK to upgrade)
+                typeCombo.setDisable(false);
+                periodCombo.setDisable(false);
+            }
+        } else {
+            clientHasActivePlan = false;
+            typeCombo.setDisable(false);
+            periodCombo.setDisable(false);
         }
 
         loadCoachesForClient(c);
         recalculate();
     }
 
+    // ════════════════════════════════════════════════════════════════════════
+    //  PRE-SELECT CLIENT  (called from RegistrationController)
+    // ════════════════════════════════════════════════════════════════════════
+    /**
+     * Called by RegistrationController when "Avail Membership" is confirmed.
+     * Sets isFromRegistration=true so the membership fee is added and the
+     * coach combo is unlocked.
+     */
+    public void preSelectClient(Client client) {
+        if (client == null) return;
+
+        // Mark this as a registration-origin payment BEFORE populateClientDetails
+        isFromRegistration = true;
+
+        loadClients();
+
+        Client match = allClients.stream()
+                .filter(c -> c.getClientID() == client.getClientID())
+                .findFirst()
+                .orElse(client);
+
+        suppressSearch = true;
+        clientSearchCombo.setValue(match);
+        populateClientDetails(match);
+        Platform.runLater(() -> suppressSearch = false);
+    }
+
     private void clearClientDetails() {
-        selectedClient  = null;
-        currentUpgrade  = null;
+        selectedClient      = null;
+        currentUpgrade      = null;
+        isFromRegistration  = false;
+        clientHasActivePlan = false;
+
         clientIdDisplay.setText("");
         clientNameDisplay.setText("");
         clientContactDisplay.setText("");
@@ -389,17 +500,40 @@ public class PaymentController implements Initializable {
         coachCombo.setItems(FXCollections.observableArrayList());
         coachCombo.setDisable(false);
         coachFeeHint.setText("");
+        typeCombo.setDisable(false);
+        periodCombo.setDisable(false);
         hideUpgradeBadge();
         resetSummary();
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  RECALCULATE SUMMARY  (also runs upgrade eligibility check)
+    //  RECALCULATE SUMMARY
     // ════════════════════════════════════════════════════════════════════════
     private void recalculate() {
+        if (selectedClient == null) {
+            hideUpgradeBadge();
+            return;
+        }
+
+        // ── Registration flow with existing active plan ───────────────────────
+        // Client keeps their plan — only charge the membership fee.
+        if (isFromRegistration && clientHasActivePlan) {
+            double memFee = PaymentDAO.getMembershipFee(2); // 2 = Member
+            sumClientLabel.setText(selectedClient.getFullName());
+            sumTrainingLabel.setText("Existing Plan (kept)");
+            sumPeriodLabel.setText("—");
+            priceLabel.setText("₱0.00");
+            coachingFeeLabel.setText("₱0.00");
+            discountLabel.setText("— ₱0.00");
+            if (membershipFeeLabel != null) membershipFeeLabel.setText("₱" + fmt(memFee));
+            subtotalLabel.setText("₱" + fmt(memFee));
+            totalPriceLabel.setText("₱" + fmt(memFee));
+            return;
+        }
+
         String cat    = typeCombo.getValue();
         String period = periodCombo.getValue();
-        if (selectedClient == null || cat == null || period == null) {
+        if (cat == null || period == null) {
             hideUpgradeBadge();
             return;
         }
@@ -408,16 +542,20 @@ public class PaymentController implements Initializable {
         sumTrainingLabel.setText(cat);
         sumPeriodLabel.setText(period);
 
-        boolean isMember = "Member".equalsIgnoreCase(selectedClient.getClientType());
+        // When coming from registration, the client will become a Member → use Member rates.
+        // Otherwise, use their current type.
+        boolean isMember = isFromRegistration || "Member".equalsIgnoreCase(selectedClient.getClientType());
         int clientTypeID = isMember ? 2 : 1;
 
         Map<String, long[]> periods = rateMap.get(cat);
         if (periods == null) { hideUpgradeBadge(); return; }
 
         long[] rate = periods.get(period + "_" + clientTypeID);
+        // Fallback: if no Member rate, try Non-Member rate
+        if (rate == null) rate = periods.get(period + "_1");
         if (rate == null) { hideUpgradeBadge(); return; }
 
-        double basePrice      = rate[2] / 100.0;
+        double basePrice       = rate[2] / 100.0;
         double discountPercent = clientDiscountMap.getOrDefault(clientTypeID, 0.0);
         double discount        = basePrice * discountPercent;
 
@@ -428,60 +566,85 @@ public class PaymentController implements Initializable {
             if (cd != null) coachFee = cd[2] / 100.0;
         }
 
-        // ── Upgrade eligibility check ─────────────────────────────────────────
-        int trainingTypeID = trainingTypeMap.get(cat)[0];
-        int ppID           = (int) rate[0];
-        currentUpgrade = UpgradeDAO.checkUpgrade(
-                selectedClient.getClientID(), trainingTypeID, ppID, clientTypeID);
+        // ── Membership fee (NEW) ─────────────────────────────────────────────
+        // Added when coming from registration — this is the ₱1000 enrollment fee.
+        double membershipFee = isFromRegistration ? PaymentDAO.getMembershipFee(2) : 0.0;
 
+        // ── Upgrade eligibility check (skip for registration flow) ───────────
         double effectiveTotal;
-        switch (currentUpgrade.getStatus()) {
 
-            case UPGRADE_ALLOWED -> {
-                // Client only pays the difference
-                double topUp   = currentUpgrade.getTopUpAmount();
-                effectiveTotal = topUp + coachFee;
-                showUpgradeBadge(String.format(
-                                "⬆ Upgrade: current plan ₱%s → new plan ₱%s  |  Top-up: ₱%s",
-                                fmt(currentUpgrade.getCurrentPrice()),
-                                fmt(currentUpgrade.getNewPrice()),
-                                fmt(topUp)),
-                        "#4ade80", false);
-                priceLabel.setText("₱" + fmt(currentUpgrade.getTopUpAmount()));
-            }
+        if (isFromRegistration) {
+            // Registration flow: no upgrade check — this is a fresh membership enrollment.
+            // Total = plan price (discounted) + coach fee + membership fee
+            effectiveTotal = basePrice - discount + coachFee + membershipFee;
+            hideUpgradeBadge();
+            priceLabel.setText("₱" + fmt(basePrice));
+            currentUpgrade = null;
+        } else {
+            int trainingTypeID = trainingTypeMap.get(cat)[0];
+            int ppID           = (int) rate[0];
+            currentUpgrade = UpgradeDAO.checkUpgrade(
+                    selectedClient.getClientID(), trainingTypeID, ppID, clientTypeID);
 
-            case DOWNGRADE_BLOCKED -> {
-                effectiveTotal = basePrice - discount + coachFee;
-                showUpgradeBadge(
-                        "⬇ Downgrade not allowed until current plan expires on "
-                                + currentUpgrade.getCurrentPlanExpiry()
-                                + ". Please wait or choose a higher-tier plan.",
-                        "#ef4444", true);
-                priceLabel.setText("₱" + fmt(basePrice));
-            }
+            switch (currentUpgrade.getStatus()) {
 
-            case SAME_PLAN_BLOCKED -> {
-                effectiveTotal = basePrice - discount + coachFee;
-                showUpgradeBadge(
-                        "⚠ This plan (" + currentUpgrade.getCurrentCategory()
-                                + " / " + currentUpgrade.getCurrentPeriod()
-                                + ") is already active until "
-                                + currentUpgrade.getCurrentPlanExpiry() + ".",
-                        "#f59e0b", true);
-                priceLabel.setText("₱" + fmt(basePrice));
-            }
+                case UPGRADE_ALLOWED -> {
+                    double topUp   = currentUpgrade.getTopUpAmount();
+                    effectiveTotal = topUp + coachFee;
+                    showUpgradeBadge(String.format(
+                                    "⬆ Upgrade: current plan ₱%s → new plan ₱%s  |  Top-up: ₱%s",
+                                    fmt(currentUpgrade.getCurrentPrice()),
+                                    fmt(currentUpgrade.getNewPrice()),
+                                    fmt(topUp)),
+                            "#4ade80", false);
+                    priceLabel.setText("₱" + fmt(currentUpgrade.getTopUpAmount()));
+                }
 
-            default -> { // NO_ACTIVE_PLAN — normal fresh payment
-                effectiveTotal = basePrice - discount + coachFee;
-                hideUpgradeBadge();
-                priceLabel.setText("₱" + fmt(basePrice));
+                case DOWNGRADE_BLOCKED -> {
+                    effectiveTotal = basePrice - discount + coachFee;
+                    showUpgradeBadge(
+                            "⬇ Downgrade not allowed until current plan expires on "
+                                    + currentUpgrade.getCurrentPlanExpiry()
+                                    + ". Please wait or choose a higher-tier plan.",
+                            "#ef4444", true);
+                    priceLabel.setText("₱" + fmt(basePrice));
+                }
+
+                case SAME_PLAN_BLOCKED -> {
+                    effectiveTotal = basePrice - discount + coachFee;
+                    showUpgradeBadge(
+                            "⚠ This plan (" + currentUpgrade.getCurrentCategory()
+                                    + " / " + currentUpgrade.getCurrentPeriod()
+                                    + ") is already active until "
+                                    + currentUpgrade.getCurrentPlanExpiry() + ".",
+                            "#f59e0b", true);
+                    priceLabel.setText("₱" + fmt(basePrice));
+                }
+
+                default -> { // NO_ACTIVE_PLAN — normal fresh payment
+                    effectiveTotal = basePrice - discount + coachFee;
+                    hideUpgradeBadge();
+                    priceLabel.setText("₱" + fmt(basePrice));
+                }
             }
         }
 
         coachingFeeLabel.setText("₱" + fmt(coachFee));
         discountLabel.setText(String.format("— ₱%s (%.0f%%)", fmt(discount), discountPercent * 100));
 
-        if (currentUpgrade.getStatus() == UpgradeResult.Status.UPGRADE_ALLOWED) {
+        // Show membership fee line if applicable
+        if (membershipFeeLabel != null) {
+            if (membershipFee > 0) {
+                membershipFeeLabel.setText("₱" + fmt(membershipFee));
+                membershipFeeLabel.setVisible(true);
+                membershipFeeLabel.setManaged(true);
+            } else {
+                membershipFeeLabel.setVisible(false);
+                membershipFeeLabel.setManaged(false);
+            }
+        }
+
+        if (currentUpgrade != null && currentUpgrade.getStatus() == UpgradeResult.Status.UPGRADE_ALLOWED) {
             subtotalLabel.setText("₱" + fmt(currentUpgrade.getTopUpAmount() + coachFee));
             totalPriceLabel.setText("₱" + fmt(currentUpgrade.getTopUpAmount() + coachFee));
         } else {
@@ -512,8 +675,6 @@ public class PaymentController implements Initializable {
         upgradeBadge.setWrapText(true);
         upgradeBadge.setVisible(true);
         upgradeBadge.setManaged(true);
-
-        // Disable the Save button for blocked states
         AddPaymentBtn.setDisable(isBlock);
     }
 
@@ -530,12 +691,15 @@ public class PaymentController implements Initializable {
     // ════════════════════════════════════════════════════════════════════════
     private boolean validate() {
         List<String> errors = new ArrayList<>();
-        if (selectedClient == null)         errors.add("Please select a client");
-        if (periodCombo.getValue() == null) errors.add("Please select a payment period");
-        if (typeCombo.getValue() == null)   errors.add("Please select a training type");
+        if (selectedClient == null) errors.add("Please select a client");
         if (methodCombo.getValue() == null) errors.add("Please select a payment method");
 
-        // Block if downgrade or same plan
+        // When registration + existing plan: skip plan validation — no plan change needed
+        if (!(isFromRegistration && clientHasActivePlan)) {
+            if (periodCombo.getValue() == null) errors.add("Please select a payment period");
+            if (typeCombo.getValue() == null)   errors.add("Please select a training type");
+        }
+
         if (currentUpgrade != null && currentUpgrade.isBlocked()) {
             if (currentUpgrade.getStatus() == UpgradeResult.Status.DOWNGRADE_BLOCKED) {
                 errors.add("Downgrade not allowed until current plan expires ("
@@ -564,14 +728,25 @@ public class PaymentController implements Initializable {
                 && currentUpgrade.getStatus() == UpgradeResult.Status.UPGRADE_ALLOWED;
 
         String confirmMsg;
-        if (isUpgrade) {
-            String oldCat  = currentUpgrade.getCurrentCategory();
-            String newCat  = typeCombo.getValue();
-            String topUp   = fmt(currentUpgrade.getTopUpAmount());
+        if (isFromRegistration) {
+            double memFee = PaymentDAO.getMembershipFee(2);
+            if (clientHasActivePlan) {
+                confirmMsg = "Confirm membership enrollment for " + selectedClient.getFullName() + "?\n\n"
+                        + "Membership fee: ₱" + fmt(memFee) + "\n"
+                        + "Their existing plan will be kept.\n\n"
+                        + "Client will become a Member on Save.";
+            } else {
+                confirmMsg = "Confirm membership enrollment + plan payment for "
+                        + selectedClient.getFullName() + "?\n\n"
+                        + "Total: " + totalPriceLabel.getText() + " (includes ₱" + fmt(memFee) + " membership fee)\n\n"
+                        + "Client will become a Member on Save.";
+            }
+        } else if (isUpgrade) {
+            String oldCat = currentUpgrade.getCurrentCategory();
+            String newCat = typeCombo.getValue();
             confirmMsg = "⚠  Plan Upgrade Confirmation\n\n"
                     + "Switching from [" + oldCat + "] to [" + newCat + "].\n"
-                    + "A new coach must be assigned.\n\n"
-                    + "Top-up amount due: ₱" + topUp + "\n\n"
+                    + "Top-up amount due: ₱" + fmt(currentUpgrade.getTopUpAmount()) + "\n\n"
                     + "Continue?";
         } else {
             confirmMsg = "Confirm payment of " + totalPriceLabel.getText()
@@ -595,22 +770,34 @@ public class PaymentController implements Initializable {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    //  NORMAL (FRESH) PAYMENT
+    //  NORMAL (FRESH) PAYMENT  — now writes MembershipTable too
     // ─────────────────────────────────────────────────────────────────────────
     private void saveToDatabase() throws SQLException {
+        // ── Special registration path: existing monthly/yearly plan, only charge membership fee ──
+        if (isFromRegistration && clientHasActivePlan) {
+            saveMembershipFeeOnly();
+            return;
+        }
+
         String cat    = typeCombo.getValue();
         String period = periodCombo.getValue();
-        boolean isMember = "Member".equalsIgnoreCase(selectedClient.getClientType());
+
+        // BUG FIX #2 / #1: When from registration, force Member (clientTypeID=2) so
+        // they get Member discount rates and become a Member in MembershipTable.
+        boolean isMember = isFromRegistration || "Member".equalsIgnoreCase(selectedClient.getClientType());
         int clientTypeID = isMember ? 2 : 1;
 
-        long[] rate           = rateMap.get(cat).get(period + "_" + clientTypeID);
-        int    trainingTypeID = trainingTypeMap.get(cat)[0];
-        int    ppID           = (int) rate[0];
+        Map<String, long[]> periodRates = rateMap.get(cat);
+        long[] rate = periodRates.get(period + "_" + clientTypeID);
+        if (rate == null) rate = periodRates.get(period + "_1"); // fallback
+        if (rate == null) throw new SQLException("Rate not found for selected options.");
 
-        // Resolve RateID from DB
+        int trainingTypeID = trainingTypeMap.get(cat)[0];
+        int ppID           = (int) rate[0];
+        int periodDays     = (int) rate[1];
+
         int rateIDfromDB = resolveRateID(trainingTypeID, ppID, clientTypeID);
 
-        // Coach / assignment
         String  coachSel = coachCombo.getValue();
         boolean hasCoach = coachSel != null && !coachSel.equals(NO_COACH);
         int     assignmentID;
@@ -625,33 +812,109 @@ public class PaymentController implements Initializable {
             assignmentID = getOrCreateNoneAssignment(selectedClient.getClientID());
         }
 
-        int    paymentTypeID = paymentTypeMap.get(methodCombo.getValue());
-        double basePrice     = rate[2] / 100.0;
-        double coachFee      = hasCoach ? coachMap.get(coachSel)[2] / 100.0 : 0.0;
-        double discountPct   = clientDiscountMap.getOrDefault(clientTypeID, 0.0);
-        double discount      = basePrice * discountPct;
-        double total         = basePrice - discount + coachFee;
+        int    paymentTypeID   = paymentTypeMap.get(methodCombo.getValue());
+        double basePrice       = rate[2] / 100.0;
+        double coachFee        = hasCoach ? coachMap.get(coachSel)[2] / 100.0 : 0.0;
+        double discountPct     = clientDiscountMap.getOrDefault(clientTypeID, 0.0);
+        double discount        = basePrice * discountPct;
+        // BUG FIX #2: Add membership fee when coming from registration
+        double membershipFee   = isFromRegistration ? PaymentDAO.getMembershipFee(2) : 0.0;
+        double total           = basePrice - discount + coachFee + membershipFee;
 
-        String snapshotCategory   = cat;
-        String snapshotPeriod     = period;
-        String snapshotCoachName  = hasCoach ? coachSel : null;
-        String snapshotMembership = selectedClient.getClientType();
+        String snapshotMembership = isFromRegistration ? "Member" : selectedClient.getClientType();
 
+        // BUG FIX #5 (the major one): pass clientTypeID and periodDays so
+        // insertReceipt() also upserts MembershipTable in the same transaction.
         PaymentDAO.insertReceipt(
                 selectedClient.getClientID(),
                 paymentTypeID,
                 rateIDfromDB,
                 total,
                 assignmentID > 0 ? assignmentID : null,
-                snapshotCategory,
-                snapshotPeriod,
-                snapshotCoachName,
-                snapshotMembership
+                cat,
+                period,
+                hasCoach ? coachSel : null,
+                snapshotMembership,
+                clientTypeID,   // NEW param — drives MembershipTable update
+                periodDays      // NEW param — days for DateExpired
         );
     }
 
+    /**
+     * Registration path where the client already has an active Monthly/Yearly plan.
+     * We only charge the membership fee and write a "Membership Enrollment" receipt.
+     * MembershipTable is still updated to flip them to Member.
+     */
+    private void saveMembershipFeeOnly() throws SQLException {
+        // Use the "None / Daily / Non-Member" rate (RateID with TrainingTypeID=4) as
+        // the receipt's rate, with TotalPayment = membership fee.
+        // This keeps the plan history intact and only adds a membership fee receipt.
+        int noneRateID = resolveRateID(4, 1, 1); // TrainingTypeID=4(None), Daily, Non-Member
+
+        int paymentTypeID = paymentTypeMap.get(methodCombo.getValue());
+        double membershipFee = PaymentDAO.getMembershipFee(2);
+
+        String  coachSel = coachCombo.getValue();
+        boolean hasCoach = coachSel != null && !coachSel.equals(NO_COACH);
+        int     assignmentID;
+        if (hasCoach) {
+            long[] cd = coachMap.get(coachSel);
+            assignmentID = (cd[1] >= 0)
+                    ? (int) cd[1]
+                    : createAssignment(selectedClient.getClientID(), (int) cd[0], cd[2] / 100.0);
+        } else {
+            assignmentID = getOrCreateNoneAssignment(selectedClient.getClientID());
+        }
+
+        // For MembershipTable update: use the existing plan's remaining days.
+        // We look up how many days remain in the current plan and preserve that.
+        int remainingDays = getActivePlanRemainingDays(selectedClient.getClientID());
+        // If we can't find it, use 365 as a safe default (Yearly membership)
+        if (remainingDays <= 0) remainingDays = 365;
+
+        PaymentDAO.insertReceipt(
+                selectedClient.getClientID(),
+                paymentTypeID,
+                noneRateID,
+                membershipFee,
+                assignmentID > 0 ? assignmentID : null,
+                "Membership Enrollment",   // snapshot category
+                "Membership Fee",          // snapshot period label
+                hasCoach ? coachSel : null,
+                "Member",
+                2,               // clientTypeID = Member
+                remainingDays    // preserve remaining plan duration
+        );
+    }
+
+    /**
+     * Returns how many days remain in the client's current active plan.
+     * Used when enrolling a member who already has a Monthly/Yearly plan.
+     */
+    private int getActivePlanRemainingDays(int clientID) {
+        String sql =
+                "SELECT DATEDIFF(DATE_ADD(DATE(r.PaymentDate), INTERVAL pp.Days DAY), CURDATE()) AS DaysLeft " +
+                        "FROM ReceiptTable r " +
+                        "JOIN RateTable ra          ON r.RateID          = ra.RateID " +
+                        "JOIN PaymentPeriodTable pp ON ra.PaymentPeriodID = pp.PaymentPeriodID " +
+                        "JOIN TrainingTypeTable tt  ON ra.TrainingTypeID  = tt.TrainingTypeID " +
+                        "WHERE r.ClientID = ? " +
+                        "  AND tt.TrainingTypeID != 4 " +
+                        "  AND pp.Days >= 30 " +
+                        "  AND DATE_ADD(DATE(r.PaymentDate), INTERVAL pp.Days DAY) >= CURDATE() " +
+                        "ORDER BY r.PaymentDate DESC LIMIT 1";
+        try (Connection con = DBConnector.connect();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, clientID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("DaysLeft");
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
-    //  UPGRADE PAYMENT (three-step atomic transaction via UpgradeDAO)
+    //  UPGRADE PAYMENT
     // ─────────────────────────────────────────────────────────────────────────
     private void saveUpgradeToDatabase() throws SQLException {
         String cat    = typeCombo.getValue();
@@ -666,7 +929,6 @@ public class PaymentController implements Initializable {
 
         int rateIDfromDB = resolveRateID(trainingTypeID, ppID, clientTypeID);
 
-        // Resolve / create the new coach assignment
         String  coachSel = coachCombo.getValue();
         boolean hasCoach = coachSel != null && !coachSel.equals(NO_COACH);
         int     assignmentID;
@@ -690,16 +952,16 @@ public class PaymentController implements Initializable {
         int receiptID = UpgradeDAO.executeUpgradeTransaction(
                 selectedClient.getClientID(),
                 rateIDfromDB,
-                clientTypeID,   // for MembershipTable.ClientTypeID update
+                clientTypeID,
                 assignmentID,
                 paymentTypeID,
                 totalCharge,
                 periodDays,
-                cat,            // snapshot category
-                period,         // snapshot period (stored as "Upgrade Fee" inside DAO)
+                cat,
+                period,
                 hasCoach ? coachSel : null,
                 selectedClient.getClientType(),
-                true            // isUpgrade = true
+                true
         );
 
         if (receiptID < 0) throw new SQLException("Upgrade transaction failed — receipt not generated.");
@@ -771,9 +1033,11 @@ public class PaymentController implements Initializable {
     // ════════════════════════════════════════════════════════════════════════
     private void handleClear() {
         suppressSearch = true;
+        isFromRegistration  = false;
+        clientHasActivePlan = false;
         clientSearchCombo.getSelectionModel().clearSelection();
         clientSearchCombo.getEditor().clear();
-        clientSearchCombo.setItems(FXCollections.observableArrayList(allClients));
+        displayedClients.setAll(allClients);
         Platform.runLater(() -> suppressSearch = false);
 
         clearClientDetails();
@@ -797,6 +1061,11 @@ public class PaymentController implements Initializable {
         subtotalLabel.setText("₱0.00");
         totalPriceLabel.setText("₱0.00");
         sumMethodLabel.setText("—");
+        if (membershipFeeLabel != null) {
+            membershipFeeLabel.setText("₱0.00");
+            membershipFeeLabel.setVisible(false);
+            membershipFeeLabel.setManaged(false);
+        }
     }
 
     // ════════════════════════════════════════════════════════════════════════

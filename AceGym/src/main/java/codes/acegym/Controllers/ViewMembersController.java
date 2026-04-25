@@ -98,16 +98,41 @@ public class ViewMembersController implements Initializable {
     //  DATA LOAD
     // ────────────────────────────────────────────────────────────────────────
     private void loadData() {
+        // Fetch from DB
         ExpiryResetDAO.runExpiryResets();
-        masterList = ClientDAO.getMemberRows();
-        filtered   = new FilteredList<>(masterList, r -> true);
-        sorted     = new SortedList<>(filtered);
-        sorted.comparatorProperty().bind(membersTable.comparatorProperty());
-        applyView();
-        memberCountLabel.setText(masterList.size() + " client(s) total");
-        updateFooter();
-    }
+        ObservableList<MemberRow> fresh = ClientDAO.getMemberRows();
 
+        javafx.application.Platform.runLater(() -> {
+            if (masterList == null) {
+                masterList = fresh;
+                filtered   = new FilteredList<>(masterList, r -> true);
+                sorted     = new SortedList<>(filtered);
+                sorted.comparatorProperty().bind(membersTable.comparatorProperty());
+
+                // Set the table items only once
+                membersTable.setItems(sorted);
+            } else {
+                masterList.setAll(fresh);
+            }
+
+            applyView();
+
+            // --- NEW TO OLD SORT LOGIC ---
+            // Find the "#" (ID) column and force it to sort descending
+            membersTable.getColumns().stream()
+                    .filter(c -> c.getText().equals("#"))
+                    .findFirst()
+                    .ifPresent(idCol -> {
+                        idCol.setSortType(TableColumn.SortType.DESCENDING);
+                        membersTable.getSortOrder().clear();
+                        membersTable.getSortOrder().add(idCol);
+                        membersTable.sort();
+                    });
+
+            memberCountLabel.setText(masterList.size() + " client(s) total");
+            updateFooter();
+        });
+    }
     // ────────────────────────────────────────────────────────────────────────
     //  VIEW SWITCHING
     // ────────────────────────────────────────────────────────────────────────
@@ -163,7 +188,12 @@ public class ViewMembersController implements Initializable {
                     amountCol());
         }
 
-        membersTable.setItems(sorted);
+        // setItems() must only be called ONCE (when sorted is first built in loadData).
+        // Re-calling it on every view switch triggers the JavaFX 21 subList crash.
+        // The columns change is fine — only the items assignment must be guarded.
+        if (membersTable.getItems() != sorted) {
+            membersTable.setItems(sorted);
+        }
         updateFooter();
     }
 
@@ -197,7 +227,13 @@ public class ViewMembersController implements Initializable {
     //  REFRESH
     // ────────────────────────────────────────────────────────────────────────
     private void setupRefresh() {
-        refreshBtn.setOnAction(e -> { searchField.clear(); loadData(); });
+        refreshBtn.setOnAction(e -> {
+            searchField.clear();
+            // Clear selection first to avoid reading stale indices while the
+            // list mutates — same JavaFX 21 defensive pattern used throughout
+            membersTable.getSelectionModel().clearSelection();
+            loadData();
+        });
     }
 
     // ────────────────────────────────────────────────────────────────────────

@@ -33,9 +33,15 @@ public class ReportPageController implements Refreshable {
 
     @Override
     public void refreshData() {
-        loadData(null, null);
-        updateFooterStats();
-        System.out.println("Report Page Refreshed from Database.");
+        // Always run on the FX thread and defer to next pulse so an active
+        // mouse-press / selection event is never interrupted mid-flight.
+        javafx.application.Platform.runLater(() -> {
+            loadData(null, null);
+            // updateFooterStats() is already called inside loadData's runLater,
+            // but we call it again here in case loadData's inner runLater hasn't fired yet.
+            updateFooterStats();
+            System.out.println("Report Page Refreshed from Database.");
+        });
     }
 
     // ── Table ──
@@ -69,10 +75,15 @@ public class ReportPageController implements Refreshable {
     @FXML private Button generateBtn;
 
     // ── Internal state ──
-    private ObservableList<Receipt> masterList   = FXCollections.observableArrayList();
-    private FilteredList<Receipt>   filteredList;
-    private LocalDate               fromDate;
-    private LocalDate               toDate;
+    // masterList / filteredList / sortedList are created ONCE in initialize()
+    // and never replaced.  loadData() only calls masterList.setAll() inside
+    // Platform.runLater() to avoid mutating the backing list while a
+    // ListView selection event is still in-flight (JavaFX 21 crash).
+    private final ObservableList<Receipt> masterList   = FXCollections.observableArrayList();
+    private FilteredList<Receipt>         filteredList;
+    private SortedList<Receipt>           sortedList;
+    private LocalDate                     fromDate;
+    private LocalDate                     toDate;
 
     private static final DateTimeFormatter DISPLAY_FMT =
             DateTimeFormatter.ofPattern("MM/dd/yyyy");
@@ -95,6 +106,15 @@ public class ReportPageController implements Refreshable {
         setupFilterCombo();
         setupDateFields();
         setupSearch();
+
+        // Build the pipeline ONCE — masterList → filteredList → sortedList → table.
+        // loadData() only ever mutates masterList.setAll() after this point;
+        // it NEVER calls receiptTable.setItems() again (that causes the JavaFX 21 crash).
+        filteredList = new FilteredList<>(masterList, r -> true);
+        sortedList   = new SortedList<>(filteredList);
+        sortedList.comparatorProperty().bind(receiptTable.comparatorProperty());
+        receiptTable.setItems(sortedList);
+
         loadData(null, null);
         updateFooterStats();
     }
@@ -179,8 +199,18 @@ public class ReportPageController implements Refreshable {
 
     private void setupTableRowClick() {
         receiptTable.setOnMouseClicked(event -> {
+            // Guard: only open popup on a primary double-click with a real selection.
+            // Single-click is still allowed but we must check clickCount so we don't
+            // accidentally open the popup on the same click that triggered a refresh.
+            if (event.getClickCount() < 1) return;
             Receipt selected = receiptTable.getSelectionModel().getSelectedItem();
-            if (selected != null) showPaymentDetailsPopup(selected);
+            if (selected == null) return;
+            // Defer to next pulse so the selection model has fully settled
+            // before we read it — prevents the JavaFX 21 subList crash.
+            javafx.application.Platform.runLater(() -> {
+                Receipt stable = receiptTable.getSelectionModel().getSelectedItem();
+                if (stable != null) showPaymentDetailsPopup(stable);
+            });
         });
     }
 
@@ -592,20 +622,22 @@ public class ReportPageController implements Refreshable {
         String selectedType = filterCombo.getValue();
         boolean hasType = selectedType != null && !selectedType.equals("All");
 
+        // Fetch from DB on the calling thread (safe — no UI mutation yet)
+        final javafx.collections.ObservableList<Receipt> fresh;
         if (from == null && to == null && !hasType) {
-            masterList.setAll(ReceiptDAO.getAllReceipts());
+            fresh = ReceiptDAO.getAllReceipts();
         } else {
-            masterList.setAll(ReceiptDAO.getByDateRangeAndType(
-                    from, to, hasType ? selectedType : null));
+            fresh = ReceiptDAO.getByDateRangeAndType(from, to, hasType ? selectedType : null);
         }
 
-        filteredList = new FilteredList<>(masterList, r -> true);
-        SortedList<Receipt> sortedList = new SortedList<>(filteredList);
-        sortedList.comparatorProperty().bind(receiptTable.comparatorProperty());
-        receiptTable.setItems(sortedList);
-
-        applyFilters();
-        updateFooterStats();
+        // Defer the actual list mutation to the next UI pulse so we never
+        // touch the TableView's backing list while a mouse-click selection
+        // event is still in-flight (JavaFX 21 IndexOutOfBoundsException fix).
+        javafx.application.Platform.runLater(() -> {
+            masterList.setAll(fresh);   // mutates in place — setItems() is NOT called again
+            applyFilters();
+            updateFooterStats();
+        });
     }
 
     // ═══════════════════════════════════════════════════════════════
