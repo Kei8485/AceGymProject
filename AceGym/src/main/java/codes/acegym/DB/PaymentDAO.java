@@ -80,20 +80,73 @@ public class PaymentDAO {
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * Returns {RateID, Rate} for the given training-type + payment-period,
-     * or {@code null} when no rate is configured.
+     * Returns {RateID, FinalPrice} for the given combination, or null.
+     * BUG FIX: was querying non-existent column "Rate"; correct column is "FinalPrice".
      */
-    public static String[] getRate(int trainingTypeID, int paymentPeriodID) {
-        String sql = "SELECT RateID, Rate FROM RateTable WHERE TrainingTypeID = ? AND PaymentPeriodID = ?";
+    public static String[] getRate(int trainingTypeID, int paymentPeriodID, int clientTypeID) {
+        String sql =
+                "SELECT RateID, FinalPrice FROM RateTable " +
+                        "WHERE TrainingTypeID = ? AND PaymentPeriodID = ? AND ClientTypeID = ?";
         try (Connection con = DBConnector.connect();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, trainingTypeID);
             ps.setInt(2, paymentPeriodID);
+            ps.setInt(3, clientTypeID);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return new String[]{
                             String.valueOf(rs.getInt("RateID")),
-                            String.valueOf(rs.getDouble("Rate"))
+                            String.valueOf(rs.getDouble("FinalPrice"))
+                    };
+                }
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return null;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ACTIVE PLAN
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Returns the most recent non-expired, non-"None" plan for a client as:
+     * [0] TrainingTypeID  [1] TrainingCategory  [2] PaymentPeriodID
+     * [3] PaymentPeriod   [4] FinalPrice         [5] ExpiryDate (yyyy-MM-dd)
+     * [6] ClientTypeID
+     * Returns null if the client has no active plan.
+     */
+    public static String[] getActivePlan(int clientID) {
+        String sql =
+                "SELECT " +
+                        "    tt.TrainingTypeID, tt.TrainingCategory, " +
+                        "    pp.PaymentPeriodID, pp.PaymentPeriod, " +
+                        "    ra.FinalPrice, ra.ClientTypeID, " +
+                        "    DATE_FORMAT(" +
+                        "        DATE_ADD(DATE(r.PaymentDate), INTERVAL pp.Days DAY), " +
+                        "        '%Y-%m-%d'" +
+                        "    ) AS ExpiryDate " +
+                        "FROM ReceiptTable r " +
+                        "JOIN RateTable ra          ON r.RateID          = ra.RateID " +
+                        "JOIN TrainingTypeTable tt  ON ra.TrainingTypeID = tt.TrainingTypeID " +
+                        "JOIN PaymentPeriodTable pp ON ra.PaymentPeriodID = pp.PaymentPeriodID " +
+                        "WHERE r.ClientID = ? " +
+                        "  AND tt.TrainingTypeID != 4 " +    // exclude the "None" training type
+                        "  AND DATE_ADD(DATE(r.PaymentDate), INTERVAL pp.Days DAY) >= CURDATE() " +
+                        "ORDER BY r.PaymentDate DESC " +
+                        "LIMIT 1";
+        try (Connection con = DBConnector.connect();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, clientID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new String[]{
+                            String.valueOf(rs.getInt("TrainingTypeID")),     // [0]
+                            rs.getString("TrainingCategory"),                  // [1]
+                            String.valueOf(rs.getInt("PaymentPeriodID")),    // [2]
+                            rs.getString("PaymentPeriod"),                    // [3]
+                            String.valueOf(rs.getDouble("FinalPrice")),      // [4]
+                            rs.getString("ExpiryDate"),                       // [5]
+                            String.valueOf(rs.getInt("ClientTypeID"))        // [6]
                     };
                 }
             }
@@ -122,7 +175,7 @@ public class PaymentDAO {
 
     /**
      * Returns the most-recent coach assignment for a client as
-     * {StaffID, CoachFullName, Applied_Coaching_Price}, or {@code null}.
+     * {StaffID, CoachFullName, Applied_Coaching_Price}, or null.
      */
     public static String[] getClientCurrentCoach(int clientID) {
         String sql =
@@ -197,7 +250,6 @@ public class PaymentDAO {
         int existing = getAssignmentID(clientID, staffID);
 
         if (existing > 0) {
-            // Update existing price
             String sql =
                     "UPDATE ClientStaffAssignmentTable SET Applied_Coaching_Price = ? " +
                             "WHERE ClientStaffAssignmentID = ?";
@@ -210,7 +262,6 @@ public class PaymentDAO {
             return existing;
         }
 
-        // Insert new
         String sql =
                 "INSERT INTO ClientStaffAssignmentTable (ClientID, StaffID, Applied_Coaching_Price) " +
                         "VALUES (?, ?, ?)";
@@ -232,8 +283,9 @@ public class PaymentDAO {
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * Inserts a new receipt row.
-     * {@code clientStaffAssignmentID} may be {@code null} (no coach).
+     * Inserts a new receipt row with full snapshot columns for audit trail.
+     * clientStaffAssignmentID may be null (no coach).
+     * snapshotCoachName may be null (no coach).
      *
      * @return the generated ReceiptID, or -1 on failure.
      */
@@ -241,28 +293,35 @@ public class PaymentDAO {
                                     int paymentTypeID,
                                     int rateID,
                                     double totalPayment,
-                                    LocalDate paymentDate,
-                                    Integer clientStaffAssignmentID) {
-
+                                    Integer clientStaffAssignmentID,
+                                    String snapshotTrainingCategory,
+                                    String snapshotPaymentPeriod,
+                                    String snapshotCoachName,
+                                    String snapshotMembershipType) {
         String sql =
                 "INSERT INTO ReceiptTable " +
-                        "(ClientID, PaymentTypeID, RateID, TotalPayment, PaymentDate, ClientStaffAssignmentID) " +
-                        "VALUES (?, ?, ?, ?, ?, ?)";
+                        "(ClientID, RateID, ClientStaffAssignmentID, PaymentTypeID, TotalPayment, PaymentDate, " +
+                        " SnapshotTrainingCategory, SnapshotPaymentPeriod, SnapshotCoachName, SnapshotMembershipType) " +
+                        "VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)";
 
         try (Connection con = DBConnector.connect();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, clientID);
-            ps.setInt(2, paymentTypeID);
-            ps.setInt(3, rateID);
-            ps.setDouble(4, totalPayment);
-            ps.setDate(5, Date.valueOf(paymentDate));
+            ps.setInt(2, rateID);
 
             if (clientStaffAssignmentID != null && clientStaffAssignmentID > 0) {
-                ps.setInt(6, clientStaffAssignmentID);
+                ps.setInt(3, clientStaffAssignmentID);
             } else {
-                ps.setNull(6, Types.INTEGER);
+                ps.setNull(3, Types.INTEGER);
             }
+
+            ps.setInt(4, paymentTypeID);
+            ps.setDouble(5, totalPayment);
+            ps.setString(6, snapshotTrainingCategory);
+            ps.setString(7, snapshotPaymentPeriod);
+            ps.setString(8, snapshotCoachName);       // NULL if no coach
+            ps.setString(9, snapshotMembershipType);
 
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {

@@ -1,8 +1,8 @@
 package codes.acegym.Controllers;
 
-import codes.acegym.DB.ClientDAO;
-import codes.acegym.DB.DBConnector;
+import codes.acegym.DB.*;
 import codes.acegym.Objects.Client;
+import codes.acegym.Objects.UpgradeResult;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -65,6 +65,9 @@ public class PaymentController implements Initializable {
     @FXML private Label totalPriceLabel;
     @FXML private Label sumMethodLabel;
 
+    // ── Upgrade info label (optional — add fx:id="upgradeBadge" in FXML) ────
+    @FXML private Label upgradeBadge;
+
     // ── Validation area ──────────────────────────────────────────────────────
     @FXML private VBox  validationBox;
     @FXML private Label validationLabel;
@@ -74,13 +77,15 @@ public class PaymentController implements Initializable {
     @FXML private Button ClearBtn;
 
     // ── In-memory look-up maps ────────────────────────────────────────────────
-    private final Map<String, int[]>               trainingTypeMap = new LinkedHashMap<>();
-    private final Map<String, Map<String, long[]>> rateMap         = new LinkedHashMap<>();
-    private final Map<String, long[]>              coachMap        = new LinkedHashMap<>();
-    private final Map<String, Integer>             paymentTypeMap  = new LinkedHashMap<>();
+    private final Map<String, int[]>               trainingTypeMap   = new LinkedHashMap<>();
+    private final Map<String, Map<String, long[]>> rateMap           = new LinkedHashMap<>();
+    private final Map<String, long[]>              coachMap          = new LinkedHashMap<>();
+    private final Map<String, Integer>             paymentTypeMap    = new LinkedHashMap<>();
     private final Map<Integer, Double>             clientDiscountMap = new LinkedHashMap<>();
 
-    private Client selectedClient = null;
+    // ── State ────────────────────────────────────────────────────────────────
+    private Client        selectedClient  = null;
+    private UpgradeResult currentUpgrade  = null; // null = no active plan / not yet checked
 
     private boolean suppressSearch = false;
     private boolean pendingFilter  = false;
@@ -104,6 +109,9 @@ public class PaymentController implements Initializable {
         setupButtons();
         resetSummary();
         hideValidation();
+        hideUpgradeBadge();
+        ExpiryResetDAO.runExpiryResets(); // ← add this line
+
     }
 
     // ════════════════════════════════════════════════════════════════════════
@@ -164,9 +172,9 @@ public class PaymentController implements Initializable {
              ResultSet rs   = st.executeQuery(sql)) {
 
             while (rs.next()) {
-                String cat   = rs.getString("TrainingCategory");
-                int    ttID  = rs.getInt("TrainingTypeID");
-                long   cfee  = (long)(rs.getDouble("Coaching_Fee") * 100);
+                String cat  = rs.getString("TrainingCategory");
+                int    ttID = rs.getInt("TrainingTypeID");
+                long   cfee = (long)(rs.getDouble("Coaching_Fee") * 100);
 
                 String per   = rs.getString("PaymentPeriod");
                 int    ppID  = rs.getInt("PaymentPeriodID");
@@ -194,9 +202,23 @@ public class PaymentController implements Initializable {
         methodCombo.setItems(FXCollections.observableArrayList(paymentTypeMap.keySet()));
     }
 
+    /**
+     * Loads coaches filtered by the selected training category.
+     * Coaches tagged "Both" always appear; exact-category coaches also appear.
+     */
     private void loadCoachesForClient(Client client) {
         coachMap.clear();
         coachMap.put(NO_COACH, new long[]{-1, -1, 0});
+
+        // If a training type is already selected, filter coaches by compatibility.
+        String selectedCat = typeCombo.getValue();
+        String categoryFilter = (selectedCat != null && !selectedCat.isBlank())
+                ? "AND (" +
+                "  LOWER(COALESCE(tt.TrainingCategory,'')) = 'both' " +
+                "  OR LOWER(COALESCE(tt.TrainingCategory,'')) = LOWER('" +
+                selectedCat.replace("'", "''") + "')" +
+                ")"
+                : "";
 
         String sql =
                 "SELECT s.StaffID, " +
@@ -210,7 +232,8 @@ public class PaymentController implements Initializable {
                         "       ON csa.StaffID = s.StaffID AND csa.ClientID = ? " +
                         "WHERE LOWER(s.SystemRole) = 'staff' " +
                         "  AND s.StaffID != 1 " +
-                        "ORDER BY s.StaffFirstName";
+                        categoryFilter +
+                        " ORDER BY s.StaffFirstName";
 
         try (Connection con = DBConnector.connect();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -289,8 +312,24 @@ public class PaymentController implements Initializable {
         codes.acegym.DB.PlanDAO.getAllPaymentPeriods().forEach(p -> periodNames.add(p.getName()));
         periodCombo.setItems(periodNames);
 
+        // When training type changes: re-filter coaches, then recalculate
+        typeCombo.setOnAction(e -> {
+            if (selectedClient != null) {
+                // Check membership gate before allowing coach selection
+                boolean hasMembership = UpgradeDAO.hasActiveMembership(selectedClient.getClientID());
+                coachCombo.setDisable(!hasMembership);
+                if (hasMembership) {
+                    loadCoachesForClient(selectedClient);
+                } else {
+                    coachMap.clear();
+                    coachCombo.setItems(FXCollections.observableArrayList());
+                    coachFeeHint.setText("Active membership required for coach assignment.");
+                }
+            }
+            recalculate();
+        });
+
         periodCombo.setOnAction(e -> recalculate());
-        typeCombo.setOnAction(e -> recalculate());
 
         methodCombo.setOnAction(e -> sumMethodLabel.setText(
                 methodCombo.getValue() != null ? methodCombo.getValue() : "—"));
@@ -319,15 +358,7 @@ public class PaymentController implements Initializable {
     private void populateClientDetails(Client c) {
         selectedClient = c;
 
-        String email = "";
-        String sql = "SELECT COALESCE(ClientEmail,'') AS e FROM ClientTable WHERE ClientID=?";
-        try (Connection con = DBConnector.connect();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, c.getClientID());
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) email = rs.getString("e");
-            }
-        } catch (SQLException ex) { ex.printStackTrace(); }
+        String email = PaymentDAO.getClientEmail(c.getClientID());
 
         clientIdDisplay.setText(String.valueOf(c.getClientID()));
         clientNameDisplay.setText(c.getFullName());
@@ -335,12 +366,20 @@ public class PaymentController implements Initializable {
         clientEmailDisplay.setText(email);
         clientTypeTag.setText(c.getClientType());
 
+        // ── Membership gate: disable coach combo for non-members/expired ──────
+        boolean hasMembership = UpgradeDAO.hasActiveMembership(c.getClientID());
+        coachCombo.setDisable(!hasMembership);
+        if (!hasMembership) {
+            coachFeeHint.setText("Select a Membership plan to enable coach assignment.");
+        }
+
         loadCoachesForClient(c);
         recalculate();
     }
 
     private void clearClientDetails() {
-        selectedClient = null;
+        selectedClient  = null;
+        currentUpgrade  = null;
         clientIdDisplay.setText("");
         clientNameDisplay.setText("");
         clientContactDisplay.setText("");
@@ -348,35 +387,39 @@ public class PaymentController implements Initializable {
         clientTypeTag.setText("");
         coachMap.clear();
         coachCombo.setItems(FXCollections.observableArrayList());
+        coachCombo.setDisable(false);
         coachFeeHint.setText("");
+        hideUpgradeBadge();
         resetSummary();
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  RECALCULATE SUMMARY
+    //  RECALCULATE SUMMARY  (also runs upgrade eligibility check)
     // ════════════════════════════════════════════════════════════════════════
     private void recalculate() {
         String cat    = typeCombo.getValue();
         String period = periodCombo.getValue();
-        if (selectedClient == null || cat == null || period == null) return;
+        if (selectedClient == null || cat == null || period == null) {
+            hideUpgradeBadge();
+            return;
+        }
 
         sumClientLabel.setText(selectedClient.getFullName());
         sumTrainingLabel.setText(cat);
         sumPeriodLabel.setText(period);
 
-        boolean isMember  = "Member".equalsIgnoreCase(selectedClient.getClientType());
-        int clientTypeID  = isMember ? 2 : 1;
+        boolean isMember = "Member".equalsIgnoreCase(selectedClient.getClientType());
+        int clientTypeID = isMember ? 2 : 1;
 
         Map<String, long[]> periods = rateMap.get(cat);
-        if (periods == null) return;
+        if (periods == null) { hideUpgradeBadge(); return; }
 
         long[] rate = periods.get(period + "_" + clientTypeID);
-        if (rate == null) return;
+        if (rate == null) { hideUpgradeBadge(); return; }
 
-        double basePrice = rate[2] / 100.0;
-
+        double basePrice      = rate[2] / 100.0;
         double discountPercent = clientDiscountMap.getOrDefault(clientTypeID, 0.0);
-        double discount = basePrice * discountPercent;
+        double discount        = basePrice * discountPercent;
 
         double coachFee = 0.0;
         String coachSel = coachCombo.getValue();
@@ -385,16 +428,102 @@ public class PaymentController implements Initializable {
             if (cd != null) coachFee = cd[2] / 100.0;
         }
 
-        double subtotal = basePrice - discount + coachFee;
+        // ── Upgrade eligibility check ─────────────────────────────────────────
+        int trainingTypeID = trainingTypeMap.get(cat)[0];
+        int ppID           = (int) rate[0];
+        currentUpgrade = UpgradeDAO.checkUpgrade(
+                selectedClient.getClientID(), trainingTypeID, ppID, clientTypeID);
 
-        priceLabel.setText("₱" + fmt(basePrice));
+        double effectiveTotal;
+        switch (currentUpgrade.getStatus()) {
+
+            case UPGRADE_ALLOWED -> {
+                // Client only pays the difference
+                double topUp   = currentUpgrade.getTopUpAmount();
+                effectiveTotal = topUp + coachFee;
+                showUpgradeBadge(String.format(
+                                "⬆ Upgrade: current plan ₱%s → new plan ₱%s  |  Top-up: ₱%s",
+                                fmt(currentUpgrade.getCurrentPrice()),
+                                fmt(currentUpgrade.getNewPrice()),
+                                fmt(topUp)),
+                        "#4ade80", false);
+                priceLabel.setText("₱" + fmt(currentUpgrade.getTopUpAmount()));
+            }
+
+            case DOWNGRADE_BLOCKED -> {
+                effectiveTotal = basePrice - discount + coachFee;
+                showUpgradeBadge(
+                        "⬇ Downgrade not allowed until current plan expires on "
+                                + currentUpgrade.getCurrentPlanExpiry()
+                                + ". Please wait or choose a higher-tier plan.",
+                        "#ef4444", true);
+                priceLabel.setText("₱" + fmt(basePrice));
+            }
+
+            case SAME_PLAN_BLOCKED -> {
+                effectiveTotal = basePrice - discount + coachFee;
+                showUpgradeBadge(
+                        "⚠ This plan (" + currentUpgrade.getCurrentCategory()
+                                + " / " + currentUpgrade.getCurrentPeriod()
+                                + ") is already active until "
+                                + currentUpgrade.getCurrentPlanExpiry() + ".",
+                        "#f59e0b", true);
+                priceLabel.setText("₱" + fmt(basePrice));
+            }
+
+            default -> { // NO_ACTIVE_PLAN — normal fresh payment
+                effectiveTotal = basePrice - discount + coachFee;
+                hideUpgradeBadge();
+                priceLabel.setText("₱" + fmt(basePrice));
+            }
+        }
+
         coachingFeeLabel.setText("₱" + fmt(coachFee));
         discountLabel.setText(String.format("— ₱%s (%.0f%%)", fmt(discount), discountPercent * 100));
-        subtotalLabel.setText("₱" + fmt(subtotal));
-        totalPriceLabel.setText("₱" + fmt(subtotal));
+
+        if (currentUpgrade.getStatus() == UpgradeResult.Status.UPGRADE_ALLOWED) {
+            subtotalLabel.setText("₱" + fmt(currentUpgrade.getTopUpAmount() + coachFee));
+            totalPriceLabel.setText("₱" + fmt(currentUpgrade.getTopUpAmount() + coachFee));
+        } else {
+            subtotalLabel.setText("₱" + fmt(effectiveTotal));
+            totalPriceLabel.setText("₱" + fmt(effectiveTotal));
+        }
     }
 
     private String fmt(double v) { return String.format("%,.2f", v); }
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  UPGRADE BADGE UI
+    // ════════════════════════════════════════════════════════════════════════
+    private void showUpgradeBadge(String message, String color, boolean isBlock) {
+        if (upgradeBadge == null) return;
+        upgradeBadge.setText(message);
+        upgradeBadge.setStyle(
+                "-fx-text-fill: " + color + ";" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-font-family: 'Inter';" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-padding: 6 12 6 12;" +
+                        "-fx-background-color: " + color + "22;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-border-color: " + color + "66;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-border-width: 1;");
+        upgradeBadge.setWrapText(true);
+        upgradeBadge.setVisible(true);
+        upgradeBadge.setManaged(true);
+
+        // Disable the Save button for blocked states
+        AddPaymentBtn.setDisable(isBlock);
+    }
+
+    private void hideUpgradeBadge() {
+        if (upgradeBadge != null) {
+            upgradeBadge.setVisible(false);
+            upgradeBadge.setManaged(false);
+        }
+        AddPaymentBtn.setDisable(false);
+    }
 
     // ════════════════════════════════════════════════════════════════════════
     //  VALIDATION
@@ -406,6 +535,17 @@ public class PaymentController implements Initializable {
         if (typeCombo.getValue() == null)   errors.add("Please select a training type");
         if (methodCombo.getValue() == null) errors.add("Please select a payment method");
 
+        // Block if downgrade or same plan
+        if (currentUpgrade != null && currentUpgrade.isBlocked()) {
+            if (currentUpgrade.getStatus() == UpgradeResult.Status.DOWNGRADE_BLOCKED) {
+                errors.add("Downgrade not allowed until current plan expires ("
+                        + currentUpgrade.getCurrentPlanExpiry() + ").");
+            } else {
+                errors.add("This plan is already active until "
+                        + currentUpgrade.getCurrentPlanExpiry() + ".");
+            }
+        }
+
         if (!errors.isEmpty()) {
             showErrors(errors);
             return false;
@@ -414,6 +554,254 @@ public class PaymentController implements Initializable {
         return true;
     }
 
+    // ════════════════════════════════════════════════════════════════════════
+    //  SAVE PAYMENT
+    // ════════════════════════════════════════════════════════════════════════
+    private void handleSavePayment() {
+        if (!validate()) return;
+
+        boolean isUpgrade = currentUpgrade != null
+                && currentUpgrade.getStatus() == UpgradeResult.Status.UPGRADE_ALLOWED;
+
+        String confirmMsg;
+        if (isUpgrade) {
+            String oldCat  = currentUpgrade.getCurrentCategory();
+            String newCat  = typeCombo.getValue();
+            String topUp   = fmt(currentUpgrade.getTopUpAmount());
+            confirmMsg = "⚠  Plan Upgrade Confirmation\n\n"
+                    + "Switching from [" + oldCat + "] to [" + newCat + "].\n"
+                    + "A new coach must be assigned.\n\n"
+                    + "Top-up amount due: ₱" + topUp + "\n\n"
+                    + "Continue?";
+        } else {
+            confirmMsg = "Confirm payment of " + totalPriceLabel.getText()
+                    + "\nfor " + selectedClient.getFullName() + "?";
+        }
+
+        boolean finalIsUpgrade = isUpgrade;
+        showConfirmModal(confirmMsg, () -> {
+            try {
+                if (finalIsUpgrade) {
+                    saveUpgradeToDatabase();
+                } else {
+                    saveToDatabase();
+                }
+                showSuccessAndClear();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                showErrors(List.of("Database error: " + ex.getMessage()));
+            }
+        });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  NORMAL (FRESH) PAYMENT
+    // ─────────────────────────────────────────────────────────────────────────
+    private void saveToDatabase() throws SQLException {
+        String cat    = typeCombo.getValue();
+        String period = periodCombo.getValue();
+        boolean isMember = "Member".equalsIgnoreCase(selectedClient.getClientType());
+        int clientTypeID = isMember ? 2 : 1;
+
+        long[] rate           = rateMap.get(cat).get(period + "_" + clientTypeID);
+        int    trainingTypeID = trainingTypeMap.get(cat)[0];
+        int    ppID           = (int) rate[0];
+
+        // Resolve RateID from DB
+        int rateIDfromDB = resolveRateID(trainingTypeID, ppID, clientTypeID);
+
+        // Coach / assignment
+        String  coachSel = coachCombo.getValue();
+        boolean hasCoach = coachSel != null && !coachSel.equals(NO_COACH);
+        int     assignmentID;
+
+        if (hasCoach) {
+            long[] cd = coachMap.get(coachSel);
+            assignmentID = (cd[1] >= 0)
+                    ? (int) cd[1]
+                    : createAssignment(selectedClient.getClientID(),
+                    (int) cd[0], cd[2] / 100.0);
+        } else {
+            assignmentID = getOrCreateNoneAssignment(selectedClient.getClientID());
+        }
+
+        int    paymentTypeID = paymentTypeMap.get(methodCombo.getValue());
+        double basePrice     = rate[2] / 100.0;
+        double coachFee      = hasCoach ? coachMap.get(coachSel)[2] / 100.0 : 0.0;
+        double discountPct   = clientDiscountMap.getOrDefault(clientTypeID, 0.0);
+        double discount      = basePrice * discountPct;
+        double total         = basePrice - discount + coachFee;
+
+        String snapshotCategory   = cat;
+        String snapshotPeriod     = period;
+        String snapshotCoachName  = hasCoach ? coachSel : null;
+        String snapshotMembership = selectedClient.getClientType();
+
+        PaymentDAO.insertReceipt(
+                selectedClient.getClientID(),
+                paymentTypeID,
+                rateIDfromDB,
+                total,
+                assignmentID > 0 ? assignmentID : null,
+                snapshotCategory,
+                snapshotPeriod,
+                snapshotCoachName,
+                snapshotMembership
+        );
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  UPGRADE PAYMENT (three-step atomic transaction via UpgradeDAO)
+    // ─────────────────────────────────────────────────────────────────────────
+    private void saveUpgradeToDatabase() throws SQLException {
+        String cat    = typeCombo.getValue();
+        String period = periodCombo.getValue();
+        boolean isMember = "Member".equalsIgnoreCase(selectedClient.getClientType());
+        int clientTypeID = isMember ? 2 : 1;
+
+        long[] rate           = rateMap.get(cat).get(period + "_" + clientTypeID);
+        int    trainingTypeID = trainingTypeMap.get(cat)[0];
+        int    ppID           = (int) rate[0];
+        int    periodDays     = (int) rate[1];
+
+        int rateIDfromDB = resolveRateID(trainingTypeID, ppID, clientTypeID);
+
+        // Resolve / create the new coach assignment
+        String  coachSel = coachCombo.getValue();
+        boolean hasCoach = coachSel != null && !coachSel.equals(NO_COACH);
+        int     assignmentID;
+
+        if (hasCoach) {
+            long[] cd = coachMap.get(coachSel);
+            assignmentID = (cd[1] >= 0)
+                    ? (int) cd[1]
+                    : createAssignment(selectedClient.getClientID(),
+                    (int) cd[0], cd[2] / 100.0);
+        } else {
+            assignmentID = getOrCreateNoneAssignment(selectedClient.getClientID());
+        }
+
+        double coachFee   = hasCoach ? coachMap.get(coachSel)[2] / 100.0 : 0.0;
+        double topUp      = currentUpgrade.getTopUpAmount();
+        double totalCharge = topUp + coachFee;
+
+        int paymentTypeID = paymentTypeMap.get(methodCombo.getValue());
+
+        int receiptID = UpgradeDAO.executeUpgradeTransaction(
+                selectedClient.getClientID(),
+                rateIDfromDB,
+                clientTypeID,   // for MembershipTable.ClientTypeID update
+                assignmentID,
+                paymentTypeID,
+                totalCharge,
+                periodDays,
+                cat,            // snapshot category
+                period,         // snapshot period (stored as "Upgrade Fee" inside DAO)
+                hasCoach ? coachSel : null,
+                selectedClient.getClientType(),
+                true            // isUpgrade = true
+        );
+
+        if (receiptID < 0) throw new SQLException("Upgrade transaction failed — receipt not generated.");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  DB HELPERS
+    // ─────────────────────────────────────────────────────────────────────────
+    private int resolveRateID(int trainingTypeID, int ppID, int clientTypeID)
+            throws SQLException {
+        String rateSQL =
+                "SELECT RateID FROM RateTable " +
+                        "WHERE TrainingTypeID=? AND PaymentPeriodID=? AND ClientTypeID=?";
+        try (Connection con = DBConnector.connect();
+             PreparedStatement ps = con.prepareStatement(rateSQL)) {
+            ps.setInt(1, trainingTypeID);
+            ps.setInt(2, ppID);
+            ps.setInt(3, clientTypeID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) throw new SQLException("Rate not found for selected options.");
+                return rs.getInt("RateID");
+            }
+        }
+    }
+
+    private int getOrCreateNoneAssignment(int clientID) throws SQLException {
+        String sql = "SELECT ClientStaffAssignmentID FROM ClientStaffAssignmentTable " +
+                "WHERE ClientID=? AND StaffID=1 LIMIT 1";
+        try (Connection con = DBConnector.connect();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, clientID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("ClientStaffAssignmentID");
+            }
+        }
+        return createAssignment(clientID, 1, 0.0);
+    }
+
+    private int createAssignment(int clientID, int staffID, double coachPrice)
+            throws SQLException {
+        String sql = "INSERT INTO ClientStaffAssignmentTable " +
+                "(ClientID, StaffID, Applied_Coaching_Price) VALUES (?,?,?)";
+        try (Connection con = DBConnector.connect();
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setInt(1, clientID);
+            ps.setInt(2, staffID);
+            ps.setDouble(3, coachPrice);
+            ps.executeUpdate();
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        }
+        throw new SQLException("Failed to create assignment.");
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  POST-SAVE
+    // ════════════════════════════════════════════════════════════════════════
+    private void showSuccessAndClear() {
+        showSuccess("Payment saved successfully!");
+        javafx.animation.PauseTransition pause =
+                new javafx.animation.PauseTransition(Duration.seconds(2.5));
+        pause.setOnFinished(e -> handleClear());
+        pause.play();
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  CLEAR / RESET
+    // ════════════════════════════════════════════════════════════════════════
+    private void handleClear() {
+        suppressSearch = true;
+        clientSearchCombo.getSelectionModel().clearSelection();
+        clientSearchCombo.getEditor().clear();
+        clientSearchCombo.setItems(FXCollections.observableArrayList(allClients));
+        Platform.runLater(() -> suppressSearch = false);
+
+        clearClientDetails();
+        periodCombo.getSelectionModel().clearSelection();
+        typeCombo.getSelectionModel().clearSelection();
+        coachCombo.getSelectionModel().clearSelection();
+        methodCombo.getSelectionModel().clearSelection();
+        coachFeeHint.setText("");
+        hideValidation();
+        hideUpgradeBadge();
+        resetSummary();
+    }
+
+    private void resetSummary() {
+        sumClientLabel.setText("—");
+        sumTrainingLabel.setText("—");
+        sumPeriodLabel.setText("—");
+        priceLabel.setText("₱0.00");
+        coachingFeeLabel.setText("₱0.00");
+        discountLabel.setText("— ₱0.00");
+        subtotalLabel.setText("₱0.00");
+        totalPriceLabel.setText("₱0.00");
+        sumMethodLabel.setText("—");
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  VALIDATION UI
+    // ════════════════════════════════════════════════════════════════════════
     private void showErrors(List<String> errors) {
         if (validationBox != null) {
             validationBox.getChildren().clear();
@@ -503,174 +891,6 @@ public class PaymentController implements Initializable {
             validationLabel.setVisible(false);
             validationLabel.setManaged(false);
         }
-    }
-
-    // ════════════════════════════════════════════════════════════════════════
-    //  SAVE PAYMENT
-    // ════════════════════════════════════════════════════════════════════════
-    private void handleSavePayment() {
-        if (!validate()) return;
-
-        String confirmMsg = "Confirm payment of " + totalPriceLabel.getText()
-                + "\nfor " + selectedClient.getFullName() + "?";
-
-        showConfirmModal(confirmMsg, () -> {
-            try {
-                saveToDatabase();
-                showSuccessAndClear();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                showErrors(List.of("Database error: " + ex.getMessage()));
-            }
-        });
-    }
-
-    private void saveToDatabase() throws SQLException {
-        String cat    = typeCombo.getValue();
-        String period = periodCombo.getValue();
-        boolean isMember  = "Member".equalsIgnoreCase(selectedClient.getClientType());
-        int clientTypeID  = isMember ? 2 : 1;
-
-        long[] rate = rateMap.get(cat).get(period + "_" + clientTypeID);
-        int    trainingTypeID = trainingTypeMap.get(cat)[0];
-        int    ppID           = (int) rate[0];
-
-        // Resolve RateID from DB
-        int rateIDfromDB;
-        String rateSQL =
-                "SELECT RateID FROM RateTable " +
-                        "WHERE TrainingTypeID=? AND PaymentPeriodID=? AND ClientTypeID=?";
-        try (Connection con = DBConnector.connect();
-             PreparedStatement ps = con.prepareStatement(rateSQL)) {
-            ps.setInt(1, trainingTypeID);
-            ps.setInt(2, ppID);
-            ps.setInt(3, clientTypeID);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) throw new SQLException("Rate not found for selected options.");
-                rateIDfromDB = rs.getInt("RateID");
-            }
-        }
-
-        // Coach / assignment
-        String  coachSel  = coachCombo.getValue();
-        boolean hasCoach  = coachSel != null && !coachSel.equals(NO_COACH);
-        int     assignmentID;
-
-        if (hasCoach) {
-            long[] cd = coachMap.get(coachSel);
-            assignmentID = (cd[1] >= 0)
-                    ? (int) cd[1]
-                    : createAssignment(selectedClient.getClientID(),
-                    (int) cd[0], cd[2] / 100.0);
-        } else {
-            assignmentID = getOrCreateNoneAssignment(selectedClient.getClientID());
-        }
-
-        int    paymentTypeID = paymentTypeMap.get(methodCombo.getValue());
-        double basePrice     = rate[2] / 100.0;
-        double coachFee      = hasCoach ? coachMap.get(coachSel)[2] / 100.0 : 0.0;
-        double discountPct   = clientDiscountMap.getOrDefault(clientTypeID, 0.0);
-        double discount      = basePrice * discountPct;
-        double total         = basePrice - discount + coachFee;
-
-        // ── Snapshot values — frozen at the time of this payment ─────────────
-        String snapshotTrainingCategory = cat;
-        String snapshotPaymentPeriod    = period;
-        String snapshotCoachName        = hasCoach ? coachSel : null;
-        String snapshotMembershipType   = selectedClient.getClientType();
-
-        String insertSQL =
-                "INSERT INTO ReceiptTable " +
-                        "(ClientID, RateID, ClientStaffAssignmentID, PaymentTypeID, TotalPayment, PaymentDate, " +
-                        " SnapshotTrainingCategory, SnapshotPaymentPeriod, SnapshotCoachName, SnapshotMembershipType) " +
-                        "VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)";
-
-        try (Connection con = DBConnector.connect();
-             PreparedStatement ps = con.prepareStatement(insertSQL)) {
-            ps.setInt(1, selectedClient.getClientID());
-            ps.setInt(2, rateIDfromDB);
-            ps.setInt(3, assignmentID);
-            ps.setInt(4, paymentTypeID);
-            ps.setDouble(5, total);
-            ps.setString(6, snapshotTrainingCategory);
-            ps.setString(7, snapshotPaymentPeriod);
-            ps.setString(8, snapshotCoachName);   // NULL if no coach
-            ps.setString(9, snapshotMembershipType);
-            ps.executeUpdate();
-        }
-    }
-
-    private int getOrCreateNoneAssignment(int clientID) throws SQLException {
-        String sql = "SELECT ClientStaffAssignmentID FROM ClientStaffAssignmentTable " +
-                "WHERE ClientID=? AND StaffID=1 LIMIT 1";
-        try (Connection con = DBConnector.connect();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, clientID);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getInt("ClientStaffAssignmentID");
-            }
-        }
-        return createAssignment(clientID, 1, 0.0);
-    }
-
-    private int createAssignment(int clientID, int staffID, double coachPrice)
-            throws SQLException {
-        String sql = "INSERT INTO ClientStaffAssignmentTable " +
-                "(ClientID, StaffID, Applied_Coaching_Price) VALUES (?,?,?)";
-        try (Connection con = DBConnector.connect();
-             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setInt(1, clientID);
-            ps.setInt(2, staffID);
-            ps.setDouble(3, coachPrice);
-            ps.executeUpdate();
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) return rs.getInt(1);
-            }
-        }
-        throw new SQLException("Failed to create assignment.");
-    }
-
-    // ════════════════════════════════════════════════════════════════════════
-    //  POST-SAVE
-    // ════════════════════════════════════════════════════════════════════════
-    private void showSuccessAndClear() {
-        showSuccess("Payment saved successfully!");
-        javafx.animation.PauseTransition pause =
-                new javafx.animation.PauseTransition(Duration.seconds(2.5));
-        pause.setOnFinished(e -> handleClear());
-        pause.play();
-    }
-
-    // ════════════════════════════════════════════════════════════════════════
-    //  CLEAR / RESET
-    // ════════════════════════════════════════════════════════════════════════
-    private void handleClear() {
-        suppressSearch = true;
-        clientSearchCombo.getSelectionModel().clearSelection();
-        clientSearchCombo.getEditor().clear();
-        clientSearchCombo.setItems(FXCollections.observableArrayList(allClients));
-        Platform.runLater(() -> suppressSearch = false);
-
-        clearClientDetails();
-        periodCombo.getSelectionModel().clearSelection();
-        typeCombo.getSelectionModel().clearSelection();
-        coachCombo.getSelectionModel().clearSelection();
-        methodCombo.getSelectionModel().clearSelection();
-        coachFeeHint.setText("");
-        hideValidation();
-        resetSummary();
-    }
-
-    private void resetSummary() {
-        sumClientLabel.setText("—");
-        sumTrainingLabel.setText("—");
-        sumPeriodLabel.setText("—");
-        priceLabel.setText("₱0.00");
-        coachingFeeLabel.setText("₱0.00");
-        discountLabel.setText("— ₱0.00");
-        subtotalLabel.setText("₱0.00");
-        totalPriceLabel.setText("₱0.00");
-        sumMethodLabel.setText("—");
     }
 
     // ════════════════════════════════════════════════════════════════════════

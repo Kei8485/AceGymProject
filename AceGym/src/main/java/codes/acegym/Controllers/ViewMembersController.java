@@ -1,6 +1,7 @@
 package codes.acegym.Controllers;
 
 
+import codes.acegym.DB.ExpiryResetDAO;
 import javafx.scene.text.Font;
 import codes.acegym.DB.ClientDAO;
 import codes.acegym.Objects.MemberRow;
@@ -51,11 +52,6 @@ public class ViewMembersController implements Initializable {
 
     // ────────────────────────────────────────────────────────────────────────
     //  INIT
-    //  Order is critical:
-    //    1. Fill combo items (no listener yet)
-    //    2. loadData()  →  sets masterList / filtered / sorted, calls applyView()
-    //    3. Wire combo listener  →  applyView() is safe because sorted exists
-    //    4. Wire search, refresh, row-click
     // ────────────────────────────────────────────────────────────────────────
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -64,18 +60,14 @@ public class ViewMembersController implements Initializable {
         Font.loadFont(getClass().getResourceAsStream("/Font/Inter/Inter-Italic-VariableFont_opsz,wght.ttf"), 13);
         Font.loadFont(getClass().getResourceAsStream("/Font/Bebas_Neue/BebasNeue-Regular.ttf"), 26);
 
-        // 1 — populate combo, select default, but DO NOT attach action yet
         entriesCombo.setItems(FXCollections.observableArrayList(
                 VIEW_ALL, VIEW_PLAN, VIEW_MEMBERSHIP, VIEW_FULL));
         entriesCombo.getSelectionModel().selectFirst();
 
-        // 2 — load DB rows and push them into the table
         loadData();
 
-        // 3 — now that sorted != null, wire the combo action
         entriesCombo.setOnAction(e -> applyView());
 
-        // 4 — everything else
         setupSearch();
         setupRefresh();
         setupRowDoubleClick();
@@ -85,13 +77,15 @@ public class ViewMembersController implements Initializable {
     //  DATA LOAD
     // ────────────────────────────────────────────────────────────────────────
     private void loadData() {
+        ExpiryResetDAO.runExpiryResets();
+
         masterList = ClientDAO.getMemberRows();
 
         filtered = new FilteredList<>(masterList, r -> true);
         sorted   = new SortedList<>(filtered);
         sorted.comparatorProperty().bind(membersTable.comparatorProperty());
 
-        applyView();   // push data + columns into table
+        applyView();
 
         memberCountLabel.setText(masterList.size() + " client(s) total");
         updateFooter();
@@ -101,7 +95,7 @@ public class ViewMembersController implements Initializable {
     //  VIEW SWITCHING
     // ────────────────────────────────────────────────────────────────────────
     private void applyView() {
-        if (sorted == null) return;   // safety guard
+        if (sorted == null) return;
 
         String view = entriesCombo.getValue();
         if (view == null) view = VIEW_ALL;
@@ -220,8 +214,7 @@ public class ViewMembersController implements Initializable {
         popup.initStyle(StageStyle.TRANSPARENT);
         popup.setResizable(false);
 
-        // ── Colours (match ViewMembers.css) ─────────────────────────────────
-        String BG       = "#0E1223";
+        // ── Colours ─────────────────────────────────────────────────────────
         String CARD     = "#1c2237";
         String BORDER   = "#2e3349";
         String DIVIDER  = "#2e3349";
@@ -232,7 +225,7 @@ public class ViewMembersController implements Initializable {
         String GREEN_FG = "#4ade80";
         String RED_BG   = "#2c2337";
 
-        // ── Helper: section label ────────────────────────────────────────────
+        // ── Helpers ──────────────────────────────────────────────────────────
         Supplier<Region> divider = () -> {
             Region d = new Region();
             d.setPrefHeight(1); d.setMaxHeight(1);
@@ -259,9 +252,11 @@ public class ViewMembersController implements Initializable {
             lbl.setStyle("-fx-text-fill:" + GRAY + ";-fx-font-family:'Inter';" +
                     "-fx-font-size:16px;-fx-min-width:90px;");
             Label badge = new Label(status);
-            boolean active  = "Active".equalsIgnoreCase(status);
-            boolean none    = "None".equalsIgnoreCase(status) || "No Record".equalsIgnoreCase(status);
-            if (none) {
+            boolean active = "Active".equalsIgnoreCase(status);
+            boolean neutral = "None".equalsIgnoreCase(status)
+                    || "No Record".equalsIgnoreCase(status)
+                    || "Inactive".equalsIgnoreCase(status);
+            if (neutral) {
                 badge.setText("—");
                 badge.setStyle("-fx-text-fill:" + GRAY + ";-fx-font-family:'Inter';-fx-font-size:16px;");
             } else if (active) {
@@ -288,7 +283,6 @@ public class ViewMembersController implements Initializable {
         };
 
         // ── Title bar ────────────────────────────────────────────────────────
-        // Avatar circle with initials
         String initials = r.getFullName().trim().isEmpty() ? "?" :
                 String.valueOf(r.getFullName().trim().charAt(0)).toUpperCase();
         Label avatar = new Label(initials);
@@ -316,7 +310,6 @@ public class ViewMembersController implements Initializable {
         VBox nameBlock = new VBox(4, nameLabel, typeBadge);
         nameBlock.setAlignment(Pos.CENTER_LEFT);
 
-        // Close button
         Button closeBtn = new Button("✕");
         closeBtn.setStyle("-fx-background-color:transparent;-fx-text-fill:" + GRAY + ";" +
                 "-fx-font-size:14px;-fx-cursor:hand;-fx-padding:4 8;");
@@ -336,7 +329,6 @@ public class ViewMembersController implements Initializable {
         titleBar.setPadding(new Insets(20, 20, 16, 20));
         titleBar.setStyle("-fx-background-color:" + CARD + ";-fx-background-radius:16 16 0 0;");
 
-        // Allow dragging the popup by the title bar
         final double[] dragDelta = new double[2];
         titleBar.setOnMousePressed(e -> { dragDelta[0] = e.getSceneX(); dragDelta[1] = e.getSceneY(); });
         titleBar.setOnMouseDragged(e -> {
@@ -349,58 +341,100 @@ public class ViewMembersController implements Initializable {
         content.setPadding(new Insets(0, 20, 20, 20));
         content.setStyle("-fx-background-color:" + CARD + ";");
 
-        // — Identity section —
+        // — Identity —
         content.getChildren().addAll(
                 divider.get(),
                 sectionLabel.apply("Identity"),
-                infoRow.apply("Contact",  r.getContact()),
-                infoRow.apply("Email",    r.getEmail())
+                infoRow.apply("Contact", r.getContact()),
+                infoRow.apply("Email",   r.getEmail())
         );
 
-        // — Membership section —
+        // — Membership —
         content.getChildren().addAll(
                 divider.get(),
                 sectionLabel.apply("Membership"),
-                infoRow.apply("Applied",  r.getMembershipApplied()),
-                infoRow.apply("Expires",  r.getMembershipExpired()),
-                badgeRow.apply("Status",  r.getMembershipStatus())
+                infoRow.apply("Applied", r.getMembershipApplied()),
+                infoRow.apply("Expires", r.getMembershipExpired()),
+                badgeRow.apply("Status", r.getMembershipStatus())
         );
 
-        // — Last Plan section —
+        // ── Current Plan / Last Plan ─────────────────────────────────────────
+        // planStatus comes from the DB: "Active", "Expired", or "No Record"
+        boolean planActive   = "Active".equals(r.getPlanStatus());
+        boolean hasAnyRecord = !"No Record".equals(r.getPlanStatus());
+
         String periodDot = switch (r.getLastPaymentPeriod()) {
             case "Daily"   -> "🟡 ";
             case "Monthly" -> "🔵 ";
             case "Yearly"  -> "🟣 ";
             default        -> "";
         };
-        content.getChildren().addAll(
-                divider.get(),
-                sectionLabel.apply("Last Plan"),
-                infoRow.apply("Period",   periodDot + r.getLastPaymentPeriod()),
-                infoRow.apply("Paid On",  r.getLastPaymentDate()),
-                infoRow.apply("Expires",  r.getPlanExpiry()),
-                badgeRow.apply("Status",  r.getPlanStatus())
-        );
 
-        // — Coach section —
+        if (planActive) {
+            content.getChildren().addAll(
+                    divider.get(),
+                    sectionLabel.apply("Current Plan"),
+                    infoRow.apply("Period",   periodDot + r.getLastPaymentPeriod()),
+                    infoRow.apply("Training", r.getTrainingCategory()),   // ← ADD
+                    infoRow.apply("Paid On",  r.getLastPaymentDate()),
+                    infoRow.apply("Expires",  r.getPlanExpiry()),
+                    badgeRow.apply("Status",  "Active")
+            );
+
+        } else if (hasAnyRecord) {
+            // ── Expired plan: Current Plan = none, Last Plan = expired ────────
+            content.getChildren().addAll(
+                    divider.get(),
+                    sectionLabel.apply("Current Plan"),
+                    infoRow.apply("Period",  "—"),
+                    infoRow.apply("Expires", "—"),
+                    badgeRow.apply("Status", "Inactive")
+            );
+            content.getChildren().addAll(
+                    divider.get(),
+                    sectionLabel.apply("Last Plan"),
+                    infoRow.apply("Period",   periodDot + r.getLastPaymentPeriod()),
+                    infoRow.apply("Training", r.getTrainingCategory()),   // ← ADD
+                    infoRow.apply("Paid On",  r.getLastPaymentDate()),
+                    infoRow.apply("Expired",  r.getPlanExpiry()),
+                    badgeRow.apply("Status",  "Expired")
+            );
+
+        } else {
+            // ── No plan record at all ─────────────────────────────────────────
+            content.getChildren().addAll(
+                    divider.get(),
+                    sectionLabel.apply("Current Plan"),
+                    infoRow.apply("Period",  "—"),
+                    infoRow.apply("Expires", "—"),
+                    badgeRow.apply("Status", "Inactive")
+            );
+        }
+
+        // — Coach —
+        String coachDisplay = (r.getCoachName() == null
+                || r.getCoachName().isBlank()
+                || r.getCoachName().equalsIgnoreCase("None None"))
+                ? "No coach assigned"
+                : r.getCoachName();
         content.getChildren().addAll(
                 divider.get(),
                 sectionLabel.apply("Coach"),
-                infoRow.apply("Coach",    r.getCoachName()),
+                infoRow.apply("Coach",    coachDisplay),
                 infoRow.apply("Training", r.getTrainingCategory())
         );
 
-        // — Last Payment section —
+        // — Last Payment —
         String amtText = r.getLastPaymentAmount() == 0.0
                 ? "—"
                 : "\u20B1" + String.format("%,.2f", r.getLastPaymentAmount());
         content.getChildren().addAll(
                 divider.get(),
                 sectionLabel.apply("Last Payment"),
-                infoRow.apply("Amount",   amtText)
+                infoRow.apply("Amount", amtText)
         );
 
-        // ── Close button at bottom ────────────────────────────────────────────
+        // ── Close button ─────────────────────────────────────────────────────
         Button okBtn = new Button("Close");
         okBtn.setPrefWidth(100); okBtn.setPrefHeight(36);
         okBtn.setStyle("-fx-background-color:" + RED + ";-fx-text-fill:white;" +
@@ -457,7 +491,6 @@ public class ViewMembersController implements Initializable {
     //  COLUMN FACTORY HELPERS
     // ════════════════════════════════════════════════════════════════════════
 
-    /** Plain text column. minWidth = 70% of pref so it never collapses. */
     private TableColumn<MemberRow, String> col(String title, String prop, double pref) {
         TableColumn<MemberRow, String> c = new TableColumn<>(title);
         c.setCellValueFactory(new PropertyValueFactory<>(prop));
@@ -467,7 +500,6 @@ public class ViewMembersController implements Initializable {
         return c;
     }
 
-    /** Client Type badge: green = Member, red-muted = Non Member. */
     private TableColumn<MemberRow, String> typeCol() {
         TableColumn<MemberRow, String> c = new TableColumn<>("Type");
         c.setCellValueFactory(new PropertyValueFactory<>("clientType"));
@@ -490,7 +522,6 @@ public class ViewMembersController implements Initializable {
         return c;
     }
 
-    /** Plan Period dot: Daily=yellow, Monthly=blue, Yearly=purple. */
     private TableColumn<MemberRow, String> periodCol() {
         TableColumn<MemberRow, String> c = new TableColumn<>("Plan Period");
         c.setCellValueFactory(new PropertyValueFactory<>("lastPaymentPeriod"));
@@ -523,7 +554,7 @@ public class ViewMembersController implements Initializable {
         return c;
     }
 
-    /** Plan Status: Active=green, Expired=red, No Record=muted dash. */
+    /** Plan Status: Active=green badge, Expired/anything else=red "Inactive" badge, No Record=dash. */
     private TableColumn<MemberRow, String> planStatusCol() {
         TableColumn<MemberRow, String> c = new TableColumn<>("Plan Status");
         c.setCellValueFactory(new PropertyValueFactory<>("planStatus"));
@@ -538,8 +569,14 @@ public class ViewMembersController implements Initializable {
                 if ("No Record".equals(val)) {
                     setText("—"); setStyle("-fx-text-fill:#7a7f94;"); return;
                 }
-                Label badge = new Label(val);
-                badge.getStyleClass().add("Active".equals(val) ? "badge-active" : "badge-expired");
+                Label badge = new Label();
+                if ("Active".equals(val)) {
+                    badge.setText("Active");
+                    badge.getStyleClass().add("badge-active");
+                } else {
+                    badge.setText("Inactive");
+                    badge.getStyleClass().add("badge-expired");
+                }
                 HBox box = new HBox(badge);
                 box.setAlignment(Pos.CENTER_LEFT);
                 setGraphic(box);
@@ -548,7 +585,6 @@ public class ViewMembersController implements Initializable {
         return c;
     }
 
-    /** Membership Status: Active=green, Expired=red, None=muted dash. */
     private TableColumn<MemberRow, String> membershipStatusCol() {
         TableColumn<MemberRow, String> c = new TableColumn<>("Mem. Status");
         c.setCellValueFactory(new PropertyValueFactory<>("membershipStatus"));
@@ -573,7 +609,6 @@ public class ViewMembersController implements Initializable {
         return c;
     }
 
-    /** Last Payment Amount formatted as ₱1,234.00 (only in All Details). */
     private TableColumn<MemberRow, Double> amountCol() {
         TableColumn<MemberRow, Double> c = new TableColumn<>("Last Paid");
         c.setCellValueFactory(new PropertyValueFactory<>("lastPaymentAmount"));
