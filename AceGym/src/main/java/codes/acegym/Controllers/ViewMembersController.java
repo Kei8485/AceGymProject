@@ -2,6 +2,7 @@ package codes.acegym.Controllers;
 
 
 import codes.acegym.DB.ExpiryResetDAO;
+import javafx.animation.ScaleTransition;
 import javafx.scene.text.Font;
 import codes.acegym.DB.ClientDAO;
 import codes.acegym.Objects.MemberRow;
@@ -21,6 +22,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -30,7 +32,7 @@ import java.util.function.Supplier;
 
 public class ViewMembersController implements Initializable {
 
-    // ── FXML injections — must exactly match fx:id in the FXML ──────────────
+    // ── FXML injections ──────────────────────────────────────────────────────
     @FXML private TableView<MemberRow> membersTable;
     @FXML private ComboBox<String>     entriesCombo;
     @FXML private TextField            searchField;
@@ -50,12 +52,33 @@ public class ViewMembersController implements Initializable {
     private static final String VIEW_MEMBERSHIP = "By Membership";
     private static final String VIEW_FULL       = "All Details";
 
+    // ── Shared colour palette ────────────────────────────────────────────────
+    private static final String CARD      = "#1c2237";
+    private static final String CARD_ALT  = "#202840";   // slightly lighter for edit fields
+    private static final String BORDER    = "#2e3349";
+    private static final String DIVIDER   = "#2e3349";
+    private static final String GRAY      = "#7a7f94";
+    private static final String WHITE     = "white";
+    private static final String RED       = "#e53935";
+    private static final String RED_DARK  = "#c62828";
+    private static final String GREEN_BG  = "rgba(39,174,96,0.18)"; // From .badge-active
+    private static final String GREEN_FG  = "#4ade80";               // From .badge-active
+    private static final String RED_BG    = "#2c2337";               // From .badge-expired / -fx-accent-red-muted
+    private static final String AMBER     = "#e53935";               // From .badge-expired / -fx-accent-red
+    private static final String AMBER_BG  = "#2c2337";               // From .badge-expired / -fx-accent-red-muted         // From .badge-expired / -fx-accent-red-muted
+
+    // ── Shared button-style helpers ──────────────────────────────────────────
+    private static String btnStyle(String bg, String fg) {
+        return "-fx-background-color:" + bg + ";-fx-text-fill:" + fg + ";" +
+                "-fx-font-family:'Inter';-fx-font-size:13px;-fx-font-weight:bold;" +
+                "-fx-background-radius:9;-fx-cursor:hand;";
+    }
+
     // ────────────────────────────────────────────────────────────────────────
     //  INIT
     // ────────────────────────────────────────────────────────────────────────
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
         Font.loadFont(getClass().getResourceAsStream("/Font/Inter/Inter-VariableFont_opsz,wght.ttf"), 13);
         Font.loadFont(getClass().getResourceAsStream("/Font/Inter/Inter-Italic-VariableFont_opsz,wght.ttf"), 13);
         Font.loadFont(getClass().getResourceAsStream("/Font/Bebas_Neue/BebasNeue-Regular.ttf"), 26);
@@ -65,9 +88,7 @@ public class ViewMembersController implements Initializable {
         entriesCombo.getSelectionModel().selectFirst();
 
         loadData();
-
         entriesCombo.setOnAction(e -> applyView());
-
         setupSearch();
         setupRefresh();
         setupRowDoubleClick();
@@ -78,15 +99,11 @@ public class ViewMembersController implements Initializable {
     // ────────────────────────────────────────────────────────────────────────
     private void loadData() {
         ExpiryResetDAO.runExpiryResets();
-
         masterList = ClientDAO.getMemberRows();
-
-        filtered = new FilteredList<>(masterList, r -> true);
-        sorted   = new SortedList<>(filtered);
+        filtered   = new FilteredList<>(masterList, r -> true);
+        sorted     = new SortedList<>(filtered);
         sorted.comparatorProperty().bind(membersTable.comparatorProperty());
-
         applyView();
-
         memberCountLabel.setText(masterList.size() + " client(s) total");
         updateFooter();
     }
@@ -96,61 +113,54 @@ public class ViewMembersController implements Initializable {
     // ────────────────────────────────────────────────────────────────────────
     private void applyView() {
         if (sorted == null) return;
-
         String view = entriesCombo.getValue();
         if (view == null) view = VIEW_ALL;
-
         membersTable.getColumns().clear();
 
         switch (view) {
-
             case VIEW_ALL -> membersTable.getColumns().addAll(
-                    col("#",         "clientID",    50),
-                    col("Full Name", "fullName",    200),
-                    col("Contact",   "contact",     150),
-                    col("Email",     "email",        230),
-                    typeCol()
-            );
+                    col("#",         "clientID",   50),
+                    col("Full Name", "fullName",   200),
+                    col("Contact",   "contact",    150),
+                    col("Email",     "email",      230),
+                    typeCol());
 
             case VIEW_PLAN -> membersTable.getColumns().addAll(
-                    col("Full Name",    "fullName",          190),
+                    col("Full Name",    "fullName",         190),
                     typeCol(),
                     periodCol(),
-                    col("Paid On",      "lastPaymentDate",   140),
-                    col("Plan Expires", "planExpiry",        140),
+                    col("Paid On",      "lastPaymentDate",  140),
+                    col("Plan Expires", "planExpiry",       140),
                     planStatusCol(),
-                    col("Coach",        "coachName",         150),
-                    col("Training",     "trainingCategory",  130)
-            );
+                    col("Coach",        "coachName",        150),
+                    col("Training",     "trainingCategory", 130));
 
             case VIEW_MEMBERSHIP -> membersTable.getColumns().addAll(
-                    col("Full Name",    "fullName",           190),
+                    col("Full Name",    "fullName",          190),
                     typeCol(),
-                    col("Mem. Applied", "membershipApplied",  145),
-                    col("Mem. Expires", "membershipExpired",  145),
+                    col("Mem. Applied", "membershipApplied", 145),
+                    col("Mem. Expires", "membershipExpired", 145),
                     membershipStatusCol(),
-                    col("Last Plan",    "lastPaymentPeriod",  110),
-                    col("Plan Expires", "planExpiry",         140),
-                    planStatusCol()
-            );
+                    col("Last Plan",    "lastPaymentPeriod", 110),
+                    col("Plan Expires", "planExpiry",        140),
+                    planStatusCol());
 
             case VIEW_FULL -> membersTable.getColumns().addAll(
-                    col("#",            "clientID",           50),
-                    col("Full Name",    "fullName",           180),
-                    col("Contact",      "contact",            130),
-                    col("Email",        "email",              200),
+                    col("#",            "clientID",          50),
+                    col("Full Name",    "fullName",          180),
+                    col("Contact",      "contact",           130),
+                    col("Email",        "email",             200),
                     typeCol(),
-                    col("Mem. Applied", "membershipApplied",  130),
-                    col("Mem. Expires", "membershipExpired",  130),
+                    col("Mem. Applied", "membershipApplied", 130),
+                    col("Mem. Expires", "membershipExpired", 130),
                     membershipStatusCol(),
                     periodCol(),
-                    col("Paid On",      "lastPaymentDate",    125),
-                    col("Plan Expires", "planExpiry",         125),
+                    col("Paid On",      "lastPaymentDate",   125),
+                    col("Plan Expires", "planExpiry",        125),
                     planStatusCol(),
-                    col("Coach",        "coachName",          140),
-                    col("Training",     "trainingCategory",   120),
-                    amountCol()
-            );
+                    col("Coach",        "coachName",         140),
+                    col("Training",     "trainingCategory",  120),
+                    amountCol());
         }
 
         membersTable.setItems(sorted);
@@ -161,7 +171,7 @@ public class ViewMembersController implements Initializable {
     //  SEARCH
     // ────────────────────────────────────────────────────────────────────────
     private void setupSearch() {
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> {
+        searchField.textProperty().addListener((obs, o, newVal) -> {
             String q = (newVal == null) ? "" : newVal.trim().toLowerCase();
             filtered.setPredicate(row -> {
                 if (q.isEmpty()) return true;
@@ -187,43 +197,31 @@ public class ViewMembersController implements Initializable {
     //  REFRESH
     // ────────────────────────────────────────────────────────────────────────
     private void setupRefresh() {
-        refreshBtn.setOnAction(e -> {
-            searchField.clear();
-            loadData();
-        });
+        refreshBtn.setOnAction(e -> { searchField.clear(); loadData(); });
     }
 
     // ────────────────────────────────────────────────────────────────────────
-    //  ROW DOUBLE-CLICK → detail popup
+    //  ROW DOUBLE-CLICK
     // ────────────────────────────────────────────────────────────────────────
     private void setupRowDoubleClick() {
         membersTable.setRowFactory(tv -> {
             TableRow<MemberRow> row = new TableRow<>();
             row.setOnMouseClicked(e -> {
-                if (e.getClickCount() == 2 && !row.isEmpty()) {
+                if (e.getClickCount() == 2 && !row.isEmpty())
                     showDetail(row.getItem());
-                }
             });
             return row;
         });
     }
 
+    // ════════════════════════════════════════════════════════════════════════
+    //  DETAIL POPUP
+    // ════════════════════════════════════════════════════════════════════════
     private void showDetail(MemberRow r) {
         Stage popup = new Stage();
         popup.initModality(Modality.APPLICATION_MODAL);
         popup.initStyle(StageStyle.TRANSPARENT);
         popup.setResizable(false);
-
-        // ── Colours ─────────────────────────────────────────────────────────
-        String CARD     = "#1c2237";
-        String BORDER   = "#2e3349";
-        String DIVIDER  = "#2e3349";
-        String GRAY     = "#7a7f94";
-        String WHITE    = "white";
-        String RED      = "#e53935";
-        String GREEN_BG = "rgba(39,174,96,0.18)";
-        String GREEN_FG = "#4ade80";
-        String RED_BG   = "#2c2337";
 
         // ── Helpers ──────────────────────────────────────────────────────────
         Supplier<Region> divider = () -> {
@@ -238,8 +236,7 @@ public class ViewMembersController implements Initializable {
             lbl.setStyle("-fx-text-fill:" + GRAY + ";-fx-font-family:'Inter';" +
                     "-fx-font-size:16px;-fx-min-width:90px;");
             Label val = new Label(value == null || value.isBlank() ? "—" : value);
-            val.setStyle("-fx-text-fill:" + WHITE + ";-fx-font-family:'Inter';" +
-                    "-fx-font-size:16px;");
+            val.setStyle("-fx-text-fill:" + WHITE + ";-fx-font-family:'Inter';-fx-font-size:16px;");
             val.setWrapText(true);
             val.setMaxWidth(260);
             HBox row = new HBox(12, lbl, val);
@@ -252,7 +249,7 @@ public class ViewMembersController implements Initializable {
             lbl.setStyle("-fx-text-fill:" + GRAY + ";-fx-font-family:'Inter';" +
                     "-fx-font-size:16px;-fx-min-width:90px;");
             Label badge = new Label(status);
-            boolean active = "Active".equalsIgnoreCase(status);
+            boolean active  = "Active".equalsIgnoreCase(status);
             boolean neutral = "None".equalsIgnoreCase(status)
                     || "No Record".equalsIgnoreCase(status)
                     || "Inactive".equalsIgnoreCase(status);
@@ -274,7 +271,7 @@ public class ViewMembersController implements Initializable {
             return row;
         };
 
-        Function<String, Label> sectionLabel = (text) -> {
+        Function<String, Label> sectionLabel = text -> {
             Label lbl = new Label(text.toUpperCase());
             lbl.setStyle("-fx-text-fill:" + GRAY + ";-fx-font-family:'Inter';" +
                     "-fx-font-size:16px;-fx-font-weight:bold;-fx-letter-spacing:1px;");
@@ -289,8 +286,7 @@ public class ViewMembersController implements Initializable {
         avatar.setPrefSize(44, 44); avatar.setMinSize(44, 44);
         avatar.setAlignment(Pos.CENTER);
         avatar.setStyle("-fx-background-color:" + RED + ";-fx-background-radius:22;" +
-                "-fx-text-fill:white;-fx-font-family:'Inter';-fx-font-size:21px;" +
-                "-fx-font-weight:bold;");
+                "-fx-text-fill:white;-fx-font-family:'Inter';-fx-font-size:21px;-fx-font-weight:bold;");
 
         Label nameLabel = new Label(r.getFullName());
         nameLabel.setStyle("-fx-text-fill:white;-fx-font-family:'Inter';" +
@@ -321,10 +317,10 @@ public class ViewMembersController implements Initializable {
                         "-fx-font-size:14px;-fx-cursor:hand;-fx-padding:4 8;"));
         closeBtn.setOnAction(e -> popup.close());
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+        Region titleSpacer = new Region();
+        HBox.setHgrow(titleSpacer, Priority.ALWAYS);
 
-        HBox titleBar = new HBox(14, avatar, nameBlock, spacer, closeBtn);
+        HBox titleBar = new HBox(14, avatar, nameBlock, titleSpacer, closeBtn);
         titleBar.setAlignment(Pos.CENTER_LEFT);
         titleBar.setPadding(new Insets(20, 20, 16, 20));
         titleBar.setStyle("-fx-background-color:" + CARD + ";-fx-background-radius:16 16 0 0;");
@@ -346,8 +342,7 @@ public class ViewMembersController implements Initializable {
                 divider.get(),
                 sectionLabel.apply("Identity"),
                 infoRow.apply("Contact", r.getContact()),
-                infoRow.apply("Email",   r.getEmail())
-        );
+                infoRow.apply("Email",   r.getEmail()));
 
         // — Membership —
         content.getChildren().addAll(
@@ -355,11 +350,9 @@ public class ViewMembersController implements Initializable {
                 sectionLabel.apply("Membership"),
                 infoRow.apply("Applied", r.getMembershipApplied()),
                 infoRow.apply("Expires", r.getMembershipExpired()),
-                badgeRow.apply("Status", r.getMembershipStatus())
-        );
+                badgeRow.apply("Status", r.getMembershipStatus()));
 
-        // ── Current Plan / Last Plan ─────────────────────────────────────────
-        // planStatus comes from the DB: "Active", "Expired", or "No Record"
+        // — Plan —
         boolean planActive   = "Active".equals(r.getPlanStatus());
         boolean hasAnyRecord = !"No Record".equals(r.getPlanStatus());
 
@@ -375,83 +368,90 @@ public class ViewMembersController implements Initializable {
                     divider.get(),
                     sectionLabel.apply("Current Plan"),
                     infoRow.apply("Period",   periodDot + r.getLastPaymentPeriod()),
-                    infoRow.apply("Training", r.getTrainingCategory()),   // ← ADD
+                    infoRow.apply("Training", r.getTrainingCategory()),
                     infoRow.apply("Paid On",  r.getLastPaymentDate()),
                     infoRow.apply("Expires",  r.getPlanExpiry()),
-                    badgeRow.apply("Status",  "Active")
-            );
-
+                    badgeRow.apply("Status",  "Active"));
         } else if (hasAnyRecord) {
-            // ── Expired plan: Current Plan = none, Last Plan = expired ────────
             content.getChildren().addAll(
                     divider.get(),
                     sectionLabel.apply("Current Plan"),
                     infoRow.apply("Period",  "—"),
                     infoRow.apply("Expires", "—"),
-                    badgeRow.apply("Status", "Inactive")
-            );
+                    badgeRow.apply("Status", "Inactive"));
             content.getChildren().addAll(
                     divider.get(),
                     sectionLabel.apply("Last Plan"),
                     infoRow.apply("Period",   periodDot + r.getLastPaymentPeriod()),
-                    infoRow.apply("Training", r.getTrainingCategory()),   // ← ADD
+                    infoRow.apply("Training", r.getTrainingCategory()),
                     infoRow.apply("Paid On",  r.getLastPaymentDate()),
                     infoRow.apply("Expired",  r.getPlanExpiry()),
-                    badgeRow.apply("Status",  "Expired")
-            );
-
+                    badgeRow.apply("Status",  "Expired"));
         } else {
-            // ── No plan record at all ─────────────────────────────────────────
             content.getChildren().addAll(
                     divider.get(),
                     sectionLabel.apply("Current Plan"),
                     infoRow.apply("Period",  "—"),
                     infoRow.apply("Expires", "—"),
-                    badgeRow.apply("Status", "Inactive")
-            );
+                    badgeRow.apply("Status", "Inactive"));
         }
 
         // — Coach —
         String coachDisplay = (r.getCoachName() == null
                 || r.getCoachName().isBlank()
                 || r.getCoachName().equalsIgnoreCase("None None"))
-                ? "No coach assigned"
-                : r.getCoachName();
+                ? "No coach assigned" : r.getCoachName();
         content.getChildren().addAll(
                 divider.get(),
                 sectionLabel.apply("Coach"),
                 infoRow.apply("Coach",    coachDisplay),
-                infoRow.apply("Training", r.getTrainingCategory())
-        );
+                infoRow.apply("Training", r.getTrainingCategory()));
 
         // — Last Payment —
         String amtText = r.getLastPaymentAmount() == 0.0
-                ? "—"
-                : "\u20B1" + String.format("%,.2f", r.getLastPaymentAmount());
+                ? "—" : "\u20B1" + String.format("%,.2f", r.getLastPaymentAmount());
         content.getChildren().addAll(
                 divider.get(),
                 sectionLabel.apply("Last Payment"),
-                infoRow.apply("Amount", amtText)
-        );
+                infoRow.apply("Amount", amtText));
 
-        // ── Close button ─────────────────────────────────────────────────────
+        // ── Footer: Edit + Close ──────────────────────────────────────────────
+        Button editBtn = new Button("✎  Edit Info");
+        editBtn.setPrefWidth(120); editBtn.setPrefHeight(36);
+        editBtn.setStyle(btnStyle(AMBER_BG, AMBER) +
+                "-fx-border-color:" + AMBER + ";-fx-border-width:1;-fx-border-radius:9;");
+        editBtn.setOnMouseEntered(e -> editBtn.setStyle(
+                // #1e253c matches the navy-blue in your image
+                btnStyle("#1e253c", AMBER) +
+                        "-fx-border-color:" + AMBER + ";-fx-border-width:1;-fx-border-radius:9;"));
+        editBtn.setOnMouseExited(e -> editBtn.setStyle(
+                btnStyle(AMBER_BG, AMBER) +
+                        "-fx-border-color:" + AMBER + ";-fx-border-width:1;-fx-border-radius:9;"));
+        addPressEffect(editBtn);
+
+
+        editBtn.setOnAction(e -> {
+            // Get the main window as owner so the edit popup renders on top
+            Stage owner = (Stage) membersTable.getScene().getWindow();
+            popup.close();
+            // Small delay lets JavaFX fully process the close before showing the next window
+            javafx.application.Platform.runLater(() -> showEditPopup(r, owner));
+
+        });
+
         Button okBtn = new Button("Close");
         okBtn.setPrefWidth(100); okBtn.setPrefHeight(36);
-        okBtn.setStyle("-fx-background-color:" + RED + ";-fx-text-fill:white;" +
-                "-fx-font-family:'Inter';-fx-font-size:13px;-fx-font-weight:bold;" +
-                "-fx-background-radius:9;-fx-cursor:hand;");
-        okBtn.setOnMouseEntered(e -> okBtn.setStyle(
-                "-fx-background-color:#c62828;-fx-text-fill:white;" +
-                        "-fx-font-family:'Inter';-fx-font-size:13px;-fx-font-weight:bold;" +
-                        "-fx-background-radius:9;-fx-cursor:hand;"));
-        okBtn.setOnMouseExited(e -> okBtn.setStyle(
-                "-fx-background-color:" + RED + ";-fx-text-fill:white;" +
-                        "-fx-font-family:'Inter';-fx-font-size:13px;-fx-font-weight:bold;" +
-                        "-fx-background-radius:9;-fx-cursor:hand;"));
+        okBtn.setStyle(btnStyle(RED, WHITE));
+        okBtn.setOnMouseEntered(e -> okBtn.setStyle(btnStyle(RED_DARK, WHITE)));
+        okBtn.setOnMouseExited(e  -> okBtn.setStyle(btnStyle(RED, WHITE)));
         okBtn.setOnAction(e -> popup.close());
+        addPressEffect(okBtn);
 
-        HBox footer = new HBox(okBtn);
-        footer.setAlignment(Pos.CENTER_RIGHT);
+        Region footerSpacer = new Region();
+        HBox.setHgrow(footerSpacer, Priority.ALWAYS);
+
+        HBox footer = new HBox(12, editBtn, footerSpacer, okBtn);
+        footer.setAlignment(Pos.CENTER_LEFT);
         footer.setPadding(new Insets(12, 20, 18, 20));
         footer.setStyle("-fx-background-color:" + CARD + ";-fx-background-radius:0 0 16 16;");
 
@@ -472,6 +472,485 @@ public class ViewMembersController implements Initializable {
         scene.setFill(Color.TRANSPARENT);
         popup.setScene(scene);
         popup.showAndWait();
+
+    }
+
+
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  EDIT POPUP
+    // ════════════════════════════════════════════════════════════════════════
+    private void showEditPopup(MemberRow r, Stage owner) {
+        Stage popup = new Stage();
+        popup.initOwner(owner);
+        popup.initModality(Modality.APPLICATION_MODAL);
+        popup.initStyle(StageStyle.TRANSPARENT);
+        popup.setResizable(false);
+
+        // ── Split fullName into first / last ──────────────────────────────────
+        String[] parts     = r.getFullName().trim().split(" ", 2);
+        String   initFirst = parts[0];
+        String   initLast  = parts.length > 1 ? parts[1] : "";
+
+        // ── Field factory ─────────────────────────────────────────────────────
+        Function<String, TextField> field = placeholder -> {
+            TextField tf = new TextField();
+            tf.setPromptText(placeholder);
+            tf.setPrefHeight(38);
+            tf.setStyle(
+                    "-fx-background-color:" + CARD_ALT + ";" +
+                            "-fx-text-fill:white;" +
+                            "-fx-prompt-text-fill:" + GRAY + ";" +
+                            "-fx-font-family:'Inter';-fx-font-size:14px;" +
+                            "-fx-background-radius:8;" +
+                            "-fx-border-color:" + BORDER + ";" +
+                            "-fx-border-width:1;-fx-border-radius:8;" +
+                            "-fx-padding:0 10;");
+            tf.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+                String focused = "-fx-background-color:" + CARD_ALT + ";" +
+                        "-fx-text-fill:white;" +
+                        "-fx-prompt-text-fill:" + GRAY + ";" +
+                        "-fx-font-family:'Inter';-fx-font-size:14px;" +
+                        "-fx-background-radius:8;" +
+                        "-fx-border-color:" + AMBER + ";" +
+                        "-fx-border-width:1.5;-fx-border-radius:8;" +
+                        "-fx-padding:0 10;";
+                String unfocused = "-fx-background-color:" + CARD_ALT + ";" +
+                        "-fx-text-fill:white;" +
+                        "-fx-prompt-text-fill:" + GRAY + ";" +
+                        "-fx-font-family:'Inter';-fx-font-size:14px;" +
+                        "-fx-background-radius:8;" +
+                        "-fx-border-color:" + BORDER + ";" +
+                        "-fx-border-width:1;-fx-border-radius:8;" +
+                        "-fx-padding:0 10;";
+                tf.setStyle(isFocused ? focused : unfocused);
+            });
+            return tf;
+        };
+
+        // ── Label factory ─────────────────────────────────────────────────────
+        Function<String, Label> fieldLabel = text -> {
+            Label lbl = new Label(text);
+            lbl.setStyle("-fx-text-fill:" + GRAY + ";-fx-font-family:'Inter';" +
+                    "-fx-font-size:12px;-fx-font-weight:bold;");
+            VBox.setMargin(lbl, new Insets(8, 0, 3, 0));
+            return lbl;
+        };
+
+        // ── Fields ───────────────────────────────────────────────────────────
+        TextField firstNameField = field.apply("First Name");
+        firstNameField.setText(initFirst);
+
+        TextField lastNameField = field.apply("Last Name");
+        lastNameField.setText(initLast);
+
+        TextField contactField = field.apply("Contact Number");
+        contactField.setText(r.getContact() == null ? "" : r.getContact());
+
+        TextField emailField = field.apply("Email Address");
+        emailField.setText(r.getEmail() == null ? "" : r.getEmail());
+
+        // ── Error label ───────────────────────────────────────────────────────
+        Label errorLabel = new Label("");
+        errorLabel.setStyle("-fx-text-fill:" + RED + ";-fx-font-family:'Inter';" +
+                "-fx-font-size:12px;");
+        errorLabel.setWrapText(true);
+        errorLabel.setVisible(false);
+
+        // ── Title bar ────────────────────────────────────────────────────────
+        String initials = r.getFullName().trim().isEmpty() ? "?" :
+                String.valueOf(r.getFullName().trim().charAt(0)).toUpperCase();
+        Label avatar = new Label(initials);
+        avatar.setPrefSize(44, 44); avatar.setMinSize(44, 44);
+        avatar.setAlignment(Pos.CENTER);
+        avatar.setStyle("-fx-background-color:" + AMBER + ";-fx-background-radius:22;" +
+                "-fx-text-fill:#1c2237;-fx-font-family:'Inter';-fx-font-size:21px;-fx-font-weight:bold;");
+
+        Label titleLabel = new Label("Edit Client Info");
+        titleLabel.setStyle("-fx-text-fill:white;-fx-font-family:'Inter';" +
+                "-fx-font-size:18px;-fx-font-weight:bold;");
+        Label subtitleLabel = new Label("ID#: CLID00" + r.getClientID() + "  ·  " + r.getFullName());
+        subtitleLabel.setStyle("-fx-text-fill:" + GRAY + ";-fx-font-family:'Inter';-fx-font-size:13px;");
+
+        VBox titleBlock = new VBox(2, titleLabel, subtitleLabel);
+        titleBlock.setAlignment(Pos.CENTER_LEFT);
+
+        Button closeTitleBtn = new Button("✕");
+        closeTitleBtn.setStyle("-fx-background-color:transparent;-fx-text-fill:" + GRAY + ";" +
+                "-fx-font-size:14px;-fx-cursor:hand;-fx-padding:4 8;");
+        closeTitleBtn.setOnMouseEntered(e -> closeTitleBtn.setStyle(
+                "-fx-background-color:#e53935; -fx-text-fill:white;" +
+                        "-fx-font-size:14px; -fx-cursor:hand; -fx-padding:4 8; -fx-background-radius:6;"));
+        closeTitleBtn.setOnMouseExited(e -> closeTitleBtn.setStyle(
+                "-fx-background-color:transparent;-fx-text-fill:" + GRAY + ";" +
+                        "-fx-font-size:14px;-fx-cursor:hand;-fx-padding:4 8;"));
+        closeTitleBtn.setOnAction(e -> popup.close());
+
+        Region titleSpacer = new Region();
+        HBox.setHgrow(titleSpacer, Priority.ALWAYS);
+
+        HBox titleBar = new HBox(14, avatar, titleBlock, titleSpacer, closeTitleBtn);
+        titleBar.setAlignment(Pos.CENTER_LEFT);
+        titleBar.setPadding(new Insets(20, 20, 16, 20));
+        titleBar.setStyle("-fx-background-color:" + CARD + ";-fx-background-radius:16 16 0 0;");
+
+        final double[] dragDelta = new double[2];
+        titleBar.setOnMousePressed(e  -> { dragDelta[0] = e.getSceneX(); dragDelta[1] = e.getSceneY(); });
+        titleBar.setOnMouseDragged(e  -> {
+            popup.setX(e.getScreenX() - dragDelta[0]);
+            popup.setY(e.getScreenY() - dragDelta[1]);
+        });
+
+        // ── Notice banner ─────────────────────────────────────────────────────
+        Label notice = new Label("⚠  Only contact details are editable. Membership and plan info cannot be changed here.");
+        notice.setWrapText(true);
+        notice.setMaxWidth(380);
+        notice.setStyle("-fx-text-fill:" + AMBER + ";-fx-font-family:'Inter';-fx-font-size:12px;" +
+                "-fx-background-color:" + AMBER_BG + ";" +
+                "-fx-background-radius:8;-fx-padding:10 12;");
+
+        // ── Divider line ──────────────────────────────────────────────────────
+        Region dividerLine = new Region();
+        dividerLine.setPrefHeight(1); dividerLine.setMaxHeight(1);
+        dividerLine.setStyle("-fx-background-color:" + DIVIDER + ";");
+
+        // ── Name row (First | Last side-by-side) ──────────────────────────────
+        VBox firstBox = new VBox(fieldLabel.apply("FIRST NAME"), firstNameField);
+        VBox lastBox  = new VBox(fieldLabel.apply("LAST NAME"),  lastNameField);
+        HBox.setHgrow(firstBox, Priority.ALWAYS);
+        HBox.setHgrow(lastBox,  Priority.ALWAYS);
+        HBox nameRow = new HBox(12, firstBox, lastBox);
+
+        // ── Form content ──────────────────────────────────────────────────────
+        VBox formContent = new VBox(4,
+                notice,
+                dividerLine,
+                nameRow,
+                fieldLabel.apply("CONTACT NUMBER"),
+                contactField,
+                fieldLabel.apply("EMAIL ADDRESS"),
+                emailField,
+                errorLabel
+        );
+        formContent.setPadding(new Insets(16, 20, 16, 20));
+        formContent.setStyle("-fx-background-color:" + CARD + ";");
+
+        // ── Footer ────────────────────────────────────────────────────────────
+        Button cancelBtn = new Button("Cancel");
+        cancelBtn.setPrefWidth(100); cancelBtn.setPrefHeight(36);
+        cancelBtn.setStyle(
+                "-fx-background-color:transparent;-fx-text-fill:" + GRAY + ";" +
+                        "-fx-font-family:'Inter';-fx-font-size:13px;-fx-font-weight:bold;" +
+                        "-fx-background-radius:9;-fx-cursor:hand;" +
+                        "-fx-border-color:" + BORDER + ";-fx-border-width:1;-fx-border-radius:9;");
+        cancelBtn.setOnMouseEntered(e -> cancelBtn.setStyle(
+                "-fx-background-color:#2e3349;-fx-text-fill:white;" +
+                        "-fx-font-family:'Inter';-fx-font-size:13px;-fx-font-weight:bold;" +
+                        "-fx-background-radius:9;-fx-cursor:hand;" +
+                        "-fx-border-color:" + BORDER + ";-fx-border-width:1;-fx-border-radius:9;"));
+        cancelBtn.setOnMouseExited(e -> cancelBtn.setStyle(
+                "-fx-background-color:transparent;-fx-text-fill:" + GRAY + ";" +
+                        "-fx-font-family:'Inter';-fx-font-size:13px;-fx-font-weight:bold;" +
+                        "-fx-background-radius:9;-fx-cursor:hand;" +
+                        "-fx-border-color:" + BORDER + ";-fx-border-width:1;-fx-border-radius:9;"));
+        cancelBtn.setOnAction(e -> popup.close());
+        addPressEffect(cancelBtn);
+
+        Button saveBtn = new Button("Save Changes");
+        saveBtn.setPrefWidth(130); saveBtn.setPrefHeight(36);
+        saveBtn.setStyle(btnStyle(AMBER, "#1c2237"));
+        saveBtn.setOnMouseEntered(e -> saveBtn.setStyle(
+                "-fx-background-color: #1a2e23;" + // Darker Green background
+                        "-fx-text-fill: #4ade80;" +       // Bright Green text (GREEN_FG)
+                        "-fx-font-family: 'Inter'; -fx-font-size: 13px; -fx-font-weight: bold;" +
+                        "-fx-background-radius: 9; -fx-cursor: hand;" +
+                        "-fx-border-color: #4ade80; -fx-border-width: 1; -fx-border-radius: 9;"));
+        saveBtn.setOnMouseExited(e -> saveBtn.setStyle(btnStyle(AMBER, "#1c2237")));
+        addPressEffect(saveBtn);
+
+        saveBtn.setOnAction(e -> {
+            String newFirst   = firstNameField.getText().trim();
+            String newLast    = lastNameField.getText().trim();
+            String newContact = contactField.getText().trim();
+            String newEmail   = emailField.getText().trim();
+
+            // ── First name ────────────────────────────────────────────────────────
+            if (newFirst.isEmpty()) {
+                errorLabel.setText("First name cannot be empty.");
+                errorLabel.setVisible(true);
+                return;
+            }
+            if (!newFirst.matches("[a-zA-Z\\s\\-'.]+")) {
+                errorLabel.setText("First name must contain letters only.");
+                errorLabel.setVisible(true);
+                return;
+            }
+
+            // ── Last name ─────────────────────────────────────────────────────────
+            if (newLast.isEmpty()) {
+                errorLabel.setText("Last name cannot be empty.");
+                errorLabel.setVisible(true);
+                return;
+            }
+            if (!newLast.matches("[a-zA-Z\\s\\-'.]+")) {
+                errorLabel.setText("Last name must contain letters only.");
+                errorLabel.setVisible(true);
+                return;
+            }
+
+            // ── Contact — Philippine number ───────────────────────────────────────
+            // Accepts: 09XXXXXXXXX, +639XXXXXXXXX, 639XXXXXXXXX (11 or 13 digits)
+            if (!newContact.isEmpty()) {
+                String normalised = newContact.replaceAll("[\\s\\-]", "");
+                if (!normalised.matches("(09|\\+639|639)\\d{9}")) {
+                    errorLabel.setText("Enter a valid PH number: 09XXXXXXXXX or +639XXXXXXXXX.");
+                    errorLabel.setVisible(true);
+                    return;
+                }
+            }
+
+            // ── Email ─────────────────────────────────────────────────────────────
+            if (!newEmail.isEmpty()) {
+                if (!newEmail.matches("^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$")) {
+                    errorLabel.setText("Enter a valid email address (e.g. juan@gmail.com).");
+                    errorLabel.setVisible(true);
+                    return;
+                }
+            }
+
+            errorLabel.setVisible(false);
+
+            // ── Confirmation dialog ───────────────────────────────────────────────
+            boolean confirmed = showConfirmDialog(
+                    popup,
+                    r.getFullName(),
+                    newFirst + " " + newLast,
+                    newContact,
+                    newEmail
+            );
+
+            if (!confirmed) return;
+
+            // ── Save to DB ────────────────────────────────────────────────────────
+            boolean ok = ClientDAO.updateClientInfo(
+                    r.getClientID(), newFirst, newLast, newContact, newEmail);
+
+            if (ok) {
+                popup.close();
+                loadData();
+                showSuccessToast(newFirst + " " + newLast);
+            } else {
+                errorLabel.setText("Failed to save. Please check your connection and try again.");
+                errorLabel.setVisible(true);
+            }
+        });
+        Region footerSpacer = new Region();
+        HBox.setHgrow(footerSpacer, Priority.ALWAYS);
+
+        HBox footer = new HBox(12, cancelBtn, footerSpacer, saveBtn);
+        footer.setAlignment(Pos.CENTER_LEFT);
+        footer.setPadding(new Insets(12, 20, 18, 20));
+        footer.setStyle("-fx-background-color:" + CARD + ";-fx-background-radius:0 0 16 16;");
+
+        // ── Card ──────────────────────────────────────────────────────────────
+        VBox card = new VBox(titleBar, formContent, footer);
+        card.setStyle("-fx-background-color:" + CARD + ";" +
+                "-fx-background-radius:16;" +
+                "-fx-border-color:" + BORDER + ";" +
+                "-fx-border-width:1.5;-fx-border-radius:16;" +
+                "-fx-effect:dropshadow(three-pass-box,rgba(0,0,0,0.7),30,0,0,8);");
+        card.setMaxWidth(440);
+
+        StackPane root = new StackPane(card);
+        root.setStyle("-fx-background-color:transparent;");
+        root.setPadding(new Insets(20));
+
+        Scene scene = new Scene(root, 480, Region.USE_COMPUTED_SIZE);
+        scene.setFill(Color.TRANSPARENT);
+        popup.setScene(scene);
+        popup.showAndWait();
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  CONFIRMATION DIALOG
+    // ════════════════════════════════════════════════════════════════════════
+    /**
+     * Shows a styled confirmation popup summarising the changes.
+     * Returns true if the user clicks Confirm, false if they cancel.
+     */
+    private boolean showConfirmDialog(Stage owner,
+                                      String oldName,
+                                      String newName,
+                                      String newContact,
+                                      String newEmail) {
+        final boolean[] confirmed = {false};
+
+        Stage dialog = new Stage();
+        dialog.initOwner(owner);
+        dialog.initModality(Modality.WINDOW_MODAL);
+        dialog.initStyle(StageStyle.TRANSPARENT);
+        dialog.setResizable(false);
+
+        // ── Icon + heading ────────────────────────────────────────────────────
+        Label icon = new Label("?");
+        icon.setPrefSize(48, 48); icon.setMinSize(48, 48);
+        icon.setAlignment(Pos.CENTER);
+        icon.setStyle("-fx-background-color:" + AMBER_BG + ";-fx-background-radius:24;" +
+                "-fx-text-fill:" + AMBER + ";-fx-font-family:'Inter';-fx-font-size:24px;-fx-font-weight:bold;" +
+                "-fx-border-color:" + AMBER + ";-fx-border-width:1.5;-fx-border-radius:24;");
+
+        Label heading = new Label("Confirm Changes");
+        heading.setStyle("-fx-text-fill:white;-fx-font-family:'Inter';" +
+                "-fx-font-size:18px;-fx-font-weight:bold;");
+        Label subheading = new Label("Review the details below before saving.");
+        subheading.setStyle("-fx-text-fill:" + GRAY + ";-fx-font-family:'Inter';-fx-font-size:13px;");
+
+        VBox headingBlock = new VBox(3, heading, subheading);
+        headingBlock.setAlignment(Pos.CENTER_LEFT);
+
+        HBox header = new HBox(14, icon, headingBlock);
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.setPadding(new Insets(20, 20, 14, 20));
+        header.setStyle("-fx-background-color:" + CARD + ";-fx-background-radius:16 16 0 0;");
+
+        // Drag support
+        final double[] dd = new double[2];
+        header.setOnMousePressed(e  -> { dd[0] = e.getSceneX(); dd[1] = e.getSceneY(); });
+        header.setOnMouseDragged(e  -> {
+            dialog.setX(e.getScreenX() - dd[0]);
+            dialog.setY(e.getScreenY() - dd[1]);
+        });
+
+        // ── Change summary ────────────────────────────────────────────────────
+        VBox summaryBox = new VBox(6);
+        summaryBox.setPadding(new Insets(0, 20, 16, 20));
+        summaryBox.setStyle("-fx-background-color:" + CARD + ";");
+
+        // Divider
+        Region div = new Region();
+        div.setPrefHeight(1); div.setMaxHeight(1);
+        div.setStyle("-fx-background-color:" + DIVIDER + ";");
+        summaryBox.getChildren().add(div);
+
+        // Change rows
+        summaryBox.getChildren().addAll(
+                confirmRow("Name",    oldName,                   newName),
+                confirmRow("Contact", "—",                       newContact.isEmpty() ? "—" : newContact),
+                confirmRow("Email",   "—",                       newEmail.isEmpty()   ? "—" : newEmail)
+        );
+
+        // ── Buttons ───────────────────────────────────────────────────────────
+        Button cancelBtn2 = new Button("Cancel");
+        cancelBtn2.setPrefWidth(100); cancelBtn2.setPrefHeight(36);
+        cancelBtn2.setStyle(
+                "-fx-background-color:transparent;-fx-text-fill:" + GRAY + ";" +
+                        "-fx-font-family:'Inter';-fx-font-size:13px;-fx-font-weight:bold;" +
+                        "-fx-background-radius:9;-fx-cursor:hand;" +
+                        "-fx-border-color:" + BORDER + ";-fx-border-width:1;-fx-border-radius:9;");
+        cancelBtn2.setOnMouseEntered(e -> cancelBtn2.setStyle(
+                "-fx-background-color:#2e3349;-fx-text-fill:white;" +
+                        "-fx-font-family:'Inter';-fx-font-size:13px;-fx-font-weight:bold;" +
+                        "-fx-background-radius:9;-fx-cursor:hand;" +
+                        "-fx-border-color:" + BORDER + ";-fx-border-width:1;-fx-border-radius:9;"));
+        cancelBtn2.setOnMouseExited(e -> cancelBtn2.setStyle(
+                "-fx-background-color:transparent;-fx-text-fill:" + GRAY + ";" +
+                        "-fx-font-family:'Inter';-fx-font-size:13px;-fx-font-weight:bold;" +
+                        "-fx-background-radius:9;-fx-cursor:hand;" +
+                        "-fx-border-color:" + BORDER + ";-fx-border-width:1;-fx-border-radius:9;"));
+        cancelBtn2.setOnAction(e -> dialog.close());
+
+        Button confirmBtn = new Button("✔  Confirm");
+        confirmBtn.setPrefWidth(120); confirmBtn.setPrefHeight(36);
+        confirmBtn.setStyle(btnStyle("#27ae60", WHITE));
+        confirmBtn.setOnMouseEntered(e -> confirmBtn.setStyle(btnStyle("#219a52", WHITE)));
+        confirmBtn.setOnMouseExited(e  -> confirmBtn.setStyle(btnStyle("#27ae60", WHITE)));
+        confirmBtn.setOnAction(e -> { confirmed[0] = true; dialog.close(); });
+
+        Region fSpacer = new Region();
+        HBox.setHgrow(fSpacer, Priority.ALWAYS);
+
+        HBox dialogFooter = new HBox(12, cancelBtn2, fSpacer, confirmBtn);
+        dialogFooter.setAlignment(Pos.CENTER_LEFT);
+        dialogFooter.setPadding(new Insets(10, 20, 18, 20));
+        dialogFooter.setStyle("-fx-background-color:" + CARD + ";-fx-background-radius:0 0 16 16;");
+
+        // ── Card ──────────────────────────────────────────────────────────────
+        VBox dialogCard = new VBox(header, summaryBox, dialogFooter);
+        dialogCard.setStyle("-fx-background-color:" + CARD + ";" +
+                "-fx-background-radius:16;" +
+                "-fx-border-color:" + BORDER + ";" +
+                "-fx-border-width:1.5;-fx-border-radius:16;" +
+                "-fx-effect:dropshadow(three-pass-box,rgba(0,0,0,0.8),40,0,0,10);");
+        dialogCard.setMaxWidth(380);
+
+        StackPane dialogRoot = new StackPane(dialogCard);
+        dialogRoot.setStyle("-fx-background-color:transparent;");
+        dialogRoot.setPadding(new Insets(20));
+
+        Scene dialogScene = new Scene(dialogRoot, 420, Region.USE_COMPUTED_SIZE);
+        dialogScene.setFill(Color.TRANSPARENT);
+        dialog.setScene(dialogScene);
+        dialog.showAndWait();
+
+        return confirmed[0];
+    }
+
+    /** A single labelled row inside the confirmation summary. */
+    private VBox confirmRow(String label, String oldVal, String newVal) {
+        Label lbl = new Label(label.toUpperCase());
+        lbl.setStyle("-fx-text-fill:" + GRAY + ";-fx-font-family:'Inter';" +
+                "-fx-font-size:11px;-fx-font-weight:bold;");
+
+        Label valLabel = new Label(newVal);
+        valLabel.setStyle("-fx-text-fill:white;-fx-font-family:'Inter';-fx-font-size:14px;-fx-font-weight:bold;");
+        valLabel.setWrapText(true);
+
+        VBox box = new VBox(2, lbl, valLabel);
+        box.setPadding(new Insets(8, 12, 8, 12));
+        box.setStyle("-fx-background-color:#202840;-fx-background-radius:8;");
+        VBox.setMargin(box, new Insets(4, 0, 0, 0));
+        return box;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  SUCCESS TOAST
+    // ════════════════════════════════════════════════════════════════════════
+    private void showSuccessToast(String clientName) {
+        Stage toast = new Stage();
+        toast.initStyle(StageStyle.TRANSPARENT);
+        toast.initModality(Modality.NONE);
+        toast.setAlwaysOnTop(true);
+
+        Label icon = new Label("✔");
+        icon.setStyle("-fx-text-fill:#27ae60;-fx-font-size:18px;-fx-font-weight:bold;");
+
+        Label msg = new Label(clientName + "'s info has been updated.");
+        msg.setStyle("-fx-text-fill:white;-fx-font-family:'Inter';-fx-font-size:14px;-fx-font-weight:bold;");
+
+        HBox toastBox = new HBox(10, icon, msg);
+        toastBox.setAlignment(Pos.CENTER_LEFT);
+        toastBox.setPadding(new Insets(14, 20, 14, 20));
+        toastBox.setStyle(
+                "-fx-background-color:#1c2237;" +
+                        "-fx-background-radius:12;" +
+                        "-fx-border-color:#27ae60;" +
+                        "-fx-border-width:1.5;-fx-border-radius:12;" +
+                        "-fx-effect:dropshadow(three-pass-box,rgba(0,0,0,0.6),20,0,0,4);");
+
+        StackPane toastRoot = new StackPane(toastBox);
+        toastRoot.setStyle("-fx-background-color:transparent;");
+        toastRoot.setPadding(new Insets(10));
+
+        Scene toastScene = new Scene(toastRoot, Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
+        toastScene.setFill(Color.TRANSPARENT);
+        toast.setScene(toastScene);
+        toast.show();
+
+        // Auto-close after 2.5 seconds
+        javafx.animation.PauseTransition pause =
+                new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2.5));
+        pause.setOnFinished(e -> toast.close());
+        pause.play();
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -481,16 +960,14 @@ public class ViewMembersController implements Initializable {
         if (filtered == null || masterList == null) return;
         int shown = filtered.size();
         int total = masterList.size();
-        filteredCountLabel.setText(
-                shown == total
-                        ? "Showing all " + total + " client(s)"
-                        : "Showing " + shown + " of " + total);
+        filteredCountLabel.setText(shown == total
+                ? "Showing all " + total + " client(s)"
+                : "Showing " + shown + " of " + total);
     }
 
     // ════════════════════════════════════════════════════════════════════════
     //  COLUMN FACTORY HELPERS
     // ════════════════════════════════════════════════════════════════════════
-
     private TableColumn<MemberRow, String> col(String title, String prop, double pref) {
         TableColumn<MemberRow, String> c = new TableColumn<>(title);
         c.setCellValueFactory(new PropertyValueFactory<>(prop));
@@ -503,17 +980,14 @@ public class ViewMembersController implements Initializable {
     private TableColumn<MemberRow, String> typeCol() {
         TableColumn<MemberRow, String> c = new TableColumn<>("Type");
         c.setCellValueFactory(new PropertyValueFactory<>("clientType"));
-        c.setPrefWidth(120);
-        c.setMinWidth(90);
-        c.setReorderable(false);
+        c.setPrefWidth(120); c.setMinWidth(90); c.setReorderable(false);
         c.setCellFactory(tc -> new TableCell<>() {
             @Override protected void updateItem(String val, boolean empty) {
                 super.updateItem(val, empty);
                 setGraphic(null); setText(null);
                 if (empty || val == null) return;
                 Label badge = new Label(val);
-                badge.getStyleClass().add(
-                        "Member".equalsIgnoreCase(val) ? "badge-active" : "badge-expired");
+                badge.getStyleClass().add("Member".equalsIgnoreCase(val) ? "badge-active" : "badge-expired");
                 HBox box = new HBox(badge);
                 box.setAlignment(Pos.CENTER_LEFT);
                 setGraphic(box);
@@ -525,9 +999,7 @@ public class ViewMembersController implements Initializable {
     private TableColumn<MemberRow, String> periodCol() {
         TableColumn<MemberRow, String> c = new TableColumn<>("Plan Period");
         c.setCellValueFactory(new PropertyValueFactory<>("lastPaymentPeriod"));
-        c.setPrefWidth(125);
-        c.setMinWidth(90);
-        c.setReorderable(false);
+        c.setPrefWidth(125); c.setMinWidth(90); c.setReorderable(false);
         c.setCellFactory(tc -> new TableCell<>() {
             @Override protected void updateItem(String val, boolean empty) {
                 super.updateItem(val, empty);
@@ -554,21 +1026,16 @@ public class ViewMembersController implements Initializable {
         return c;
     }
 
-    /** Plan Status: Active=green badge, Expired/anything else=red "Inactive" badge, No Record=dash. */
     private TableColumn<MemberRow, String> planStatusCol() {
         TableColumn<MemberRow, String> c = new TableColumn<>("Plan Status");
         c.setCellValueFactory(new PropertyValueFactory<>("planStatus"));
-        c.setPrefWidth(115);
-        c.setMinWidth(90);
-        c.setReorderable(false);
+        c.setPrefWidth(115); c.setMinWidth(90); c.setReorderable(false);
         c.setCellFactory(tc -> new TableCell<>() {
             @Override protected void updateItem(String val, boolean empty) {
                 super.updateItem(val, empty);
                 setGraphic(null); setText(null); setStyle("");
                 if (empty || val == null) return;
-                if ("No Record".equals(val)) {
-                    setText("—"); setStyle("-fx-text-fill:#7a7f94;"); return;
-                }
+                if ("No Record".equals(val)) { setText("—"); setStyle("-fx-text-fill:#7a7f94;"); return; }
                 Label badge = new Label();
                 if ("Active".equals(val)) {
                     badge.setText("Active");
@@ -588,17 +1055,13 @@ public class ViewMembersController implements Initializable {
     private TableColumn<MemberRow, String> membershipStatusCol() {
         TableColumn<MemberRow, String> c = new TableColumn<>("Mem. Status");
         c.setCellValueFactory(new PropertyValueFactory<>("membershipStatus"));
-        c.setPrefWidth(115);
-        c.setMinWidth(90);
-        c.setReorderable(false);
+        c.setPrefWidth(115); c.setMinWidth(90); c.setReorderable(false);
         c.setCellFactory(tc -> new TableCell<>() {
             @Override protected void updateItem(String val, boolean empty) {
                 super.updateItem(val, empty);
                 setGraphic(null); setText(null); setStyle("");
                 if (empty || val == null) return;
-                if ("None".equals(val)) {
-                    setText("—"); setStyle("-fx-text-fill:#7a7f94;"); return;
-                }
+                if ("None".equals(val)) { setText("—"); setStyle("-fx-text-fill:#7a7f94;"); return; }
                 Label badge = new Label(val);
                 badge.getStyleClass().add("Active".equals(val) ? "badge-active" : "badge-expired");
                 HBox box = new HBox(badge);
@@ -612,9 +1075,7 @@ public class ViewMembersController implements Initializable {
     private TableColumn<MemberRow, Double> amountCol() {
         TableColumn<MemberRow, Double> c = new TableColumn<>("Last Paid");
         c.setCellValueFactory(new PropertyValueFactory<>("lastPaymentAmount"));
-        c.setPrefWidth(115);
-        c.setMinWidth(90);
-        c.setReorderable(false);
+        c.setPrefWidth(115); c.setMinWidth(90); c.setReorderable(false);
         c.setCellFactory(tc -> new TableCell<>() {
             @Override protected void updateItem(Double val, boolean empty) {
                 super.updateItem(val, empty);
@@ -627,5 +1088,20 @@ public class ViewMembersController implements Initializable {
             }
         });
         return c;
+    }
+
+    private void addPressEffect(Button button) {
+        button.setOnMousePressed(e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(100), button);
+            st.setToX(0.95);
+            st.setToY(0.95);
+            st.play();
+        });
+        button.setOnMouseReleased(e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(100), button);
+            st.setToX(1.0);
+            st.setToY(1.0);
+            st.play();
+        });
     }
 }

@@ -25,6 +25,42 @@ public class ClientDAO {
                     "LEFT JOIN ClientTypeTable ct ON m.ClientTypeID = ct.ClientTypeID";
 
     // ────────────────────────────────────────────────────────────────────────────
+    // ── UPDATE CLIENT INFO — editable fields only ───────────────────────────────
+    // ────────────────────────────────────────────────────────────────────────────
+    /**
+     * Updates FirstName, LastName, ContactNumber, and ClientEmail
+     * for the given ClientID.
+     *
+     * @return true if exactly one row was updated, false otherwise.
+     */
+    public static boolean updateClientInfo(int clientID,
+                                           String firstName,
+                                           String lastName,
+                                           String contact,
+                                           String email) {
+        String sql =
+                "UPDATE ClientTable " +
+                        "SET FirstName = ?, LastName = ?, ContactNumber = ?, ClientEmail = ? " +
+                        "WHERE ClientID = ?";
+
+        try (Connection con = DBConnector.connect();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, firstName.trim());
+            ps.setString(2, lastName.trim());
+            ps.setString(3, contact.trim());
+            ps.setString(4, email.trim());
+            ps.setInt(5, clientID);
+
+            return ps.executeUpdate() == 1;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
     // ── MEMBER ROWS — rich query for the ViewMembers TableView ─────────────────
     // ────────────────────────────────────────────────────────────────────────────
     /**
