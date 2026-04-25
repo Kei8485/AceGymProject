@@ -3,6 +3,7 @@ package codes.acegym.Controllers;
 import codes.acegym.DB.ReceiptDAO;
 import codes.acegym.Objects.Receipt;
 
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -28,19 +29,18 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
-public class ReportPageController implements Refreshable{
+public class ReportPageController implements Refreshable {
 
     @Override
     public void refreshData() {
         loadData(null, null);
         updateFooterStats();
-
         System.out.println("Report Page Refreshed from Database.");
     }
 
     // ── Table ──
     @FXML private TableView<Receipt>            receiptTable;
-    @FXML private TableColumn<Receipt, Integer> colClientID;
+    @FXML private TableColumn<Receipt, Integer> colClientID;      // repurposed as row #
     @FXML private TableColumn<Receipt, String>  colFirstName;
     @FXML private TableColumn<Receipt, String>  colLastName;
     @FXML private TableColumn<Receipt, String>  colDate;
@@ -113,7 +113,24 @@ public class ReportPageController implements Refreshable{
     // ═══════════════════════════════════════════════════════════════
 
     private void setupTableColumns() {
-        colClientID.setCellValueFactory(new PropertyValueFactory<>("clientID"));
+
+        // ── Row counter — replaces Client ID column ──
+        colClientID.setText("#");
+        colClientID.setSortable(false);
+        colClientID.setResizable(false);
+        colClientID.setPrefWidth(50);
+        colClientID.setMaxWidth(50);
+        colClientID.setStyle("-fx-alignment: CENTER;");
+        colClientID.setCellValueFactory(p -> new SimpleIntegerProperty(0).asObject());
+        colClientID.setCellFactory(col -> new TableCell<Receipt, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                setAlignment(Pos.CENTER);
+                setText(empty ? null : String.valueOf(getIndex() + 1));
+            }
+        });
+
         colFirstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
         colLastName.setCellValueFactory(new PropertyValueFactory<>("lastName"));
 
@@ -182,8 +199,8 @@ public class ReportPageController implements Refreshable{
                         "-fx-border-width: 1.5;" +
                         "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.85), 40, 0, 0, 0);"
         );
-        root.setPrefWidth(680);
-        root.setMinWidth(620);
+        root.setPrefWidth(700);
+        root.setMinWidth(640);
 
         // ── Header ──────────────────────────────────────────────
         HBox header = new HBox(14);
@@ -209,26 +226,21 @@ public class ReportPageController implements Refreshable{
             iconBox.getChildren().add(fb);
         }
 
+        VBox titleBlock = new VBox(2);
         Label titleLbl = new Label("Payment Details");
-        titleLbl.setStyle("-fx-text-fill: #ffffff; -fx-font-family: 'Inter'; -fx-font-size: 29px; -fx-font-weight: bold;");
-        header.getChildren().addAll(iconBox, titleLbl);
+        titleLbl.setStyle("-fx-text-fill: #ffffff; -fx-font-family: 'Inter'; -fx-font-size: 22px; -fx-font-weight: bold;");
+        Label receiptBadge = new Label(String.format("RCP-%04d", r.getReceiptID()));
+        receiptBadge.setStyle(
+                "-fx-text-fill: #7a7f94; -fx-font-family: 'Inter'; -fx-font-size: 13px;"
+        );
+        titleBlock.getChildren().addAll(titleLbl, receiptBadge);
+        header.getChildren().addAll(iconBox, titleBlock);
 
-        // ── Row 1: Client info + Payment info ───────────────────
+        // ── Row 1: Client info (left) + Transaction info (right) ──
         HBox row1 = new HBox();
-        row1.setPadding(new Insets(28, 32, 16, 32));
+        row1.setPadding(new Insets(24, 32, 20, 32));
 
-        GridPane leftGrid = buildDetailGrid();
-        addDetailRow(leftGrid, 0, "Receipt ID",  String.format("RCP-%04d", r.getReceiptID()));
-        addDetailRow(leftGrid, 1, "Client ID",   String.valueOf(r.getClientID()));
-        addDetailRow(leftGrid, 2, "First Name",  r.getFirstName());
-        addDetailRow(leftGrid, 3, "Last Name",   r.getLastName());
-
-        Region div1 = makeDivider();
-
-        GridPane rightGrid = buildDetailGrid();
-        addDetailRow(rightGrid, 0, "Payment Type",   r.getPaymentType());
-        addDetailRow(rightGrid, 1, "Total Payment",  String.format("₱%,.2f", r.getTotal()));
-
+        // Resolve display date
         String rawDate = r.getDate();
         String displayDate = "—";
         if (rawDate != null && rawDate.length() >= 10) {
@@ -239,33 +251,33 @@ public class ReportPageController implements Refreshable{
                 displayDate = rawDate;
             }
         }
-        addDetailRow(rightGrid, 2, "Payment Date",   displayDate);
-        addDetailRow(rightGrid, 3, "Period",          r.getPaymentPeriod() != null ? r.getPaymentPeriod() : "—");
+
+        // Left: who paid
+        GridPane leftGrid = buildDetailGrid();
+        addDetailRow(leftGrid, 0, "Client ID",  String.format("CLID%04d", r.getClientID()));
+        addDetailRow(leftGrid, 1, "First Name", r.getFirstName());
+        addDetailRow(leftGrid, 2, "Last Name",  r.getLastName());
+
+        Region div1 = makeDivider();
+
+        // Right: when and how
+        GridPane rightGrid = buildDetailGrid();
+        addDetailRow(rightGrid, 0, "Payment Date",   displayDate);
+        addDetailRow(rightGrid, 1, "Payment Method", r.getPaymentType());
+        addDetailRow(rightGrid, 2, "Period",
+                r.getPaymentPeriod() != null ? r.getPaymentPeriod() : "—");
 
         HBox.setHgrow(leftGrid,  Priority.ALWAYS);
         HBox.setHgrow(rightGrid, Priority.ALWAYS);
         row1.getChildren().addAll(leftGrid, div1, rightGrid);
 
-        // ── Horizontal separator ────────────────────────────────
+        // ── Separator ───────────────────────────────────────────
         Region hSep = new Region();
         hSep.setPrefHeight(1.5);
         hSep.setStyle("-fx-background-color: #2e3349;");
-        VBox.setMargin(hSep, new Insets(0, 32, 0, 32));
 
-        // ── Row 2: Training + Coach + Membership ────────────────
-        HBox row2 = new HBox();
-        row2.setPadding(new Insets(16, 32, 24, 32));
-
-        GridPane bottomGrid = buildDetailGrid();
-        addDetailRow(bottomGrid, 0, "Training Type",
-                r.getTrainingCategory() != null ? r.getTrainingCategory() : "—");
-        addDetailRow(bottomGrid, 1, "Coach",
-                r.getCoachName() != null ? r.getCoachName() : "No coach assigned");
-        addDetailRow(bottomGrid, 2, "Membership",
-                r.getMembershipType() != null ? r.getMembershipType() + " Member" : "No active membership");
-
-        HBox.setHgrow(bottomGrid, Priority.ALWAYS);
-        row2.getChildren().add(bottomGrid);
+        // ── Purchase Details section ─────────────────────────────
+        VBox purchaseSection = buildPurchaseDetails(r);
 
         // ── Footer ──────────────────────────────────────────────
         HBox footer = new HBox();
@@ -277,7 +289,7 @@ public class ReportPageController implements Refreshable{
         closeBtn.setOnAction(e -> popup.close());
         footer.getChildren().add(closeBtn);
 
-        root.getChildren().addAll(header, row1, hSep, row2, footer);
+        root.getChildren().addAll(header, row1, hSep, purchaseSection, footer);
 
         Scene scene = new Scene(root);
         scene.setFill(Color.TRANSPARENT);
@@ -286,16 +298,145 @@ public class ReportPageController implements Refreshable{
         popup.showAndWait();
     }
 
-    // Helper to create the vertical divider between columns
+    // ─────────────────────────────────────────────────────────────
+    // PURCHASE DETAILS SECTION — what the client actually paid for
+    // ─────────────────────────────────────────────────────────────
+
+    private VBox buildPurchaseDetails(Receipt r) {
+        VBox box = new VBox(14);
+        box.setPadding(new Insets(22, 32, 26, 32));
+        box.setStyle("-fx-background-color: #161b2e;");
+
+        // Section header
+        Label sectionTitle = new Label("PURCHASE DETAILS");
+        sectionTitle.setStyle(
+                "-fx-text-fill: #4a5068;" +
+                        "-fx-font-family: 'Inter';" +
+                        "-fx-font-size: 11px;" +
+                        "-fx-font-weight: bold;"
+        );
+
+        // Training type row — red badge
+        String training = (r.getTrainingCategory() != null && !r.getTrainingCategory().isBlank())
+                ? r.getTrainingCategory() : "—";
+        HBox trainingRow = buildPurchaseRow("Training Type", training, "#e53935");
+
+        // Coach row — plain, with "None None" guard
+        String coach = resolveCoachDisplay(r.getCoachName());
+        HBox coachRow = buildPurchaseRow("Coach", coach, null);
+
+        // Membership row — green badge for Member, muted for Non Member
+        String membership = (r.getMembershipType() != null && !r.getMembershipType().isBlank())
+                ? r.getMembershipType() : "Non Member";
+        String memberBadge = membership.equalsIgnoreCase("Member") ? "#4caf50" : "#4a5068";
+        HBox membershipRow = buildPurchaseRow("Membership", membership, memberBadge);
+
+        // ── Total amount — prominent, bottom-right ───────────────
+        HBox totalContainer = new HBox();
+        totalContainer.setAlignment(Pos.CENTER_RIGHT);
+        totalContainer.setPadding(new Insets(10, 0, 0, 0));
+        totalContainer.setStyle(
+                "-fx-border-color: #2e3349 transparent transparent transparent;" +
+                        "-fx-border-width: 1.5 0 0 0;"
+        );
+
+        VBox totalBlock = new VBox(2);
+        totalBlock.setAlignment(Pos.CENTER_RIGHT);
+        Label totalCaption = new Label("TOTAL PAID");
+        totalCaption.setStyle(
+                "-fx-text-fill: #4a5068; -fx-font-family: 'Inter'; -fx-font-size: 11px; -fx-font-weight: bold;"
+        );
+        Label totalAmount = new Label(String.format("₱%,.2f", r.getTotal()));
+        totalAmount.setStyle(
+                "-fx-text-fill: #e53935; -fx-font-family: 'Inter'; -fx-font-size: 32px; -fx-font-weight: bold;"
+        );
+        totalBlock.getChildren().addAll(totalCaption, totalAmount);
+        totalContainer.getChildren().add(totalBlock);
+
+        box.getChildren().addAll(
+                sectionTitle, trainingRow, coachRow, membershipRow, totalContainer
+        );
+        return box;
+    }
+
+    /**
+     * Builds one row in the Purchase Details section.
+     * If badgeColor is non-null, the value is rendered as a colored pill/badge.
+     * If null, the value is rendered as plain white text.
+     */
+    private HBox buildPurchaseRow(String labelText, String valueText, String badgeColor) {
+        HBox row = new HBox(12);
+        row.setAlignment(Pos.CENTER_LEFT);
+
+        Label lbl = new Label(labelText);
+        lbl.setMinWidth(140);
+        lbl.setStyle("-fx-text-fill: #7a7f94; -fx-font-family: 'Inter'; -fx-font-size: 15px;");
+
+        String display = (valueText == null || valueText.isBlank()) ? "—" : valueText;
+
+        if (badgeColor != null) {
+            // Derive rgba from hex for a subtle tinted background
+            String rgba = hexToRgba(badgeColor, 0.15);
+            Label badge = new Label(display);
+            badge.setStyle(
+                    "-fx-background-color: " + rgba + ";" +
+                            "-fx-text-fill: " + badgeColor + ";" +
+                            "-fx-font-family: 'Inter';" +
+                            "-fx-font-size: 14px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 6;" +
+                            "-fx-padding: 4 12 4 12;"
+            );
+            row.getChildren().addAll(lbl, badge);
+        } else {
+            Label val = new Label(display);
+            val.setStyle(
+                    "-fx-text-fill: #ffffff; -fx-font-family: 'Inter'; -fx-font-size: 15px; -fx-font-weight: 600;"
+            );
+            row.getChildren().addAll(lbl, val);
+        }
+        return row;
+    }
+
+    /**
+     * Guards against the "None None" placeholder staff entry (StaffID = 1).
+     * Returns "No coach assigned" whenever the name is blank, null, or "None None".
+     */
+    private String resolveCoachDisplay(String coachName) {
+        if (coachName == null || coachName.isBlank()) return "No coach assigned";
+        if (coachName.equalsIgnoreCase("None None") || coachName.equalsIgnoreCase("none none"))
+            return "No coach assigned";
+        return coachName;
+    }
+
+    /**
+     * Converts a 6-char hex color (e.g. "#e53935") to an rgba() string with the given alpha.
+     * Falls back to a safe transparent black on any parse error.
+     */
+    private String hexToRgba(String hex, double alpha) {
+        try {
+            String clean = hex.replace("#", "");
+            int r = Integer.parseInt(clean.substring(0, 2), 16);
+            int g = Integer.parseInt(clean.substring(2, 4), 16);
+            int b = Integer.parseInt(clean.substring(4, 6), 16);
+            return String.format("rgba(%d,%d,%d,%.2f)", r, g, b, alpha);
+        } catch (Exception e) {
+            return "rgba(0,0,0,0.15)";
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // SHARED POPUP HELPERS
+    // ═══════════════════════════════════════════════════════════════
+
     private Region makeDivider() {
         Region divider = new Region();
         divider.setPrefWidth(1.5);
-        divider.setMinHeight(120);
+        divider.setMinHeight(100);
         divider.setStyle("-fx-background-color: #2e3349;");
         HBox.setMargin(divider, new Insets(4, 32, 4, 32));
         return divider;
     }
-
 
     private GridPane buildDetailGrid() {
         GridPane grid = new GridPane();
@@ -310,10 +451,12 @@ public class ReportPageController implements Refreshable{
 
     private void addDetailRow(GridPane grid, int row, String labelText, String valueText) {
         Label lbl = new Label(labelText);
-        lbl.setStyle("-fx-text-fill: #7a7f94; -fx-font-family: 'Inter'; -fx-font-size: 16px;");
+        lbl.setStyle("-fx-text-fill: #7a7f94; -fx-font-family: 'Inter'; -fx-font-size: 15px;");
 
         Label val = new Label(valueText != null && !valueText.isBlank() ? valueText : "—");
-        val.setStyle("-fx-text-fill: #ffffff; -fx-font-family: 'Inter'; -fx-font-size: 16px; -fx-font-weight: 600;");
+        val.setStyle(
+                "-fx-text-fill: #ffffff; -fx-font-family: 'Inter'; -fx-font-size: 15px; -fx-font-weight: 600;"
+        );
 
         grid.add(lbl, 0, row);
         grid.add(val, 1, row);
@@ -398,7 +541,6 @@ public class ReportPageController implements Refreshable{
     @FXML
     private void handleGenerateReport() {
 
-        // 1. Incomplete date range — one side is filled, the other is empty
         if (fromDate != null && toDate == null) {
             showStyledAlert(TYPE_WARNING,
                     "Incomplete Date Range",
@@ -412,7 +554,6 @@ public class ReportPageController implements Refreshable{
             return;
         }
 
-        // 2. From date is after To date
         if (fromDate != null && toDate != null && fromDate.isAfter(toDate)) {
             showStyledAlert(TYPE_WARNING,
                     "Invalid Date Range",
@@ -420,25 +561,20 @@ public class ReportPageController implements Refreshable{
             return;
         }
 
-        // 3. Date range spans more than 1 year — warn but allow
         if (fromDate != null && toDate != null && fromDate.plusYears(1).isBefore(toDate)) {
             showStyledAlert(TYPE_INFO,
                     "Large Date Range",
                     "Your selected range spans over a year.\nThis may return a large number of records.");
-            // Not returning — just an informational notice, generation proceeds
         }
 
-        // 4. To date is in the future — warn but allow
         if (toDate != null && toDate.isAfter(LocalDate.now())) {
             showStyledAlert(TYPE_INFO,
                     "Future Date Selected",
                     "'To Date' is set to a future date.\nOnly existing records up to today will be shown.");
-            // Not returning — valid query, just a heads-up
         }
 
         loadData(fromDate, toDate);
 
-        // 5. No records found after applying filters
         if (receiptTable.getItems() == null || receiptTable.getItems().isEmpty()) {
             showStyledAlert(TYPE_INFO,
                     "No Records Found",
@@ -536,31 +672,23 @@ public class ReportPageController implements Refreshable{
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // STYLED ALERT — fully inline, no CSS file needed
+    // STYLED ALERT
     // ═══════════════════════════════════════════════════════════════
 
-    /**
-     * Shows a themed alert dialog matching the app's dark design.
-     * @param alertType  TYPE_WARNING | TYPE_ERROR | TYPE_INFO
-     * @param title      Bold header text
-     * @param message    Body message text
-     */
     private void showStyledAlert(String alertType, String title, String message) {
         Stage popup = new Stage();
         popup.initModality(Modality.APPLICATION_MODAL);
         popup.initStyle(StageStyle.TRANSPARENT);
         popup.initOwner(receiptTable.getScene().getWindow());
 
-        // ── Pick accent color based on type ──
         String accentColor;
         String iconSymbol;
         switch (alertType) {
             case TYPE_ERROR   -> { accentColor = "#e53935"; iconSymbol = "✕"; }
             case TYPE_INFO    -> { accentColor = "#e53935"; iconSymbol = "i"; }
-            default           -> { accentColor = "#e53935"; iconSymbol = "⚠"; } // WARNING
+            default           -> { accentColor = "#e53935"; iconSymbol = "⚠"; }
         }
 
-        // ── Root card ──
         VBox root = new VBox(0);
         root.setStyle(
                 "-fx-background-color: #1c2237;" +
@@ -573,7 +701,6 @@ public class ReportPageController implements Refreshable{
         root.setPrefWidth(420);
         root.setMinWidth(380);
 
-        // ── Header ──
         HBox header = new HBox(14);
         header.setAlignment(Pos.CENTER_LEFT);
         header.setPadding(new Insets(18, 22, 18, 22));
@@ -585,25 +712,31 @@ public class ReportPageController implements Refreshable{
         iconBox.setMaxSize(38, 38);
         iconBox.setStyle("-fx-background-color: " + accentColor + "; -fx-background-radius: 10;");
         Label iconLbl = new Label(iconSymbol);
-        iconLbl.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 16px; -fx-font-weight: bold; -fx-font-family: 'Inter';");
+        iconLbl.setStyle(
+                "-fx-text-fill: #ffffff; -fx-font-size: 16px; -fx-font-weight: bold; -fx-font-family: 'Inter';"
+        );
         iconBox.getChildren().add(iconLbl);
 
         Label titleLbl = new Label(title);
-        titleLbl.setStyle("-fx-text-fill: #ffffff; -fx-font-family: 'Inter'; -fx-font-size: 20px; -fx-font-weight: bold;");
+        titleLbl.setStyle(
+                "-fx-text-fill: #ffffff; -fx-font-family: 'Inter'; -fx-font-size: 20px; -fx-font-weight: bold;"
+        );
         header.getChildren().addAll(iconBox, titleLbl);
 
-        // ── Message body ──
         Label msgLbl = new Label(message);
         msgLbl.setWrapText(true);
-        msgLbl.setStyle("-fx-text-fill: #7a7f94; -fx-font-family: 'Inter'; -fx-font-size: 16px;");
+        msgLbl.setStyle(
+                "-fx-text-fill: #7a7f94; -fx-font-family: 'Inter'; -fx-font-size: 15px;"
+        );
         msgLbl.setPadding(new Insets(20, 24, 20, 24));
         msgLbl.setMaxWidth(380);
 
-        // ── Footer ──
         HBox footer = new HBox();
         footer.setAlignment(Pos.CENTER_RIGHT);
         footer.setPadding(new Insets(12, 22, 18, 22));
-        footer.setStyle("-fx-border-color: #2e3349 transparent transparent transparent; -fx-border-width: 1.5 0 0 0;");
+        footer.setStyle(
+                "-fx-border-color: #2e3349 transparent transparent transparent; -fx-border-width: 1.5 0 0 0;"
+        );
 
         Button okBtn = buildAccentButton("OK", accentColor);
         okBtn.setOnAction(e -> popup.close());
@@ -622,14 +755,11 @@ public class ReportPageController implements Refreshable{
     // SHARED UI HELPERS
     // ═══════════════════════════════════════════════════════════════
 
-    /** Standard red button used in payment details popup */
     private Button buildRedButton(String text) {
         return buildAccentButton(text, "#e53935");
     }
 
-    /** Accent-colored button with hover + exit handlers, no external CSS needed */
     private Button buildAccentButton(String text, String color) {
-        // Darken color on hover — derive a darker shade manually
         String hoverColor = darken(color);
 
         String baseStyle =
@@ -661,7 +791,6 @@ public class ReportPageController implements Refreshable{
         return btn;
     }
 
-    /** Returns a simple darkened variant of a hex color for hover states */
     private String darken(String hex) {
         return switch (hex.toLowerCase()) {
             case "#e53935" -> "#c62828";
@@ -671,7 +800,6 @@ public class ReportPageController implements Refreshable{
         };
     }
 
-    /** Centers a popup Stage relative to the owner window */
     private void centerOnOwner(Stage popup) {
         Stage owner = (Stage) receiptTable.getScene().getWindow();
         popup.setX(owner.getX() + (owner.getWidth()  - popup.getWidth())  / 2);
