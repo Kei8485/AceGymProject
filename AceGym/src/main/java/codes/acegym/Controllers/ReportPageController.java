@@ -28,7 +28,15 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
-public class ReportPageController {
+public class ReportPageController implements Refreshable{
+
+    @Override
+    public void refreshData() {
+        loadData(null, null);
+        updateFooterStats();
+
+        System.out.println("Report Page Refreshed from Database.");
+    }
 
     // ── Table ──
     @FXML private TableView<Receipt>            receiptTable;

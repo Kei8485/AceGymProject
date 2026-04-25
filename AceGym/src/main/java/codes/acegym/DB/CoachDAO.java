@@ -128,25 +128,29 @@ public class CoachDAO {
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
-    // ── Delete coach and all their client assignments ────────────────────────
-    public static boolean deleteCoach(int staffID) {
-        String clearAssign = "DELETE FROM ClientStaffAssignmentTable WHERE StaffID = ?";
-        String deleteStaff = "DELETE FROM StaffTable WHERE StaffID = ?";
-        try (Connection con = DBConnector.connect()) {
-            con.setAutoCommit(false);
-            try (PreparedStatement ps1 = con.prepareStatement(clearAssign);
-                 PreparedStatement ps2 = con.prepareStatement(deleteStaff)) {
-                ps1.setInt(1, staffID);
-                ps1.executeUpdate();
-                ps2.setInt(1, staffID);
-                int rows = ps2.executeUpdate();
-                con.commit();
-                return rows > 0;
-            } catch (SQLException e) {
-                con.rollback();
-                e.printStackTrace();
-                return false;
+    // ── Check if a coach has any assigned clients ────────────────────────────
+    // Returns true if there is at least one active assignment for this staff member.
+    public static boolean hasClients(int staffID) {
+        String sql = "SELECT COUNT(*) FROM ClientStaffAssignmentTable WHERE StaffID = ?";
+        try (Connection con = DBConnector.connect();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, staffID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1) > 0;
             }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return false;
+    }
+
+    // ── Delete coach — only allowed when the coach has no assigned clients ───
+    // Clients are never force-deleted here; use the Manage Clients modal to
+    // remove all assignments first (they fall back to StaffID 1 / "None").
+    public static boolean deleteCoach(int staffID) {
+        String deleteStaff = "DELETE FROM StaffTable WHERE StaffID = ?";
+        try (Connection con = DBConnector.connect();
+             PreparedStatement ps = con.prepareStatement(deleteStaff)) {
+            ps.setInt(1, staffID);
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
@@ -235,11 +239,27 @@ public class CoachDAO {
 
     // ── Remove a client assignment ────────────────────────────────────────────
     public static boolean removeClientAssignment(int assignmentID) {
-        String sql = "DELETE FROM ClientStaffAssignmentTable WHERE ClientStaffAssignmentID = ?";
-        try (Connection con = DBConnector.connect();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, assignmentID);
-            return ps.executeUpdate() > 0;
+        // receipttable has a FK on ClientStaffAssignmentID — NULL it out first
+        // so the assignment row can be deleted without violating the constraint.
+        String nullReceipts = "UPDATE receipttable SET ClientStaffAssignmentID = NULL " +
+                "WHERE ClientStaffAssignmentID = ?";
+        String deleteAssign = "DELETE FROM ClientStaffAssignmentTable " +
+                "WHERE ClientStaffAssignmentID = ?";
+        try (Connection con = DBConnector.connect()) {
+            con.setAutoCommit(false);
+            try (PreparedStatement ps1 = con.prepareStatement(nullReceipts);
+                 PreparedStatement ps2 = con.prepareStatement(deleteAssign)) {
+                ps1.setInt(1, assignmentID);
+                ps1.executeUpdate();
+                ps2.setInt(1, assignmentID);
+                int rows = ps2.executeUpdate();
+                con.commit();
+                return rows > 0;
+            } catch (SQLException e) {
+                con.rollback();
+                e.printStackTrace();
+                return false;
+            }
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 

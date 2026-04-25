@@ -54,16 +54,24 @@ public class CoachCardController {
         if (editCoachBtn != null)
             editCoachBtn.setOnAction(e -> openModal("/codes/acegym/EditCoach.fxml"));
 
-        // Remove coach → inline confirm dialog
+        // Remove coach → block if clients are still assigned, else confirm
         if (removeCoachBtn != null) {
-            removeCoachBtn.setOnMouseClicked(e -> showInlineConfirm(
-                    "Are you sure you want to remove this coach\nand all their client assignments?",
-                    () -> {
-                        if (coach != null && CoachDAO.deleteCoach(coach.getStaffID())) {
-                            if (onDeleteCallback != null) onDeleteCallback.run();
-                        }
-                    }
-            ));
+            removeCoachBtn.setOnMouseClicked(e -> {
+                if (coach == null) return;
+                if (CoachDAO.hasClients(coach.getStaffID())) {
+                    showToast("Cannot delete — coach still has assigned clients.\n" +
+                            "Remove all clients first via Manage Clients.");
+                } else {
+                    showInlineConfirm(
+                            "Are you sure you want to remove this coach?",
+                            () -> {
+                                if (CoachDAO.deleteCoach(coach.getStaffID())) {
+                                    if (onDeleteCallback != null) onDeleteCallback.run();
+                                }
+                            }
+                    );
+                }
+            });
         }
     }
 
@@ -242,6 +250,62 @@ public class CoachCardController {
         root.setOpacity(0);
         FadeTransition ft = new FadeTransition(Duration.millis(200), root);
         ft.setFromValue(0); ft.setToValue(1); ft.play();
+    }
+
+
+    // ── Bottom-left toast — shown when deletion is blocked by client assignments
+    private void showToast(String message) {
+        Stage owner = (Stage) removeCoachBtn.getScene().getWindow();
+
+        Label lbl = new Label(message);
+        lbl.setWrapText(true);
+        lbl.setStyle("-fx-text-fill: #f9fafb; -fx-font-size: 13px;");
+
+        HBox toast = new HBox(10);
+        toast.setPadding(new Insets(14, 18, 14, 18));
+        toast.setAlignment(Pos.CENTER_LEFT);
+        toast.setMaxWidth(360);
+        toast.setStyle(
+                "-fx-background-color: #1c2237;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-border-color: #e53935;" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-border-width: 1.5;" +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.80), 30, 0, 0, 0);");
+
+        Label icon = new Label("⚠");
+        icon.setStyle("-fx-font-size: 18px; -fx-text-fill: #e53935;");
+        toast.getChildren().addAll(icon, lbl);
+
+        Stage toastStage = new Stage();
+        toastStage.initStyle(StageStyle.TRANSPARENT);
+        toastStage.initOwner(owner);
+        // NOT APPLICATION_MODAL — it is informational only, does not block the UI
+
+        Scene scene = new Scene(toast);
+        scene.setFill(Color.TRANSPARENT);
+        toastStage.setScene(scene);
+        toastStage.show();
+
+        // Position: bottom-right of the owner window with 24 px margin
+        toastStage.setX(owner.getX() + owner.getWidth() - toastStage.getWidth() - 24);
+        toastStage.setY(owner.getY() + owner.getHeight() - toastStage.getHeight() - 24);
+
+        // Fade in
+        toast.setOpacity(0);
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), toast);
+        fadeIn.setFromValue(0); fadeIn.setToValue(1); fadeIn.play();
+
+        // Auto-dismiss after 3 s with fade out
+        javafx.animation.PauseTransition hold =
+                new javafx.animation.PauseTransition(Duration.millis(3000));
+        hold.setOnFinished(ev -> {
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), toast);
+            fadeOut.setFromValue(1); fadeOut.setToValue(0);
+            fadeOut.setOnFinished(ev2 -> toastStage.close());
+            fadeOut.play();
+        });
+        hold.play();
     }
 
     private void centerStage(Stage stage) {

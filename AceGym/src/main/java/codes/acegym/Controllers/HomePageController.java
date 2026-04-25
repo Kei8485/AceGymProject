@@ -357,10 +357,21 @@ public class HomePageController {
             final String  path    = ALL_PAGES.get(i);
             final boolean isFirst = (i == 0);
 
+            // Inside your HomePageController startBackgroundPreload loop
             loaderPool.submit(() -> {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
                     Parent view = loader.load();
+
+                    // --- THIS IS THE KEY ADDITION ---
+                    // We get the controller (e.g. ReportPageController)
+                    // and hide it inside the view's properties.
+                    Object controller = loader.getController();
+                    if (controller != null) {
+                        view.getProperties().put("controller", controller);
+                    }
+                    // --------------------------------
+
                     Platform.runLater(() -> registerPage(path, view, isFirst));
                 } catch (Exception e) {
                     System.err.println("Failed to load: " + path);
@@ -438,8 +449,19 @@ public class HomePageController {
         Parent next = viewCache.get(fxmlPath);
         if (next == null) return;
 
+        // ── TRIGGER REFRESH ──────────────────────────────────────────
+        // We look into the "pocket" of the view to find its controller
+        Object controller = next.getProperties().get("controller");
+
+        // Check if the controller implements our Refreshable interface
+        if (controller instanceof Refreshable r) {
+            r.refreshData(); // Run the specific reload logic for this tab
+        }
+        // ─────────────────────────────────────────────────────────────
+
         Parent prev = currentPagePath != null ? viewCache.get(currentPagePath) : null;
         currentPagePath = fxmlPath;
+
 
         // ── Reset next page to starting position (right, slightly scaled down) ──
         next.setOpacity(0);

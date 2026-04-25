@@ -66,8 +66,6 @@ public class PaymentController implements Initializable {
     @FXML private Label sumMethodLabel;
 
     // ── Validation area ──────────────────────────────────────────────────────
-    // Add fx:id="validationBox" (VBox) to your FXML for the styled version.
-    // Falls back to fx:id="validationLabel" (Label) if the VBox is absent.
     @FXML private VBox  validationBox;
     @FXML private Label validationLabel;
 
@@ -80,15 +78,10 @@ public class PaymentController implements Initializable {
     private final Map<String, Map<String, long[]>> rateMap         = new LinkedHashMap<>();
     private final Map<String, long[]>              coachMap        = new LinkedHashMap<>();
     private final Map<String, Integer>             paymentTypeMap  = new LinkedHashMap<>();
-    // Add this near your other maps
-    private final Map<Integer, Double> clientDiscountMap = new LinkedHashMap<>();
+    private final Map<Integer, Double>             clientDiscountMap = new LinkedHashMap<>();
 
     private Client selectedClient = null;
 
-    // ── ComboBox search state ─────────────────────────────────────────────────
-    // suppressSearch  : true while WE change the editor text programmatically
-    // pendingFilter   : true when a filter update is already queued on Platform.runLater
-    // pendingQuery    : the text we will filter on in that queued update
     private boolean suppressSearch = false;
     private boolean pendingFilter  = false;
     private String  pendingQuery   = "";
@@ -146,7 +139,6 @@ public class PaymentController implements Initializable {
     }
 
     private void loadTrainingData() {
-        // 1. Load Discounts ONCE (Move this outside the loop)
         clientDiscountMap.clear();
         codes.acegym.DB.PlanDAO.getAllClientTypes().forEach(ct -> {
             String raw = ct.getDiscount().replace("%", "").trim();
@@ -183,8 +175,6 @@ public class PaymentController implements Initializable {
 
                 trainingTypeMap.putIfAbsent(cat, new int[]{ttID, 0, (int) cfee});
                 rateMap.putIfAbsent(cat, new LinkedHashMap<>());
-
-                // This key (per + "_" + ctID) matches recalculate()
                 rateMap.get(cat).put(per + "_" + ctID,
                         new long[]{ppID, rs.getInt("Days"), price});
             }
@@ -192,6 +182,7 @@ public class PaymentController implements Initializable {
 
         typeCombo.setItems(FXCollections.observableArrayList(trainingTypeMap.keySet()));
     }
+
     private void loadPaymentMethods() {
         String sql = "SELECT PaymentTypeID, PaymentType FROM PaymentTypeTable ORDER BY PaymentTypeID";
         try (Connection con = DBConnector.connect();
@@ -203,10 +194,6 @@ public class PaymentController implements Initializable {
         methodCombo.setItems(FXCollections.observableArrayList(paymentTypeMap.keySet()));
     }
 
-    /**
-     * Loads ALL staff coaches (SystemRole='staff'), LEFT JOINed with any
-     * existing assignment for this client so we can reuse it when saving.
-     */
     private void loadCoachesForClient(Client client) {
         coachMap.clear();
         coachMap.put(NO_COACH, new long[]{-1, -1, 0});
@@ -241,26 +228,16 @@ public class PaymentController implements Initializable {
             }
         } catch (SQLException e) { e.printStackTrace(); }
 
-        System.out.println("[PaymentController] " + (coachMap.size() - 1)
-                + " coach(es) loaded for clientID=" + client.getClientID());
-
         coachCombo.setItems(FXCollections.observableArrayList(coachMap.keySet()));
         coachCombo.getSelectionModel().selectFirst();
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  CLIENT SEARCH SETUP  — the IndexOutOfBoundsException fix
+    //  CLIENT SEARCH
     // ════════════════════════════════════════════════════════════════════════
     private void setupClientSearch() {
         clientSearchCombo.getEditor().textProperty().addListener((obs, old, text) -> {
-
-            // ① Ignore changes we made ourselves
             if (suppressSearch) return;
-
-            // ② If the popup is open, a mouse-click event is in flight.
-            //    Calling setItems() NOW mutates the list while the selection
-            //    model is mid-update → IndexOutOfBoundsException.
-            //    Queue the filter for the NEXT JavaFX pulse instead.
             if (clientSearchCombo.isShowing()) {
                 pendingQuery = text == null ? "" : text.trim().toLowerCase();
                 if (!pendingFilter) {
@@ -269,18 +246,14 @@ public class PaymentController implements Initializable {
                 }
                 return;
             }
-
             applyFilter(text == null ? "" : text.trim().toLowerCase());
         });
 
         clientSearchCombo.setOnAction(e -> {
             Client c = clientSearchCombo.getValue();
             if (c == null) return;
-
-            // Suppress the text-change listener while JavaFX sets the editor text
             suppressSearch = true;
             populateClientDetails(c);
-            // Release on next frame — editor text is still being written right now
             Platform.runLater(() -> suppressSearch = false);
         });
     }
@@ -312,15 +285,10 @@ public class PaymentController implements Initializable {
     //  SETUP — COMBOS & BUTTONS
     // ════════════════════════════════════════════════════════════════════════
     private void setupCombos() {
-        // Fetch dynamic periods from PlanDAO
         ObservableList<String> periodNames = FXCollections.observableArrayList();
-        codes.acegym.DB.PlanDAO.getAllPaymentPeriods().forEach(p -> {
-            periodNames.add(p.getName()); // p.getName() returns the "PaymentPeriod" string from DB
-        });
-
+        codes.acegym.DB.PlanDAO.getAllPaymentPeriods().forEach(p -> periodNames.add(p.getName()));
         periodCombo.setItems(periodNames);
 
-        // Listeners
         periodCombo.setOnAction(e -> recalculate());
         typeCombo.setOnAction(e -> recalculate());
 
@@ -351,7 +319,6 @@ public class PaymentController implements Initializable {
     private void populateClientDetails(Client c) {
         selectedClient = c;
 
-        // Email is not carried in the lightweight Client object — fetch directly
         String email = "";
         String sql = "SELECT COALESCE(ClientEmail,'') AS e FROM ClientTable WHERE ClientID=?";
         try (Connection con = DBConnector.connect();
@@ -365,61 +332,49 @@ public class PaymentController implements Initializable {
         clientIdDisplay.setText(String.valueOf(c.getClientID()));
         clientNameDisplay.setText(c.getFullName());
         clientContactDisplay.setText(c.getContact());
-        clientEmailDisplay.setText(email.isBlank() ? "—" : email);
-
-        boolean isMember = "Member".equalsIgnoreCase(c.getClientType());
+        clientEmailDisplay.setText(email);
         clientTypeTag.setText(c.getClientType());
-        clientTypeTag.getStyleClass().removeAll("type-tag-member", "type-tag-guest", "type-tag-none");
-        clientTypeTag.getStyleClass().add(isMember ? "type-tag-member" : "type-tag-guest");
-
-        sumClientLabel.setText(c.getFullName());
 
         loadCoachesForClient(c);
         recalculate();
-        hideValidation();
     }
 
     private void clearClientDetails() {
         selectedClient = null;
-        clientIdDisplay.clear();
-        clientNameDisplay.clear();
-        clientContactDisplay.clear();
-        clientEmailDisplay.clear();
-        clientTypeTag.setText("—");
-        clientTypeTag.getStyleClass().removeAll("type-tag-member", "type-tag-guest");
-        clientTypeTag.getStyleClass().add("type-tag-none");
-        coachCombo.setItems(FXCollections.observableArrayList(NO_COACH));
-        coachCombo.getSelectionModel().selectFirst();
+        clientIdDisplay.setText("");
+        clientNameDisplay.setText("");
+        clientContactDisplay.setText("");
+        clientEmailDisplay.setText("");
+        clientTypeTag.setText("");
+        coachMap.clear();
+        coachCombo.setItems(FXCollections.observableArrayList());
         coachFeeHint.setText("");
         resetSummary();
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  LIVE CALCULATION
+    //  RECALCULATE SUMMARY
     // ════════════════════════════════════════════════════════════════════════
     private void recalculate() {
-        if (selectedClient == null || typeCombo.getValue() == null || periodCombo.getValue() == null) {
-            sumTrainingLabel.setText(typeCombo.getValue() != null ? typeCombo.getValue() : "—");
-            sumPeriodLabel.setText(periodCombo.getValue()  != null ? periodCombo.getValue()  : "—");
-            return;
-        }
-
         String cat    = typeCombo.getValue();
         String period = periodCombo.getValue();
+        if (selectedClient == null || cat == null || period == null) return;
+
+        sumClientLabel.setText(selectedClient.getFullName());
         sumTrainingLabel.setText(cat);
         sumPeriodLabel.setText(period);
 
-        boolean isMember = "Member".equalsIgnoreCase(selectedClient.getClientType());
-        int clientTypeID = isMember ? 2 : 1;
+        boolean isMember  = "Member".equalsIgnoreCase(selectedClient.getClientType());
+        int clientTypeID  = isMember ? 2 : 1;
 
         Map<String, long[]> periods = rateMap.get(cat);
         if (periods == null) return;
+
         long[] rate = periods.get(period + "_" + clientTypeID);
         if (rate == null) return;
 
         double basePrice = rate[2] / 100.0;
 
-        // ── DYNAMIC DISCOUNT CALCULATION ──
         double discountPercent = clientDiscountMap.getOrDefault(clientTypeID, 0.0);
         double discount = basePrice * discountPercent;
 
@@ -434,17 +389,15 @@ public class PaymentController implements Initializable {
 
         priceLabel.setText("₱" + fmt(basePrice));
         coachingFeeLabel.setText("₱" + fmt(coachFee));
-
-        // Show the actual percentage in the summary if you want
         discountLabel.setText(String.format("— ₱%s (%.0f%%)", fmt(discount), discountPercent * 100));
-
         subtotalLabel.setText("₱" + fmt(subtotal));
         totalPriceLabel.setText("₱" + fmt(subtotal));
     }
+
     private String fmt(double v) { return String.format("%,.2f", v); }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  VALIDATION  — styled to match Payment.css
+    //  VALIDATION
     // ════════════════════════════════════════════════════════════════════════
     private boolean validate() {
         List<String> errors = new ArrayList<>();
@@ -461,12 +414,7 @@ public class PaymentController implements Initializable {
         return true;
     }
 
-    /**
-     * Renders a styled error banner.
-     * Uses validationBox (VBox) when available, falls back to validationLabel.
-     */
     private void showErrors(List<String> errors) {
-        // ── Styled VBox path ─────────────────────────────────────────────────
         if (validationBox != null) {
             validationBox.getChildren().clear();
             validationBox.setStyle(
@@ -476,63 +424,43 @@ public class PaymentController implements Initializable {
                             "-fx-border-width: 1.5;" +
                             "-fx-border-radius: 12;" +
                             "-fx-padding: 12 16 12 16;");
-
-            // Header
             HBox header = new HBox(8);
             header.setAlignment(Pos.CENTER_LEFT);
             Label warningIcon = new Label("⚠");
-            warningIcon.setStyle(
-                    "-fx-text-fill:#e53935;" +
-                            "-fx-font-size:16px;");
+            warningIcon.setStyle("-fx-text-fill:#e53935;-fx-font-size:16px;");
             Label headerText = new Label("Please fix the following before saving:");
             headerText.setStyle(
-                    "-fx-text-fill:#e53935;" +
-                            "-fx-font-size:13px;" +
-                            "-fx-font-weight:bold;" +
-                            "-fx-font-family:'Inter';");
+                    "-fx-text-fill:#e53935;-fx-font-size:13px;" +
+                            "-fx-font-weight:bold;-fx-font-family:'Inter';");
             header.getChildren().addAll(warningIcon, headerText);
             validationBox.getChildren().add(header);
 
-            // One row per error
             for (String err : errors) {
                 HBox row = new HBox(8);
                 row.setAlignment(Pos.CENTER_LEFT);
                 VBox.setMargin(row, new Insets(5, 0, 0, 4));
-
                 Label bullet = new Label("•");
-                bullet.setStyle(
-                        "-fx-text-fill:#ff6b6b;" +
-                                "-fx-font-size:16px;");
-
+                bullet.setStyle("-fx-text-fill:#ff6b6b;-fx-font-size:16px;");
                 Label msgLbl = new Label(err);
                 msgLbl.setStyle(
-                        "-fx-text-fill:#fca5a5;" +
-                                "-fx-font-size:13px;" +
-                                "-fx-font-family:'Inter';");
+                        "-fx-text-fill:#fca5a5;-fx-font-size:13px;-fx-font-family:'Inter';");
                 msgLbl.setWrapText(true);
-
                 row.getChildren().addAll(bullet, msgLbl);
                 validationBox.getChildren().add(row);
             }
-
             validationBox.setVisible(true);
             validationBox.setManaged(true);
-
             FadeTransition ft = new FadeTransition(Duration.millis(180), validationBox);
             ft.setFromValue(0);
             ft.setToValue(1);
             ft.play();
-
-            // ── Fallback: plain Label ────────────────────────────────────────────
         } else if (validationLabel != null) {
             StringBuilder sb = new StringBuilder();
             for (String e : errors) sb.append("⚠  ").append(e).append("\n");
             validationLabel.setText(sb.toString().trim());
             validationLabel.setStyle(
-                    "-fx-text-fill:#ff6b6b;" +
-                            "-fx-font-size:13px;" +
-                            "-fx-font-family:'Inter';" +
-                            "-fx-font-weight:bold;");
+                    "-fx-text-fill:#ff6b6b;-fx-font-size:13px;" +
+                            "-fx-font-family:'Inter';-fx-font-weight:bold;");
             validationLabel.setVisible(true);
             validationLabel.setManaged(true);
         }
@@ -550,10 +478,8 @@ public class PaymentController implements Initializable {
                             "-fx-padding: 12 16 12 16;");
             Label lbl = new Label("✅  " + msg);
             lbl.setStyle(
-                    "-fx-text-fill:#4ade80;" +
-                            "-fx-font-size:13px;" +
-                            "-fx-font-weight:bold;" +
-                            "-fx-font-family:'Inter';");
+                    "-fx-text-fill:#4ade80;-fx-font-size:13px;" +
+                            "-fx-font-weight:bold;-fx-font-family:'Inter';");
             validationBox.getChildren().add(lbl);
             validationBox.setVisible(true);
             validationBox.setManaged(true);
@@ -643,13 +569,22 @@ public class PaymentController implements Initializable {
         int    paymentTypeID = paymentTypeMap.get(methodCombo.getValue());
         double basePrice     = rate[2] / 100.0;
         double coachFee      = hasCoach ? coachMap.get(coachSel)[2] / 100.0 : 0.0;
-        double discount      = isMember ? basePrice * 0.40 : 0.0;
+        double discountPct   = clientDiscountMap.getOrDefault(clientTypeID, 0.0);
+        double discount      = basePrice * discountPct;
         double total         = basePrice - discount + coachFee;
+
+        // ── Snapshot values — frozen at the time of this payment ─────────────
+        String snapshotTrainingCategory = cat;
+        String snapshotPaymentPeriod    = period;
+        String snapshotCoachName        = hasCoach ? coachSel : null;
+        String snapshotMembershipType   = selectedClient.getClientType();
 
         String insertSQL =
                 "INSERT INTO ReceiptTable " +
-                        "(ClientID, RateID, ClientStaffAssignmentID, PaymentTypeID, TotalPayment, PaymentDate) " +
-                        "VALUES (?, ?, ?, ?, ?, NOW())";
+                        "(ClientID, RateID, ClientStaffAssignmentID, PaymentTypeID, TotalPayment, PaymentDate, " +
+                        " SnapshotTrainingCategory, SnapshotPaymentPeriod, SnapshotCoachName, SnapshotMembershipType) " +
+                        "VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)";
+
         try (Connection con = DBConnector.connect();
              PreparedStatement ps = con.prepareStatement(insertSQL)) {
             ps.setInt(1, selectedClient.getClientID());
@@ -657,6 +592,10 @@ public class PaymentController implements Initializable {
             ps.setInt(3, assignmentID);
             ps.setInt(4, paymentTypeID);
             ps.setDouble(5, total);
+            ps.setString(6, snapshotTrainingCategory);
+            ps.setString(7, snapshotPaymentPeriod);
+            ps.setString(8, snapshotCoachName);   // NULL if no coach
+            ps.setString(9, snapshotMembershipType);
             ps.executeUpdate();
         }
     }

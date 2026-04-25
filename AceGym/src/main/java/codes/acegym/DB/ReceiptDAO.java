@@ -9,6 +9,11 @@ import java.time.LocalDate;
 
 public class ReceiptDAO {
 
+    /**
+     * Reads the four snapshot columns written at payment time.
+     * COALESCE falls back to the live JOINs only for rows that
+     * pre-date the migration (SnapshotTrainingCategory IS NULL). Baste eto ung nag fefreeze para sa history (parang ppinipicturan)
+     */
     private static final String BASE_SQL =
             "SELECT " +
                     "    r.ReceiptID, " +
@@ -18,26 +23,28 @@ public class ReceiptDAO {
                     "    pt.PaymentType, " +
                     "    r.TotalPayment, " +
                     "    r.PaymentDate, " +
-                    "    tt.TrainingCategory, " +
-                    "    pp.PaymentPeriod, " +                          // from PaymentPeriodTable
-                    "    CASE " +
-                    "        WHEN r.ClientStaffAssignmentID IS NOT NULL " +
-                    "        THEN CONCAT(s.StaffFirstName, ' ', s.StaffLastName) " +
-                    "        ELSE NULL " +
-                    "    END AS CoachName, " +                          // coach full name or NULL
-                    "    ct.ClientType AS MembershipType " +            // membership type or NULL
+
+                    // ── Snapshot columns (frozen at payment time) ──────────────────
+                    "    COALESCE(r.SnapshotTrainingCategory, tt.TrainingCategory)  AS TrainingCategory, " +
+                    "    COALESCE(r.SnapshotPaymentPeriod,    pp.PaymentPeriod)     AS PaymentPeriod, " +
+                    "    COALESCE(r.SnapshotCoachName, " +
+                    "             CASE WHEN r.ClientStaffAssignmentID IS NOT NULL " +
+                    "                  THEN CONCAT(s.StaffFirstName, ' ', s.StaffLastName) " +
+                    "                  ELSE NULL END)                               AS CoachName, " +
+                    "    COALESCE(r.SnapshotMembershipType,   ct.ClientType)        AS MembershipType " +
+                    // ──────────────────────────────────────────────────────────────
+
                     "FROM ReceiptTable r " +
                     "JOIN ClientTable c             ON r.ClientID        = c.ClientID " +
                     "JOIN PaymentTypeTable pt       ON r.PaymentTypeID   = pt.PaymentTypeID " +
                     "JOIN RateTable ra              ON r.RateID          = ra.RateID " +
+                    // Fallback JOINs — only hit when snapshot columns are NULL
                     "JOIN TrainingTypeTable tt      ON ra.TrainingTypeID = tt.TrainingTypeID " +
                     "JOIN PaymentPeriodTable pp     ON ra.PaymentPeriodID = pp.PaymentPeriodID " +
-                    // Coach: only join if the receipt actually has an assignment
                     "LEFT JOIN ClientStaffAssignmentTable csa " +
                     "                               ON r.ClientStaffAssignmentID = csa.ClientStaffAssignmentID " +
                     "                              AND r.ClientStaffAssignmentID IS NOT NULL " +
                     "LEFT JOIN StaffTable s         ON csa.StaffID = s.StaffID " +
-                    // Most recent membership for this client
                     "LEFT JOIN MembershipTable m    ON m.ClientID = r.ClientID " +
                     "                              AND m.MembershipID = (" +
                     "                                  SELECT MembershipID FROM MembershipTable " +
@@ -45,6 +52,8 @@ public class ReceiptDAO {
                     "                                  ORDER BY DateApplied DESC LIMIT 1" +
                     "                              ) " +
                     "LEFT JOIN ClientTypeTable ct   ON m.ClientTypeID = ct.ClientTypeID";
+
+    // ── Public query methods (unchanged API) ──────────────────────────────────
 
     public static ObservableList<Receipt> getAllReceipts() {
         return query(BASE_SQL + " ORDER BY r.PaymentDate DESC", null, null, null);
@@ -88,6 +97,8 @@ public class ReceiptDAO {
         return types;
     }
 
+    // ── Internal helper ───────────────────────────────────────────────────────
+
     private static ObservableList<Receipt> query(String sql, String p1, String p2, String p3) {
         ObservableList<Receipt> list = FXCollections.observableArrayList();
         try (Connection con = DBConnector.connect();
@@ -107,10 +118,10 @@ public class ReceiptDAO {
                             rs.getString("PaymentType"),
                             rs.getDouble("TotalPayment"),
                             rs.getString("PaymentDate"),
-                            rs.getString("TrainingCategory"),
-                            rs.getString("PaymentPeriod"),   // ← must match alias exactly
-                            rs.getString("CoachName"),       // ← must match alias exactly
-                            rs.getString("MembershipType")   // ← must match alias exactly
+                            rs.getString("TrainingCategory"),  // now from snapshot
+                            rs.getString("PaymentPeriod"),     // now from snapshot
+                            rs.getString("CoachName"),         // now from snapshot
+                            rs.getString("MembershipType")     // now from snapshot
                     ));
                 }
             }
