@@ -186,6 +186,7 @@ public class PaymentController implements Initializable {
             }
         });
 
+        // Load rates into rateMap (still requires RateTable rows)
         String sql =
                 "SELECT tt.TrainingTypeID, tt.TrainingCategory, tt.Coaching_Fee, " +
                         "       pp.PaymentPeriodID, pp.PaymentPeriod, pp.Days, " +
@@ -193,6 +194,7 @@ public class PaymentController implements Initializable {
                         "FROM TrainingTypeTable tt " +
                         "JOIN RateTable r           ON r.TrainingTypeID   = tt.TrainingTypeID " +
                         "JOIN PaymentPeriodTable pp ON pp.PaymentPeriodID = r.PaymentPeriodID " +
+                        "WHERE tt.TrainingTypeID != 4 " +
                         "ORDER BY tt.TrainingTypeID, pp.PaymentPeriodID, r.ClientTypeID";
 
         try (Connection con = DBConnector.connect();
@@ -203,11 +205,10 @@ public class PaymentController implements Initializable {
                 String cat  = rs.getString("TrainingCategory");
                 int    ttID = rs.getInt("TrainingTypeID");
                 long   cfee = (long)(rs.getDouble("Coaching_Fee") * 100);
-
-                String per   = rs.getString("PaymentPeriod");
-                int    ppID  = rs.getInt("PaymentPeriodID");
+                String per  = rs.getString("PaymentPeriod");
+                int    ppID = rs.getInt("PaymentPeriodID");
                 long   price = (long)(rs.getDouble("FinalPrice") * 100);
-                int    ctID  = rs.getInt("ClientTypeID");
+                int    ctID = rs.getInt("ClientTypeID");
 
                 trainingTypeMap.putIfAbsent(cat, new int[]{ttID, 0, (int) cfee});
                 rateMap.putIfAbsent(cat, new LinkedHashMap<>());
@@ -216,9 +217,28 @@ public class PaymentController implements Initializable {
             }
         } catch (SQLException e) { e.printStackTrace(); }
 
-        typeCombo.setItems(FXCollections.observableArrayList(trainingTypeMap.keySet()));
-    }
+        // Load ALL categories (except None) separately so categories without
+        // rates still appear in the dropdown
+        String catSQL = "SELECT TrainingTypeID, TrainingCategory, Coaching_Fee " +
+                "FROM TrainingTypeTable WHERE TrainingTypeID != 4 " +
+                "ORDER BY TrainingTypeID";
+        ObservableList<String> allCategories = FXCollections.observableArrayList();
+        try (Connection con = DBConnector.connect();
+             Statement st   = con.createStatement();
+             ResultSet rs   = st.executeQuery(catSQL)) {
+            while (rs.next()) {
+                String cat  = rs.getString("TrainingCategory");
+                int    ttID = rs.getInt("TrainingTypeID");
+                long   cfee = (long)(rs.getDouble("Coaching_Fee") * 100);
+                // Register in trainingTypeMap even if no rates yet
+                trainingTypeMap.putIfAbsent(cat, new int[]{ttID, 0, (int) cfee});
+                rateMap.putIfAbsent(cat, new LinkedHashMap<>());
+                allCategories.add(cat);
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
 
+        typeCombo.setItems(allCategories);
+    }
     private void loadPaymentMethods() {
         String sql = "SELECT PaymentTypeID, PaymentType FROM PaymentTypeTable ORDER BY PaymentTypeID";
         try (Connection con = DBConnector.connect();
