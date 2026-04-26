@@ -287,7 +287,7 @@ public class PlanDAO {
 
     public static ObservableList<ClientType> getAllClientTypes() {
         ObservableList<ClientType> list = FXCollections.observableArrayList();
-        String sql = "SELECT ClientTypeID, ClientType, Discount FROM ClientTypeTable ORDER BY ClientTypeID";
+        String sql = "SELECT ClientTypeID, ClientType, MembershipFee, Discount FROM ClientTypeTable ORDER BY ClientTypeID";
         try (Connection con = DBConnector.connect();
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
@@ -295,6 +295,7 @@ public class PlanDAO {
                 list.add(new ClientType(
                         rs.getInt("ClientTypeID"),
                         rs.getString("ClientType"),
+                        rs.getDouble("MembershipFee"),
                         nvl(rs.getString("Discount"), "0%")
                 ));
             }
@@ -302,7 +303,9 @@ public class PlanDAO {
         return list;
     }
 
-    public static String updateDiscount(int clientTypeID, String discountStr) {
+    public static String updateClientType(int clientTypeID, double fee, String discountStr) {
+        if (fee < 0)
+            return "Fee cannot be negative.";
         if (discountStr == null || discountStr.isBlank())
             return "Discount value cannot be empty.";
 
@@ -317,11 +320,12 @@ public class PlanDAO {
             return "Discount must be between 0 and 100.";
 
         String stored = raw + "%";
-        String sql    = "UPDATE ClientTypeTable SET Discount = ? WHERE ClientTypeID = ?";
+        String sql    = "UPDATE ClientTypeTable SET MembershipFee = ?, Discount = ? WHERE ClientTypeID = ?";
         try (Connection con = DBConnector.connect();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, stored);
-            ps.setInt(2, clientTypeID);
+            ps.setDouble(1, fee);
+            ps.setString(2, stored);
+            ps.setInt(3, clientTypeID);
             return ps.executeUpdate() > 0 ? "OK" : "No rows updated.";
         } catch (SQLException e) {
             e.printStackTrace();
@@ -329,9 +333,14 @@ public class PlanDAO {
         }
     }
 
+    /** @deprecated Use {@link #updateClientType(int, double, String)} instead. */
+    @Deprecated
+    public static String updateDiscount(int clientTypeID, String discountStr) {
+        return updateClientType(clientTypeID, 0, discountStr);
+    }
+
     // ─────────────────────────────────────────────────────────────
     private static String nvl(String v, String fallback) {
         return (v == null || v.isBlank()) ? fallback : v;
     }
 }
-

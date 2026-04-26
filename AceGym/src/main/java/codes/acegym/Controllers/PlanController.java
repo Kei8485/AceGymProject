@@ -75,10 +75,12 @@ public class PlanController {
     @FXML private Button         saveDiscountBtn;
     @FXML private Button         cancelDiscountBtn;
     @FXML private ComboBox<ClientType> clientTypeCombo;
+    @FXML private TextField      feeField;
     @FXML private TextField      discountField;
 
     @FXML private TableView<ClientType>             discountTable;
     @FXML private TableColumn<ClientType, String>   clientTypeCol;
+    @FXML private TableColumn<ClientType, Double>   feeCol;
     @FXML private TableColumn<ClientType, String>   discountCol;
     // discountActionsCol removed per design decision
 
@@ -412,6 +414,10 @@ public class PlanController {
         clientTypeCol.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleStringProperty(
                         data.getValue().getTypeName()));
+        feeCol.setCellValueFactory(data ->
+                new javafx.beans.property.SimpleObjectProperty<>(
+                        data.getValue().getMembershipFee()));
+        formatCurrencyColumn(feeCol);
         discountCol.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleStringProperty(
                         data.getValue().getDiscount()));
@@ -433,6 +439,7 @@ public class PlanController {
             if (sel != null) {
                 selectedClientType = sel;
                 clientTypeCombo.setValue(sel);
+                feeField.setText(String.valueOf(sel.getMembershipFee()));
                 // Strip "%" for editing convenience
                 discountField.setText(sel.getDiscount().replace("%", ""));
             }
@@ -445,11 +452,30 @@ public class PlanController {
                 showAlert(Alert.AlertType.WARNING, "Validation", "Please select a client type.");
                 return;
             }
+            String feeText      = feeField.getText().trim();
             String discountText = discountField.getText().trim();
+
+            if (feeText.isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Validation", "Fee cannot be empty.");
+                return;
+            }
             if (discountText.isEmpty()) {
                 showAlert(Alert.AlertType.WARNING, "Validation", "Discount value cannot be empty.");
                 return;
             }
+
+            double fee;
+            try {
+                fee = Double.parseDouble(feeText);
+                if (fee < 0) {
+                    showAlert(Alert.AlertType.WARNING, "Validation", "Fee cannot be negative.");
+                    return;
+                }
+            } catch (NumberFormatException ex) {
+                showAlert(Alert.AlertType.WARNING, "Validation", "Fee must be a valid number (e.g. 500.00).");
+                return;
+            }
+
             // Basic numeric check before sending to DAO
             String raw = discountText.replace("%", "");
             try {
@@ -463,8 +489,8 @@ public class PlanController {
                 return;
             }
 
-            showModal("Confirm saving discount changes for \"" + ct.getTypeName() + "\"?", () -> {
-                String result = PlanDAO.updateDiscount(ct.getId(), discountText);
+            showModal("Confirm saving changes for \"" + ct.getTypeName() + "\"?", () -> {
+                String result = PlanDAO.updateClientType(ct.getId(), fee, discountText);
                 if ("OK".equals(result)) {
                     refreshDiscountTable();
                     resetDiscountForm();
@@ -486,6 +512,7 @@ public class PlanController {
     private void resetDiscountForm() {
         selectedClientType = null;
         clientTypeCombo.setValue(null);
+        feeField.clear();
         discountField.clear();
         discountTable.getSelectionModel().clearSelection();
     }

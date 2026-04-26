@@ -245,6 +245,12 @@
                                         </VBox>
                                         <VBox prefWidth="200.0" spacing="6.0">
                                             <children>
+                                                <Label styleClass="field-label" text="Fee (PHP)" />
+                                                <TextField fx:id="feeField" prefHeight="38.0" promptText="e.g. 500.00" styleClass="input-field" />
+                                            </children>
+                                        </VBox>
+                                        <VBox prefWidth="200.0" spacing="6.0">
+                                            <children>
                                                 <Label styleClass="field-label" text="Discount (%)" />
                                                 <TextField fx:id="discountField" prefHeight="38.0" promptText="e.g. 30" styleClass="input-field" />
                                             </children>
@@ -261,7 +267,8 @@
 
                                 <TableView fx:id="discountTable" prefHeight="150.0" styleClass="section-table">
                                     <columns>
-                                        <TableColumn fx:id="clientTypeCol" prefWidth="300.0" text="Client Type" />
+                                        <TableColumn fx:id="clientTypeCol" prefWidth="220.0" text="Client Type" />
+                                        <TableColumn fx:id="feeCol" prefWidth="180.0" text="Fee" />
                                         <TableColumn fx:id="discountCol" prefWidth="160.0" text="Discount" />
                                     </columns>
                                     <columnResizePolicy>
