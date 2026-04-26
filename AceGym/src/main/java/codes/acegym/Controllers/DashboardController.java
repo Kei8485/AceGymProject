@@ -1,5 +1,6 @@
 package codes.acegym.Controllers;
 
+import codes.acegym.DB.DashboardDAO;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -14,6 +15,7 @@ import javafx.util.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class DashboardController {
 
@@ -44,52 +46,84 @@ public class DashboardController {
         loadDashboardData();
     }
 
+    // ── Call this from any other controller to force a refresh ──────────────
+    public void refresh() {
+        loadDashboardData();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // CLOCK
+    // ─────────────────────────────────────────────────────────────────────────
     private void startClock() {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm:ss a");
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d");
 
         dateLabel.setText(LocalDate.now().format(dateFormatter));
 
-        Timeline clock = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-            clockLabel.setText(LocalTime.now().format(timeFormatter));
-        }));
+        Timeline clock = new Timeline(new KeyFrame(Duration.seconds(1), e ->
+                clockLabel.setText(LocalTime.now().format(timeFormatter))
+        ));
         clock.setCycleCount(Animation.INDEFINITE);
         clock.play();
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // MAIN LOAD — calls DB and populates every widget
+    // ─────────────────────────────────────────────────────────────────────────
     private void loadDashboardData() {
-        // TODO: Replace with actual DB calls
 
-        // ── Stat cards ──
-        totalMembersLabel.setText("0");
-        newMembersLabel.setText("0");
-        renewalsDueLabel.setText("0");
-        coachesLabel.setText("0");
+        // ── Stat cards ───────────────────────────────────────────────────────
+        totalMembersLabel.setText(String.valueOf(DashboardDAO.getTotalMembers()));
+        newMembersLabel.setText(String.valueOf(DashboardDAO.getNewMembersThisMonth()));
+        renewalsDueLabel.setText(String.valueOf(DashboardDAO.getRenewalsDueCount()));
+        coachesLabel.setText(String.valueOf(DashboardDAO.getTotalCoaches()));
 
-        // ── Revenue ──
-        monthlySalesLabel.setText("₱0.00");
-        cashSalesLabel.setText("₱0.00");
-        digitalSalesLabel.setText("₱0.00");
-        totalTransactionsLabel.setText("0");
-        totalSalesLabel.setText("₱0.00");
+        // ── Revenue ──────────────────────────────────────────────────────────
+        monthlySalesLabel.setText(formatPeso(DashboardDAO.getMonthlySales()));
+        cashSalesLabel.setText(formatPeso(DashboardDAO.getCashSalesThisMonth()));
+        digitalSalesLabel.setText(formatPeso(DashboardDAO.getDigitalSalesThisMonth()));
+        totalTransactionsLabel.setText(String.valueOf(DashboardDAO.getTransactionCountThisMonth()));
+        totalSalesLabel.setText(formatPeso(DashboardDAO.getTotalSalesAllTime()));
 
-        // ── Renewals Due List ──
-        // Example of how to add a renewal row programmatically:
-        // addRenewalRow("Juan Dela Cruz", "Expires Apr 25", "3 days");
+        // ── Renewals Due list ────────────────────────────────────────────────
+        renewalListContainer.getChildren().clear();
+        List<DashboardDAO.RenewalRow> renewals = DashboardDAO.getRenewalsDue();
+        if (renewals.isEmpty()) {
+            renewalListContainer.getChildren().add(emptyStateLabel("No renewals due in the next 7 days."));
+        } else {
+            for (DashboardDAO.RenewalRow row : renewals) {
+                addRenewalRow(row.name(), row.expiryDate(), row.daysLeft());
+            }
+        }
 
-        // ── Members List ──
-        // Example of how to add a member row:
-        // addMemberRow("Juan Dela Cruz", "Apr 10, 2025", "Active");
+        // ── Recent Members list ───────────────────────────────────────────────
+        memberListContainer.getChildren().clear();
+        List<DashboardDAO.MemberSummaryRow> members = DashboardDAO.getRecentMembers();
+        if (members.isEmpty()) {
+            memberListContainer.getChildren().add(emptyStateLabel("No members found."));
+        } else {
+            for (DashboardDAO.MemberSummaryRow row : members) {
+                addMemberRow(row.name(), row.enrolled(), row.status());
+            }
+        }
 
-        // ── Coaches List ──
-        // Example:
-        // addCoachRow("Coach Mike", "C-001", "5");
+        // ── Coaches list ──────────────────────────────────────────────────────
+        coachListContainer.getChildren().clear();
+        List<DashboardDAO.CoachSummaryRow> coaches = DashboardDAO.getCoachSummaries();
+        if (coaches.isEmpty()) {
+            coachListContainer.getChildren().add(emptyStateLabel("No coaches found."));
+        } else {
+            for (DashboardDAO.CoachSummaryRow row : coaches) {
+                addCoachRow(row.name(), row.coachId(), row.clientCount());
+            }
+        }
     }
 
-    // ── Renewal Row Builder ──
-    public void addRenewalRow(String name, String date, String daysLeft) {
-        renewalListContainer.getChildren().clear(); // remove empty state on first add
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROW BUILDERS  (unchanged from original — keep your existing CSS classes)
+    // ─────────────────────────────────────────────────────────────────────────
 
+    public void addRenewalRow(String name, String date, String daysLeft) {
         HBox row = new HBox(10);
         row.getStyleClass().add("renewal-row");
         row.setPadding(new Insets(10, 12, 10, 12));
@@ -113,10 +147,7 @@ public class DashboardController {
         renewalListContainer.getChildren().add(row);
     }
 
-    // ── Member Row Builder ──
     public void addMemberRow(String name, String enrolled, String status) {
-        memberListContainer.getChildren().clear();
-
         HBox row = new HBox();
         row.getStyleClass().add("mini-table-row");
         row.setPadding(new Insets(10, 10, 10, 10));
@@ -131,17 +162,15 @@ public class DashboardController {
         enrolledLabel.setPrefWidth(100);
 
         Label statusBadge = new Label(status);
-        statusBadge.getStyleClass().add(status.equalsIgnoreCase("Active") ? "badge-active" : "badge-expired");
+        statusBadge.getStyleClass().add(
+                "Active".equalsIgnoreCase(status) ? "badge-active" : "badge-expired");
         statusBadge.setPrefWidth(80);
 
         row.getChildren().addAll(nameLabel, enrolledLabel, statusBadge);
         memberListContainer.getChildren().add(row);
     }
 
-    // ── Coach Row Builder ──
     public void addCoachRow(String name, String coachId, String clientCount) {
-        coachListContainer.getChildren().clear();
-
         HBox row = new HBox();
         row.getStyleClass().add("mini-table-row");
         row.setPadding(new Insets(10, 10, 10, 10));
@@ -161,5 +190,22 @@ public class DashboardController {
 
         row.getChildren().addAll(nameLabel, idLabel, clientLabel);
         coachListContainer.getChildren().add(row);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // HELPERS
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /** Formats a double as ₱1,234.50 */
+    private String formatPeso(double amount) {
+        return String.format("₱%,.2f", amount);
+    }
+
+    /** Placeholder label shown when a list is empty. */
+    private Label emptyStateLabel(String text) {
+        Label lbl = new Label(text);
+        lbl.getStyleClass().add("empty-state-label");
+        lbl.setPadding(new Insets(12));
+        return lbl;
     }
 }
