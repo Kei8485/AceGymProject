@@ -147,36 +147,36 @@ public class CoachesController implements Refreshable {
     private void filterCards() {
         if (allCoaches == null) return;
 
-        String query  = searchField != null ? searchField.getText().trim().toLowerCase() : "";
-        String filter = filterCombo != null ? filterCombo.getValue() : "All";
-        if (filter == null) filter = "All";
+        String query = searchField.getText().trim().toLowerCase();
+        String filter = filterCombo.getValue();
 
-        ObservableList<Coach> filtered =
-                javafx.collections.FXCollections.observableArrayList();
+        ObservableList<Coach> filtered = javafx.collections.FXCollections.observableArrayList();
 
         for (Coach c : allCoaches) {
-            boolean categoryMatch = true;
-            if (!"All".equals(filter) && !"First Name".equals(filter)
-                    && !"Last Name".equals(filter)) {
-                String cat = c.getTrainingCategory();
-                categoryMatch = cat != null && cat.equalsIgnoreCase(filter);
-            }
-            if (!categoryMatch) continue;
+            String role = c.getSystemRole(); // Ensure your Coach object has this field
+            String category = c.getTrainingCategory() != null ? c.getTrainingCategory() : "";
 
-            if (query.isEmpty()) { filtered.add(c); continue; }
+            // Check if the card matches the dropdown filter
+            boolean matchesFilter = filter.equals("All")
+                    || filter.equals("First Name")
+                    || filter.equals("Last Name")
+                    || category.equalsIgnoreCase(filter)
+                    || role.equalsIgnoreCase(filter); // Checks for 'Admin' or 'Staff'
 
-            String cat = c.getTrainingCategory() != null ? c.getTrainingCategory() : "";
-            boolean textMatch = switch (filter) {
-                case "First Name" -> c.getFirstName().toLowerCase().contains(query);
-                case "Last Name"  -> c.getLastName().toLowerCase().contains(query);
-                default -> c.getFullName().toLowerCase().contains(query)
-                        || cat.toLowerCase().contains(query);
-            };
-            if (textMatch) filtered.add(c);
+            if (!matchesFilter) continue;
+
+            // Check if it matches the search text
+            boolean matchesSearch = c.getFullName().toLowerCase().contains(query)
+                    || role.toLowerCase().contains(query);
+
+            if (matchesSearch) filtered.add(c);
         }
 
         renderCoaches(filtered);
     }
+
+
+
 
     private void animateCardsIn(List<Node> cards) {
         coachContainer.getChildren().clear();

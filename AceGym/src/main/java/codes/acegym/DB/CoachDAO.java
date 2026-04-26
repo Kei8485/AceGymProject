@@ -21,7 +21,7 @@ public class CoachDAO {
                         "       COALESCE(tt.TrainingCategory, 'Unassigned') AS TrainingCategory " +
                         "FROM StaffTable s " +
                         "LEFT JOIN TrainingTypeTable tt ON s.TrainingTypeID = tt.TrainingTypeID " +
-                        "WHERE LOWER(s.SystemRole) = 'staff' " +
+                        "WHERE LOWER(s.SystemRole) IN ('staff', 'admin') " + // Only include these two
                         "ORDER BY s.StaffFirstName";
 
         try (Connection con = DBConnector.connect();

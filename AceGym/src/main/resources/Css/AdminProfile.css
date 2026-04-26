@@ -305,3 +305,12 @@
     -fx-background-color: #1a1f33;
     -fx-translate-y: 1px;
 }
+
+/* ── Append these to the bottom of AdminProfile.css ── */
+
+/* validation-error is referenced in the FXML but was missing from this file */
+.validation-error {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 11px;
+    -fx-text-fill: #ff5252;
+}

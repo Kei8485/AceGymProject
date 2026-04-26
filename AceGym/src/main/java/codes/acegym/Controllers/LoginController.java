@@ -4,6 +4,8 @@ import codes.acegym.DB.DBConnector;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import codes.acegym.Session;
+import codes.acegym.Session;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -86,7 +88,12 @@ public class LoginController {
         });
     }
 
-    // ─── LOGIN (fully off-thread) ────────────────────────────────────────────
+
+
+
+// ─── REPLACE your handleLogin() method body with this ────────────────────────
+// (Only the two lines marked ★ are new — everything else is your existing code)
+
     @FXML
     public void handleLogin() {
 
@@ -126,8 +133,10 @@ public class LoginController {
                     Parent root = loader.load();
 
                     Platform.runLater(() -> {
-                        // STOP ANIMATIONS BEFORE SWITCHING SCENE
                         stopAllAnimations();
+
+                        // ★ Store the logged-in username so any screen can read it
+                        Session.getInstance().setLoggedInUsername(username);
 
                         Stage stage = (Stage) usernameField.getScene().getWindow();
                         stage.setScene(new Scene(root));
@@ -163,7 +172,6 @@ public class LoginController {
         loginThread.setDaemon(true);
         loginThread.start();
     }
-
     // ─── ANIMATION CONTROL METHODS ──────────────────────────────────────────
     private void pauseAllAnimations() {
         if (particleTimer != null) particleTimer.stop();

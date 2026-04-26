@@ -20,44 +20,44 @@
         <URL value="@../../Css/AdminProfile.css" />
     </stylesheets>
     <children>
-        <ScrollPane fitToWidth="true" styleClass="custom-scroll-pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <ScrollPane fitToWidth="true" styleClass="custom-scroll-pane"
+                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <content>
                 <VBox spacing="24.0">
                     <padding>
                         <Insets bottom="40.0" left="40.0" right="40.0" top="30.0" />
                     </padding>
                     <children>
-                  <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="page-header-box">
-                     <children>
-                        <VBox alignment="CENTER" styleClass="header-icon-box">
-                           <children>
-                              <ImageView fitHeight="41.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../../image/cart-shopping-solid.png" />
-                                 </image>
-                              </ImageView>
-                           </children>
-                        </VBox>
-                        <VBox spacing="2.0">
-                           <children>
-                              <Label styleClass="pos-header" text="ACCESS CONTROL">
-                                 <padding>
-                                    <Insets bottom="-10.0" />
-                                 </padding>
-                              </Label>
-                              <Label styleClass="add-payment-header" text="Admin Information" />
-                           </children>
-                        </VBox>
-                     </children>
-                  </HBox>
 
-                        <!-- ── Main Layout: Left Card + Right Column ── -->
+                        <!-- ── Page Header ── -->
+                        <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="page-header-box">
+                            <children>
+                                <VBox alignment="CENTER" styleClass="header-icon-box">
+                                    <children>
+                                        <ImageView fitHeight="41.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
+                                            <image><Image url="@../../image/cart-shopping-solid.png" /></image>
+                                        </ImageView>
+                                    </children>
+                                </VBox>
+                                <VBox spacing="2.0">
+                                    <children>
+                                        <Label styleClass="pos-header" text="ACCESS CONTROL">
+                                            <padding><Insets bottom="-10.0" /></padding>
+                                        </Label>
+                                        <Label styleClass="add-payment-header" text="Admin Information" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <!-- ── Main Layout ── -->
                         <HBox spacing="20.0" VBox.vgrow="ALWAYS">
                             <children>
 
-                                <!-- ════════════════════════════ -->
-                                <!-- LEFT CARD — Profile          -->
-                                <!-- ════════════════════════════ -->
+                                <!-- ══════════════════════════════════════ -->
+                                <!-- LEFT CARD — Profile Display (read-only)-->
+                                <!-- ══════════════════════════════════════ -->
                                 <VBox alignment="TOP_CENTER" prefWidth="300.0" spacing="0.0" styleClass="profile-card">
                                     <padding>
                                         <Insets bottom="24.0" left="24.0" right="24.0" top="28.0" />
@@ -65,18 +65,28 @@
                                     <children>
 
                                         <!-- Avatar with edit badge -->
-                                        <StackPane alignment="BOTTOM_RIGHT" maxHeight="120.0" maxWidth="120.0" minHeight="120.0" minWidth="120.0">
+                                        <StackPane alignment="BOTTOM_RIGHT"
+                                                   maxHeight="120.0" maxWidth="120.0"
+                                                   minHeight="120.0" minWidth="120.0"
+                                                   fx:id="avatarStackPane" style="-fx-cursor: hand;">
                                             <children>
-                                                <StackPane maxHeight="120.0" maxWidth="120.0" minHeight="120.0" minWidth="120.0" styleClass="avatar-circle">
+                                                <StackPane maxHeight="120.0" maxWidth="120.0"
+                                                           minHeight="120.0" minWidth="120.0"
+                                                           styleClass="avatar-circle">
                                                     <children>
-                                                        <ImageView fx:id="profileImage" fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
+                                                        <ImageView fx:id="profileImage"
+                                                                   fitHeight="80.0" fitWidth="80.0"
+                                                                   pickOnBounds="true" preserveRatio="true">
                                                             <image><Image url="@../../image/admin-user.png" /></image>
                                                         </ImageView>
                                                     </children>
                                                 </StackPane>
-                                                <StackPane maxHeight="32.0" maxWidth="32.0" minHeight="32.0" minWidth="32.0" styleClass="edit-badge">
+                                                <StackPane maxHeight="32.0" maxWidth="32.0"
+                                                           minHeight="32.0" minWidth="32.0"
+                                                           styleClass="edit-badge">
                                                     <children>
-                                                        <ImageView fitHeight="24.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                                                        <ImageView fitHeight="24.0" fitWidth="30.0"
+                                                                   pickOnBounds="true" preserveRatio="true">
                                                             <image><Image url="@../../image/edit.png" /></image>
                                                         </ImageView>
                                                     </children>
@@ -88,8 +98,8 @@
                                         <VBox alignment="CENTER" spacing="4.0">
                                             <VBox.margin><Insets top="16.0" /></VBox.margin>
                                             <children>
-                                                <Label fx:id="adminNameLabel" styleClass="profile-name" text="Juan Dela Cruz" />
-                                                <Label styleClass="profile-role" text="Administrator" />
+                                                <Label fx:id="adminNameLabel" styleClass="profile-name" text="—" />
+                                                <Label fx:id="adminRoleLabel" styleClass="profile-role" text="Administrator" />
                                             </children>
                                         </VBox>
 
@@ -98,16 +108,17 @@
                                             <VBox.margin><Insets bottom="16.0" top="20.0" /></VBox.margin>
                                         </Region>
 
-                                        <!-- Info Rows -->
+                                        <!-- Info Rows — Username only -->
                                         <VBox spacing="14.0">
                                             <children>
-
-                                                <!-- Username Row -->
                                                 <HBox alignment="CENTER_LEFT" spacing="14.0">
                                                     <children>
-                                                        <StackPane maxHeight="36.0" maxWidth="36.0" minHeight="36.0" minWidth="36.0" styleClass="info-icon-badge">
+                                                        <StackPane maxHeight="36.0" maxWidth="36.0"
+                                                                   minHeight="36.0" minWidth="36.0"
+                                                                   styleClass="info-icon-badge">
                                                             <children>
-                                                                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                                                <ImageView fitHeight="16.0" fitWidth="16.0"
+                                                                           pickOnBounds="true" preserveRatio="true">
                                                                     <image><Image url="@../../image/user-solid%20(1).png" /></image>
                                                                 </ImageView>
                                                             </children>
@@ -115,75 +126,42 @@
                                                         <VBox spacing="2.0">
                                                             <children>
                                                                 <Label styleClass="info-row-label" text="Username" />
-                                                                <Label fx:id="adminUsernameLabel" styleClass="info-row-value" text="JuanDelaCruz" />
+                                                                <Label fx:id="adminUsernameLabel"
+                                                                       styleClass="info-row-value" text="—" />
                                                             </children>
                                                         </VBox>
                                                     </children>
                                                 </HBox>
-
-                                                <!-- Contact Row -->
-                                                <HBox alignment="CENTER_LEFT" spacing="14.0">
-                                                    <children>
-                                                        <StackPane maxHeight="36.0" maxWidth="36.0" minHeight="36.0" minWidth="36.0" styleClass="info-icon-badge">
-                                                            <children>
-                                                                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                                                                    <image><Image url="@../../image/phone-solid%20(1).png" /></image>
-                                                                </ImageView>
-                                                            </children>
-                                                        </StackPane>
-                                                        <VBox spacing="2.0">
-                                                            <children>
-                                                                <Label styleClass="info-row-label" text="Contact No." />
-                                                                <Label fx:id="adminContactLabel" styleClass="info-row-value" text="09123456789" />
-                                                            </children>
-                                                        </VBox>
-                                                    </children>
-                                                </HBox>
-
-                                                <!-- Email Row -->
-                                                <HBox alignment="CENTER_LEFT" spacing="14.0">
-                                                    <children>
-                                                        <StackPane maxHeight="36.0" maxWidth="36.0" minHeight="36.0" minWidth="36.0" styleClass="info-icon-badge">
-                                                            <children>
-                                                                <ImageView fitHeight="14.0" fitWidth="14.0" pickOnBounds="true" preserveRatio="true">
-                                                                    <image><Image url="@../../image/envelope-solid%20(1).png" /></image>
-                                                                </ImageView>
-                                                            </children>
-                                                        </StackPane>
-                                                        <VBox spacing="2.0">
-                                                            <children>
-                                                                <Label styleClass="info-row-label" text="Email Address" />
-                                                                <Label fx:id="adminEmailLabel" styleClass="info-row-value" text="juan.delacruz@gmail.com" wrapText="true" />
-                                                            </children>
-                                                        </VBox>
-                                                    </children>
-                                                </HBox>
-
                                             </children>
                                         </VBox>
 
-                                        <!-- Register New Admin Button -->
-                                        <Button prefHeight="42.0" prefWidth="Infinity" styleClass="btn-register" text="+ Register New Admin Account">
+                                        <!-- Register Buttons (Admin only) -->
+                                        <Button fx:id="registerAdminBtn" prefHeight="42.0" prefWidth="Infinity"
+                                                styleClass="btn-register" text="+ Register New Admin Account"
+                                                onAction="#handleRegisterAdmin">
                                             <VBox.margin><Insets top="24.0" /></VBox.margin>
+                                        </Button>
+                                        <Button fx:id="registerStaffBtn" prefHeight="42.0" prefWidth="Infinity"
+                                                styleClass="btn-register" text="+ Register New Staff Account"
+                                                onAction="#handleRegisterStaff">
+                                            <VBox.margin><Insets top="8.0" /></VBox.margin>
                                         </Button>
 
                                     </children>
                                 </VBox>
 
-                                <!-- ════════════════════════════ -->
-                                <!-- RIGHT COLUMN               -->
-                                <!-- ════════════════════════════ -->
+                                <!-- ══════════════════════════════════════ -->
+                                <!-- RIGHT COLUMN                          -->
+                                <!-- ══════════════════════════════════════ -->
                                 <VBox spacing="16.0" HBox.hgrow="ALWAYS">
                                     <children>
 
-                                        <!-- ── Personal Information Card ── -->
+                                        <!-- ── Account Information Card ── -->
                                         <VBox spacing="16.0" styleClass="section-card">
                                             <padding>
                                                 <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                                             </padding>
                                             <children>
-
-                                                <!-- Card Header -->
                                                 <HBox alignment="CENTER_LEFT" spacing="14.0">
                                                     <children>
                                                         <StackPane maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" styleClass="card-icon-badge">
@@ -193,14 +171,26 @@
                                                                 </ImageView>
                                                             </children>
                                                         </StackPane>
-                                                        <Label styleClass="card-title" text="Personal Information" />
+                                                        <Label styleClass="card-title" text="Account Information" />
                                                     </children>
                                                 </HBox>
 
-                                                <!-- Divider -->
                                                 <Region maxHeight="1.0" minHeight="1.0" styleClass="card-divider" />
 
-                                                <!-- Username Field -->
+                                                <VBox spacing="6.0">
+                                                    <children>
+                                                        <Label styleClass="field-label" text="First Name" />
+                                                        <TextField fx:id="firstNameField" prefHeight="42.0" promptText="First Name" styleClass="input-field-icon" />
+                                                    </children>
+                                                </VBox>
+
+                                                <VBox spacing="6.0">
+                                                    <children>
+                                                        <Label styleClass="field-label" text="Last Name" />
+                                                        <TextField fx:id="lastNameField" prefHeight="42.0" promptText="Last Name" styleClass="input-field-icon" />
+                                                    </children>
+                                                </VBox>
+
                                                 <VBox spacing="6.0">
                                                     <children>
                                                         <Label styleClass="field-label" text="Username" />
@@ -213,52 +203,20 @@
                                                                 </ImageView>
                                                             </children>
                                                         </StackPane>
+                                                        <Label fx:id="usernameError" styleClass="validation-error" text="" />
                                                     </children>
                                                 </VBox>
 
-                                                <!-- Contact Field -->
-                                                <VBox spacing="6.0">
-                                                    <children>
-                                                        <Label styleClass="field-label" text="Contact No." />
-                                                        <StackPane>
-                                                            <children>
-                                                                <TextField fx:id="contactField" prefHeight="42.0" promptText="Contact No." styleClass="input-field-icon" />
-                                                                <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
-                                                                    <image><Image url="@../../image/phone-solid.png" /></image>
-                                                                    <StackPane.margin><Insets right="370.0" /></StackPane.margin>
-                                                                </ImageView>
-                                                            </children>
-                                                        </StackPane>
-                                                    </children>
-                                                </VBox>
-
-                                                <!-- Email Field -->
-                                                <VBox spacing="6.0">
-                                                    <children>
-                                                        <Label styleClass="field-label" text="Email Address" />
-                                                        <StackPane>
-                                                            <children>
-                                                                <TextField fx:id="emailField" prefHeight="42.0" promptText="Email Address" styleClass="input-field-icon" />
-                                                                <ImageView fitHeight="14.0" fitWidth="14.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
-                                                                    <image><Image url="@../../image/envelope-solid.png" /></image>
-                                                                    <StackPane.margin><Insets right="370.0" /></StackPane.margin>
-                                                                </ImageView>
-                                                            </children>
-                                                        </StackPane>
-                                                    </children>
-                                                </VBox>
-
-                                                <!-- Save / Cancel Buttons -->
                                                 <HBox alignment="CENTER_RIGHT" spacing="12.0">
                                                     <children>
-                                                        <Button fx:id="saveChangesBtn" prefHeight="40.0" styleClass="btn-primary" text="Save Changes">
+                                                        <Button fx:id="saveChangesBtn" onAction="#handleSaveChanges" prefHeight="40.0" styleClass="btn-primary" text="Save Changes">
                                                             <graphic>
                                                                 <ImageView fitHeight="20.0" fitWidth="19.0" pickOnBounds="true" preserveRatio="true">
                                                                     <image><Image url="@../../image/floppy-disk-regular.png" /></image>
                                                                 </ImageView>
                                                             </graphic>
                                                         </Button>
-                                                        <Button fx:id="cancelChangesBtn" prefHeight="40.0" styleClass="btn-secondary" text="Reset">
+                                                        <Button fx:id="cancelChangesBtn" onAction="#handleResetChanges" prefHeight="40.0" styleClass="btn-secondary" text="Reset">
                                                             <graphic>
                                                                 <ImageView fitHeight="16.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true">
                                                                     <image><Image url="@../../image/rotate-right-solid.png" /></image>
@@ -267,10 +225,8 @@
                                                         </Button>
                                                     </children>
                                                 </HBox>
-
                                             </children>
                                         </VBox>
-
                                         <!-- ── Change Password Card ── -->
                                         <VBox spacing="16.0" styleClass="section-card">
                                             <padding>
@@ -278,12 +234,14 @@
                                             </padding>
                                             <children>
 
-                                                <!-- Card Header -->
                                                 <HBox alignment="CENTER_LEFT" spacing="14.0">
                                                     <children>
-                                                        <StackPane maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" styleClass="card-icon-badge">
+                                                        <StackPane maxHeight="40.0" maxWidth="40.0"
+                                                                   minHeight="40.0" minWidth="40.0"
+                                                                   styleClass="card-icon-badge">
                                                             <children>
-                                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                                <ImageView fitHeight="20.0" fitWidth="20.0"
+                                                                           pickOnBounds="true" preserveRatio="true">
                                                                     <image><Image url="@../../image/lock-solid.png" /></image>
                                                                 </ImageView>
                                                             </children>
@@ -292,7 +250,6 @@
                                                     </children>
                                                 </HBox>
 
-                                                <!-- Divider -->
                                                 <Region maxHeight="1.0" minHeight="1.0" styleClass="card-divider" />
 
                                                 <!-- Current Password -->
@@ -301,17 +258,26 @@
                                                         <Label styleClass="field-label" text="Current Password" />
                                                         <StackPane>
                                                             <children>
-                                                                <PasswordField fx:id="currentPasswordField" prefHeight="42.0" promptText="••••••••••••" styleClass="input-field-icon-both" />
-                                                                <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+                                                                <PasswordField fx:id="currentPasswordField"
+                                                                               prefHeight="42.0" promptText="••••••••••••"
+                                                                               styleClass="input-field-icon-both" />
+                                                                <ImageView fitHeight="15.0" fitWidth="15.0"
+                                                                           mouseTransparent="true"
+                                                                           pickOnBounds="true" preserveRatio="true">
                                                                     <image><Image url="@../../image/lock-solid.png" /></image>
                                                                     <StackPane.margin><Insets right="370.0" /></StackPane.margin>
                                                                 </ImageView>
-                                                                <ImageView fx:id="toggleCurrentPass" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" styleClass="eye-icon">
+                                                                <ImageView fx:id="toggleCurrentPass"
+                                                                           fitHeight="16.0" fitWidth="16.0"
+                                                                           pickOnBounds="true" preserveRatio="true"
+                                                                           styleClass="eye-icon">
                                                                     <image><Image url="@../../image/eye-slash-solid.png" /></image>
                                                                     <StackPane.margin><Insets left="370.0" right="14.0" /></StackPane.margin>
                                                                 </ImageView>
                                                             </children>
                                                         </StackPane>
+                                                        <Label fx:id="currentPassError"
+                                                               styleClass="validation-error" text="" />
                                                     </children>
                                                 </VBox>
 
@@ -321,17 +287,26 @@
                                                         <Label styleClass="field-label" text="New Password" />
                                                         <StackPane>
                                                             <children>
-                                                                <PasswordField fx:id="newPasswordField" prefHeight="42.0" promptText="••••••••••••" styleClass="input-field-icon-both" />
-                                                                <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+                                                                <PasswordField fx:id="newPasswordField"
+                                                                               prefHeight="42.0" promptText="••••••••••••"
+                                                                               styleClass="input-field-icon-both" />
+                                                                <ImageView fitHeight="15.0" fitWidth="15.0"
+                                                                           mouseTransparent="true"
+                                                                           pickOnBounds="true" preserveRatio="true">
                                                                     <image><Image url="@../../image/lock-solid.png" /></image>
                                                                     <StackPane.margin><Insets right="370.0" /></StackPane.margin>
                                                                 </ImageView>
-                                                                <ImageView fx:id="toggleNewPass" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" styleClass="eye-icon">
+                                                                <ImageView fx:id="toggleNewPass"
+                                                                           fitHeight="16.0" fitWidth="16.0"
+                                                                           pickOnBounds="true" preserveRatio="true"
+                                                                           styleClass="eye-icon">
                                                                     <image><Image url="@../../image/eye-slash-solid.png" /></image>
                                                                     <StackPane.margin><Insets left="370.0" right="14.0" /></StackPane.margin>
                                                                 </ImageView>
                                                             </children>
                                                         </StackPane>
+                                                        <Label fx:id="newPassError"
+                                                               styleClass="validation-error" text="" />
                                                     </children>
                                                 </VBox>
 
@@ -341,33 +316,47 @@
                                                         <Label styleClass="field-label" text="Re-type New Password" />
                                                         <StackPane>
                                                             <children>
-                                                                <PasswordField fx:id="retypePasswordField" prefHeight="42.0" promptText="••••••••••••" styleClass="input-field-icon-both" />
-                                                                <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+                                                                <PasswordField fx:id="retypePasswordField"
+                                                                               prefHeight="42.0" promptText="••••••••••••"
+                                                                               styleClass="input-field-icon-both" />
+                                                                <ImageView fitHeight="15.0" fitWidth="15.0"
+                                                                           mouseTransparent="true"
+                                                                           pickOnBounds="true" preserveRatio="true">
                                                                     <image><Image url="@../../image/lock-solid.png" /></image>
                                                                     <StackPane.margin><Insets right="370.0" /></StackPane.margin>
                                                                 </ImageView>
-                                                                <ImageView fx:id="toggleRetypePass" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" styleClass="eye-icon">
+                                                                <ImageView fx:id="toggleRetypePass"
+                                                                           fitHeight="16.0" fitWidth="16.0"
+                                                                           pickOnBounds="true" preserveRatio="true"
+                                                                           styleClass="eye-icon">
                                                                     <image><Image url="@../../image/eye-slash-solid.png" /></image>
                                                                     <StackPane.margin><Insets left="370.0" right="14.0" /></StackPane.margin>
                                                                 </ImageView>
                                                             </children>
                                                         </StackPane>
+                                                        <Label fx:id="retypePassError"
+                                                               styleClass="validation-error" text="" />
                                                     </children>
                                                 </VBox>
 
-                                                <!-- Change Password / Clear Buttons -->
                                                 <HBox alignment="CENTER_RIGHT" spacing="12.0">
                                                     <children>
-                                                        <Button fx:id="changePasswordBtn" prefHeight="40.0" styleClass="btn-primary" text="Change Password">
+                                                        <Button fx:id="changePasswordBtn" prefHeight="40.0"
+                                                                styleClass="btn-primary" text="Change Password"
+                                                                onAction="#handleChangePassword">
                                                             <graphic>
-                                                                <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                                                                <ImageView fitHeight="15.0" fitWidth="15.0"
+                                                                           pickOnBounds="true" preserveRatio="true">
                                                                     <image><Image url="@../../image/user-lock-solid.png" /></image>
                                                                 </ImageView>
                                                             </graphic>
                                                         </Button>
-                                                        <Button fx:id="clearPasswordBtn" prefHeight="40.0" styleClass="btn-secondary" text="Clear">
+                                                        <Button fx:id="clearPasswordBtn" prefHeight="40.0"
+                                                                styleClass="btn-secondary" text="Clear"
+                                                                onAction="#handleClearPassword">
                                                             <graphic>
-                                                                <ImageView fitHeight="14.0" fitWidth="14.0" pickOnBounds="true" preserveRatio="true">
+                                                                <ImageView fitHeight="14.0" fitWidth="14.0"
+                                                                           pickOnBounds="true" preserveRatio="true">
                                                                     <image><Image url="@../../image/rotate-right-solid.png" /></image>
                                                                 </ImageView>
                                                             </graphic>
