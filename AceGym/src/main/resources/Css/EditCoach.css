@@ -107,6 +107,43 @@
     -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.3), 8, 0, 0, 0);
 }
 
+.combo-field {
+    -fx-background-color: #1e2130;
+    -fx-background-radius: 8;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 8;
+    -fx-text-fill: #ffffff;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+}
+
+.combo-field .label {
+    -fx-text-fill: #ffffff;
+}
+
+.combo-field .arrow {
+    -fx-background-color: #7a7f94;
+}
+
+.combo-field .list-view {
+    -fx-background-color: #1e2130;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.combo-field .list-cell {
+    -fx-text-fill: #ffffff;
+    -fx-background-color: transparent;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+}
+
+.combo-field .list-cell:hover {
+    -fx-background-color: #e53935;
+    -fx-text-fill: #ffffff;
+}
+
 /* ── Buttons ── */
 .btn-red {
     -fx-background-color: #e53935;

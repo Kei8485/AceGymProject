@@ -235,6 +235,9 @@
     -fx-text-fill: #ffffff;
     -fx-font-family: 'Inter';
     -fx-font-size: 13px;
+    -fx-padding: 10;
+
+
 }
 
 .combo-field .label {
