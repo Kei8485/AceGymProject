@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
 
-<StackPane fx:id="homePageBgID" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="1080.0" prefWidth="1920.0" style="-fx-background-radius: 30;" styleClass="main-bg" stylesheets="@../../Css/styles2.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.HomePageController">
+<StackPane fx:id="homePageBgID" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="1080.0" prefWidth="1920.0" style="-fx-background-radius: 30;" styleClass="main-bg" stylesheets="@../../Css/styles2.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.HomePageController">
 
     <children>
         <HBox maxHeight="738.0" maxWidth="1177.0" minHeight="738.0" minWidth="1177.0" prefHeight="738.0" prefWidth="1177.0" style="-fx-background-color: transparent; -fx-border-width: 2; -fx-border-radius: 25;">
@@ -129,8 +136,8 @@
                                 </StackPane>
 
                                 <!-- Name + Role -->
-                                <VBox alignment="CENTER_LEFT" prefHeight="44.0" prefWidth="120.0" spacing="2.0">
-                                    <Label fx:id="userNameLabel" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;" styleClass="labelText" text="Loading..." wrapText="true">
+                                <VBox alignment="CENTER_LEFT" prefHeight="47.0" prefWidth="201.0" spacing="2.0">
+                                    <Label fx:id="userNameLabel" prefHeight="20.0" prefWidth="194.0" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;" styleClass="labelText" text="Loading..." wrapText="true">
                               <font>
                                  <Font size="21.0" />
                               </font></Label>
