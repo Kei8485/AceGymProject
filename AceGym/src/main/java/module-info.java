@@ -13,6 +13,7 @@ module codes.acegym {
     requires java.sql;
     requires javafx.graphics;
     requires javafx.base;
+    requires java.prefs;
 
     opens codes.acegym.Objects to javafx.base, javafx.fxml;
 

@@ -1,93 +1,179 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@100..900&display=swap');
 
-
-/* --- Card Container --- */
+/* ── Card Container ─────────────────────────────────────────────────────── */
 .card-container {
-    -fx-background-color: #1A1F30;
-    -fx-background-radius: 20;
-    -fx-padding: 15;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 0);
-    -fx-border-color: rgba(255, 255, 255, 0.03);
-    -fx-border-radius: 20;
+    -fx-background-color: #1c2237;
+    -fx-background-radius: 16;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 16;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.55), 18, 0, 0, 4);
 }
 
-/* Add a subtle lift or glow when hovering over the card itself */
 .card-container:hover {
-    -fx-border-color: rgba(255, 255, 255, 0.1);
-    -fx-cursor: hand;
+    -fx-border-color: rgba(229, 57, 53, 0.5);
+    -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.10), 24, 0, 0, 4);
 }
 
-/* --- Coach Info --- */
+/* ── Header band ────────────────────────────────────────────────────────── */
+.card-header {
+    -fx-background-color: #1e2540;
+    -fx-background-radius: 16 16 0 0;
+}
+
+/* ── Avatar ─────────────────────────────────────────────────────────────── */
+.avatar-frame {
+    -fx-background-color: #141928;
+    -fx-background-radius: 12;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 12;
+    -fx-border-width: 1.5;
+}
+
+/* ── Name & ID ──────────────────────────────────────────────────────────── */
 .coach-name {
     -fx-font-family: 'Inter';
-    -fx-font-size: 18px;
+    -fx-font-size: 21px;
     -fx-font-weight: 800;
-    -fx-text-fill: #E8E6E9;
+    -fx-text-fill: #ffffff;
 }
 
 .coach-id {
     -fx-font-family: 'Inter';
-    -fx-font-size: 14px;
-    -fx-text-fill: #6B7280;
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #7a7f94;
 }
 
+/* ── Training type pill ─────────────────────────────────────────────────── */
+.training-type-badge {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #e53935;
+    -fx-background-color: rgba(229, 57, 53, 0.15);
+    -fx-background-radius: 5;
+    -fx-padding: 2 7 2 7;
+}
+
+/* ── Divider line ───────────────────────────────────────────────────────── */
+.card-divider {
+    -fx-background-color: #2e3349;
+    -fx-pref-height: 1;
+    -fx-max-height: 1;
+}
+
+/* ── Section dot ────────────────────────────────────────────────────────── */
+.section-dot {
+    -fx-background-color: #e53935;
+    -fx-background-radius: 3;
+}
+
+/* ── Section title ──────────────────────────────────────────────────────── */
 .section-title {
     -fx-font-family: 'Inter';
-    -fx-font-size: 18px;
-    -fx-font-weight: bold;
-    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #e53935;
 }
 
+/* ── Client names ───────────────────────────────────────────────────────── */
 .client-name {
     -fx-font-family: 'Inter';
     -fx-font-size: 13px;
-    -fx-text-fill: #E8E6E9;
-    -fx-padding: 1 0;
+    -fx-text-fill: #c9cdd6;
 }
 
-/* --- Action Buttons --- */
+/* ── Clients scrollpane ─────────────────────────────────────────────────── */
+.clients-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
 
-/* Edit Coach Button (Gray/Blue style) */
+.clients-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.clients-scroll .scroll-bar:vertical {
+    -fx-pref-width: 6;
+    -fx-background-color: transparent;
+}
+
+.clients-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #2e3349;
+    -fx-background-radius: 3;
+}
+
+.clients-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #e53935;
+}
+
+.clients-scroll .scroll-bar .increment-button,
+.clients-scroll .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.clients-scroll .scroll-bar .increment-arrow,
+.clients-scroll .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+    -fx-max-height: 0;
+    -fx-max-width: 0;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
 .btn-edit {
-    -fx-background-color: #e0e4ef;
-    -fx-background-radius: 15;
-    -fx-text-fill: #1a1f30;
+    -fx-background-color: #252d45;
+    -fx-background-radius: 9;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 9;
+    -fx-border-width: 1;
+    -fx-text-fill: #c9cdd6;
     -fx-font-family: 'Inter';
-    -fx-font-weight: bold;
-    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-font-size: 16px;
+    -fx-padding: 8 0;
+    -fx-cursor: hand;
 }
 
 .btn-edit:hover {
-    -fx-background-color: #edf1f9; /* Lighter shade on hover */
-    -fx-cursor: hand;
+    -fx-background-color: #2e3855;
+    -fx-border-color: #4a5068;
+    -fx-text-fill: #ffffff;
 }
 
 .btn-edit:pressed {
-    -fx-background-color: #c0c4cf; /* Darker shade when clicked */
+    -fx-background-color: #1a2035;
 }
 
-/* Manage Clients Button (Red style) */
 .btn-manage {
-    -fx-background-color: #CB443E; /* -fx-accent-lighter-red-text */
-    -fx-background-radius: 15;
+    -fx-background-color: #e53935;
+    -fx-background-radius: 9;
     -fx-text-fill: white;
     -fx-font-family: 'Inter';
-    -fx-font-weight: bold;
-    -fx-font-size: 14px;
-}
-
-.btn-manage:hover {
-    -fx-background-color: derive(#CB443E, 15%); /* Brightens the red */
+    -fx-font-weight: 700;
+    -fx-font-size: 16px;
+    -fx-padding: 8 0;
     -fx-cursor: hand;
 }
 
-.btn-manage:pressed {
-    /* Matches your -fx-accent-darker-red-text */
-    -fx-background-color: #8B2D2F;
+.btn-manage:hover {
+    -fx-background-color: #ef5350;
 }
 
-/* --- Image Border --- */
-.coach-image-frame {
-    -fx-border-color: rgba(255, 255, 255, 0.5);
-    -fx-border-width: 1;
+.btn-manage:pressed {
+    -fx-background-color: #c62828;
+}
+
+/* ── Remove X button ────────────────────────────────────────────────────── */
+.remove-btn-bg {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.remove-btn-bg:hover {
+    -fx-background-color: rgba(229, 57, 53, 0.2);
 }

@@ -1,7 +1,9 @@
 package codes.acegym.Controllers;
 
+import codes.acegym.DB.AdminDAO;
 import codes.acegym.DB.CoachDAO;
 import codes.acegym.Objects.Coach;
+import codes.acegym.Session;
 import javafx.application.Platform;
 import javafx.animation.FadeTransition;
 import javafx.collections.ObservableList;
@@ -32,13 +34,49 @@ public class CoachesController implements Refreshable {
 
     private ObservableList<Coach> allCoaches;
 
+    // Resolved once in initialize() — true if logged-in user is Admin
+    private boolean isAdmin = false;
+
+    // ── Resolve role from session ────────────────────────────────────────────
+    private void resolveRole() {
+        String username = Session.getInstance().getLoggedInUsername();
+        if (username == null) return;
+        AdminDAO.StaffProfile profile = AdminDAO.getProfileByUsername(username);
+        if (profile != null) {
+            isAdmin = "Admin".equalsIgnoreCase(profile.systemRole());
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // INIT
+    // ════════════════════════════════════════════════════════════════════════
+    @FXML
+    public void initialize() {
+        resolveRole();
+
+        // Hide "Add Coach" button for Staff
+        if (addCoachBtn != null) {
+            addCoachBtn.setVisible(isAdmin);
+            addCoachBtn.setManaged(isAdmin);
+            addCoachBtn.setOnAction(e -> openAddCoachModal());
+        }
+
+        setupFilterCombo();
+        refreshData();
+
+        if (searchField != null)
+            searchField.textProperty().addListener((obs, old, val) -> filterCards());
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // REFRESH
+    // ════════════════════════════════════════════════════════════════════════
     @Override
     public void refreshData() {
         coachContainer.getChildren().clear();
 
         javafx.animation.PauseTransition delay =
                 new javafx.animation.PauseTransition(Duration.millis(350));
-
         delay.setOnFinished(e -> loadCoachesAsync());
         delay.play();
     }
@@ -51,13 +89,7 @@ public class CoachesController implements Refreshable {
 
                 List<Node> cards = new ArrayList<>(allCoaches.size());
                 for (Coach coach : allCoaches) {
-                    FXMLLoader loader = new FXMLLoader(
-                            getClass().getResource("/codes/acegym/CoachCard.fxml"));
-                    Node card = loader.load();
-                    CoachCardController ctrl = loader.getController();
-                    ctrl.setCoach(coach);
-                    ctrl.setOnDeleteCallback(
-                            () -> Platform.runLater(CoachesController.this::refreshData));
+                    Node card = buildCard(coach);
                     cards.add(card);
                 }
                 return cards;
@@ -72,18 +104,22 @@ public class CoachesController implements Refreshable {
         t.start();
     }
 
-    @FXML
-    public void initialize() {
-        setupFilterCombo();
-        refreshData();
-
-        if (addCoachBtn != null)
-            addCoachBtn.setOnAction(e -> openAddCoachModal());
-
-        if (searchField != null)
-            searchField.textProperty().addListener((obs, old, val) -> filterCards());
+    // ── Shared card builder — passes isAdmin into every card ─────────────────
+    private Node buildCard(Coach coach) throws IOException {
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/codes/acegym/CoachCard.fxml"));
+        Node card = loader.load();
+        CoachCardController ctrl = loader.getController();
+        ctrl.setAdminMode(isAdmin);   // ← role flag goes in BEFORE setCoach
+        ctrl.setCoach(coach);
+        ctrl.setOnDeleteCallback(
+                () -> Platform.runLater(CoachesController.this::refreshData));
+        return card;
     }
 
+    // ════════════════════════════════════════════════════════════════════════
+    // FILTER / SEARCH
+    // ════════════════════════════════════════════════════════════════════════
     private void setupFilterCombo() {
         if (filterCombo == null) return;
         filterCombo.getItems().clear();
@@ -107,6 +143,35 @@ public class CoachesController implements Refreshable {
         });
     }
 
+    private void filterCards() {
+        if (allCoaches == null) return;
+
+        String query  = searchField.getText().trim().toLowerCase();
+        String filter = filterCombo.getValue();
+
+        ObservableList<Coach> filtered = javafx.collections.FXCollections.observableArrayList();
+
+        for (Coach c : allCoaches) {
+            String role     = c.getSystemRole();
+            String category = c.getTrainingCategory() != null ? c.getTrainingCategory() : "";
+
+            boolean matchesFilter = filter.equals("All")
+                    || filter.equals("First Name")
+                    || filter.equals("Last Name")
+                    || category.equalsIgnoreCase(filter)
+                    || role.equalsIgnoreCase(filter);
+
+            if (!matchesFilter) continue;
+
+            boolean matchesSearch = c.getFullName().toLowerCase().contains(query)
+                    || role.toLowerCase().contains(query);
+
+            if (matchesSearch) filtered.add(c);
+        }
+
+        renderCoaches(filtered);
+    }
+
     private void renderCoaches(ObservableList<Coach> coaches) {
         coachContainer.getChildren().clear();
 
@@ -123,14 +188,7 @@ public class CoachesController implements Refreshable {
             protected List<Node> call() throws Exception {
                 List<Node> cards = new ArrayList<>(coaches.size());
                 for (Coach coach : coaches) {
-                    FXMLLoader loader = new FXMLLoader(
-                            getClass().getResource("/codes/acegym/CoachCard.fxml"));
-                    Node card = loader.load();
-                    CoachCardController ctrl = loader.getController();
-                    ctrl.setCoach(coach);
-                    ctrl.setOnDeleteCallback(
-                            () -> Platform.runLater(CoachesController.this::refreshData));
-                    cards.add(card);
+                    cards.add(buildCard(coach));
                 }
                 return cards;
             }
@@ -144,40 +202,9 @@ public class CoachesController implements Refreshable {
         t.start();
     }
 
-    private void filterCards() {
-        if (allCoaches == null) return;
-
-        String query = searchField.getText().trim().toLowerCase();
-        String filter = filterCombo.getValue();
-
-        ObservableList<Coach> filtered = javafx.collections.FXCollections.observableArrayList();
-
-        for (Coach c : allCoaches) {
-            String role = c.getSystemRole(); // Ensure your Coach object has this field
-            String category = c.getTrainingCategory() != null ? c.getTrainingCategory() : "";
-
-            // Check if the card matches the dropdown filter
-            boolean matchesFilter = filter.equals("All")
-                    || filter.equals("First Name")
-                    || filter.equals("Last Name")
-                    || category.equalsIgnoreCase(filter)
-                    || role.equalsIgnoreCase(filter); // Checks for 'Admin' or 'Staff'
-
-            if (!matchesFilter) continue;
-
-            // Check if it matches the search text
-            boolean matchesSearch = c.getFullName().toLowerCase().contains(query)
-                    || role.toLowerCase().contains(query);
-
-            if (matchesSearch) filtered.add(c);
-        }
-
-        renderCoaches(filtered);
-    }
-
-
-
-
+    // ════════════════════════════════════════════════════════════════════════
+    // ANIMATION
+    // ════════════════════════════════════════════════════════════════════════
     private void animateCardsIn(List<Node> cards) {
         coachContainer.getChildren().clear();
 
@@ -189,8 +216,8 @@ public class CoachesController implements Refreshable {
         coachContainer.getChildren().addAll(cards);
 
         for (int i = 0; i < cards.size(); i++) {
-            Node card = cards.get(i);
-            int index = i;
+            Node card  = cards.get(i);
+            int  index = i;
 
             javafx.animation.PauseTransition delay =
                     new javafx.animation.PauseTransition(Duration.millis(index * 40L));
@@ -206,15 +233,16 @@ public class CoachesController implements Refreshable {
                 slide.setToY(0);
                 slide.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
 
-                javafx.animation.ParallelTransition anim =
-                        new javafx.animation.ParallelTransition(fade, slide);
-                anim.play();
+                new javafx.animation.ParallelTransition(fade, slide).play();
             });
 
             delay.play();
         }
     }
 
+    // ════════════════════════════════════════════════════════════════════════
+    // MODAL
+    // ════════════════════════════════════════════════════════════════════════
     private void openAddCoachModal() {
         try {
             FXMLLoader loader = new FXMLLoader(

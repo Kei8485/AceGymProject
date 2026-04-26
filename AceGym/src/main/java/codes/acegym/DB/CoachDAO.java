@@ -146,14 +146,34 @@ public class CoachDAO {
     // Clients are never force-deleted here; use the Manage Clients modal to
     // remove all assignments first (they fall back to StaffID 1 / "None").
     public static boolean deleteCoach(int staffID) {
-        String deleteStaff = "DELETE FROM StaffTable WHERE StaffID = ?";
-        try (Connection con = DBConnector.connect();
-             PreparedStatement ps = con.prepareStatement(deleteStaff)) {
-            ps.setInt(1, staffID);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) { e.printStackTrace(); return false; }
-    }
+        String deleteAccount = "DELETE FROM UserAccountsTable WHERE StaffID = ?";
+        String deleteStaff   = "DELETE FROM StaffTable WHERE StaffID = ?";
 
+        try (Connection con = DBConnector.connect()) {
+            con.setAutoCommit(false);
+            try (PreparedStatement ps1 = con.prepareStatement(deleteAccount);
+                 PreparedStatement ps2 = con.prepareStatement(deleteStaff)) {
+
+                // Delete the account first (child row), then the staff (parent row)
+                ps1.setInt(1, staffID);
+                ps1.executeUpdate(); // OK if 0 rows — coach may not have an account
+
+                ps2.setInt(1, staffID);
+                int rows = ps2.executeUpdate();
+
+                con.commit();
+                return rows > 0;
+
+            } catch (SQLException e) {
+                con.rollback();
+                e.printStackTrace();
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     // ── Clients assigned to a coach (name only, for card display) ────────────
     public static ObservableList<String> getClientNamesForCoach(int staffID) {
         ObservableList<String> names = FXCollections.observableArrayList();

@@ -1,191 +1,169 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@100..900&display=swap');
 
-
-/* --- Variable Definitions --- */
+/* ── Variables ──────────────────────────────────────────────────────────── */
 .root {
-    -fx-accent-lighter-red-text: #CB443E;
-    -fx-accent-darker-red-text: #8B2D2F; /* Added for pressed states */
-    -fx-white-text: #E8E6E9;
-    -fx-gray-text: #6B7280;
+    -fx-red:        #e53935;
+    -fx-red-hover:  #ef5350;
+    -fx-red-dim:    rgba(229, 57, 53, 0.15);
+    -fx-card-bg:    #1c2237;
+    -fx-page-bg:    #0E1223;
+    -fx-area-bg:    #111827;
+    -fx-border:     #2e3349;
+    -fx-text:       #ffffff;
+    -fx-muted:      #7a7f94;
+    -fx-sub:        #c9cdd6;
 }
 
-/* --- Main Layout --- */
-.main-content-bg {
-    -fx-background-color: #0E1223;
+/* ── Page header icon box ───────────────────────────────────────────────── */
+.header-icon-box {
+    -fx-min-width:  52px;
+    -fx-min-height: 52px;
+    -fx-max-width:  52px;
+    -fx-max-height: 52px;
+    -fx-background-color: #e53935;
+    -fx-background-radius: 14px;
 }
 
-/* The outer dark box holding all cards */
-.card-content-area {
-    -fx-background-color: #111827;
-    -fx-background-radius: 25;
-    -fx-border-color: rgba(255, 255, 255, 0.05);
-    -fx-border-radius: 25;
+/* ── Page header text ───────────────────────────────────────────────────── */
+.pos-header {
+    -fx-text-fill: #7a7f94;
+    -fx-font-size: 13px;
+    -fx-font-family: 'Inter';
+    -fx-font-weight: 700;
+    -fx-letter-spacing: 1.5px;
 }
 
-/* Header Text */
 .text-header {
     -fx-font-family: 'Bebas Neue';
-    -fx-font-size: 50px;
-    -fx-font-weight: bold;
-    -fx-text-fill: -fx-white-text;
+    -fx-font-size: 46px;
+    -fx-text-fill: #ffffff;
 }
 
-.label-search {
-    -fx-text-fill: white;
-    -fx-font-family: "Inter";
-    -fx-font-size: 24px;
-    -fx-font-weight: bold;
-}
-
-/* --- Search Bar --- */
-.search-field {
-    -fx-background-color: -fx-accent-lighter-red-text;
-    -fx-background-radius: 15;
-    -fx-text-fill: white;
-    -fx-prompt-text-fill: #f0f0f0;
-    -fx-padding: 5 15;
-    -fx-font-size: 18px;
-}
-
-.search-field:hover {
-    -fx-background-color: derive(#CB443E, 15%);
-    -fx-cursor: hand;
-}
-
-.search-field:pressed {
-    -fx-background-color: -fx-accent-darker-red-text;
-}
-
-/* --- ScrollPane Cleanup --- */
-.scroll-pane {
-    -fx-background-color: transparent;
-    -fx-background: transparent;
-    -fx-border-color: transparent;
-}
-
-.scroll-pane .viewport {
-    -fx-background-color: transparent;
-}
-
-.scroll-pane .thumb {
-    -fx-background-color: #1c2237;
-    -fx-background-radius: 10;
-}
-
-/* --- Add Coach Button --- */
+/* ── Add Coach button ───────────────────────────────────────────────────── */
 .btn-add-coach {
-    -fx-background-color: -fx-accent-lighter-red-text;
-    -fx-background-radius: 15;
-    -fx-text-fill: #0D1117;
-    -fx-font-family: "Inter";
-    -fx-font-weight: bold;
-    -fx-padding: 8 20;
-    -fx-font-size: 18px;
+    -fx-background-color: #e53935;
+    -fx-background-radius: 10;
+    -fx-text-fill: #ffffff;
+    -fx-font-family: 'Inter';
+    -fx-font-weight: 700;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20 10 20;
+    -fx-cursor: hand;
 }
 
 .btn-add-coach:hover {
-    -fx-background-color: #edf1f9; /* Subtle light gray on hover */
-    -fx-cursor: hand;
+    -fx-background-color: #ef5350;
 }
 
 .btn-add-coach:pressed {
-    -fx-background-color: #c0c4cf; /* Darker gray when clicked */
+    -fx-background-color: #c62828;
 }
 
-/* --- Search Icon Styling --- */
-
-.search-icon {
-    -fx-effect: color-adjust(brightness(1.0) contrast(1.0) hue(0) saturation(0));
-}
-
-.search-icon:hover {
-    -fx-cursor: hand;
-    -fx-opacity: 0.8;
-}
-
-/* Container for the search bar + icon to keep them aligned */
-.search-container {
-    -fx-background-color: -fx-accent-lighter-red-text;
-    -fx-background-radius: 15;
-    -fx-padding: 0 10 0 0; /* Add padding to the right for the icon */
-    -fx-alignment: CENTER_RIGHT;
-}
-
-.search-icon:pressed {
-    /* Darkens and slightly shrinks the icon for a "click" feel */
-    -fx-effect: color-adjust(brightness(0.6));
-    -fx-scale-x: 0.9;
-    -fx-scale-y: 0.9;
-}
-
-.header-icon-box {
-    -fx-min-width: 52px;
-    -fx-min-height: 52px;
-    -fx-max-width: 52px;
-    -fx-max-height: 52px;
-    -fx-background-color: #e53935;
-    -fx-background-radius: 12px;
-}
-
-.pos-header {
-    -fx-text-fill: #7a7f94;
-    -fx-font-size: 22px;
-    -fx-font-family: 'Bebas Neue';
-    -fx-font-weight: normal;
-}
-
-/* --- Custom ComboBox / Dropdown --- */
-.custom-combo-box {
-    -fx-background-color: #1c2237; /* Matches your card-bg */
-    -fx-background-radius: 12;
-    -fx-border-color: #2e3349;
-    -fx-border-radius: 12;
+/* ── Content area card ──────────────────────────────────────────────────── */
+.card-content-area {
+    -fx-background-color: #111827;
+    -fx-background-radius: 18;
+    -fx-border-color: #1e2540;
+    -fx-border-radius: 18;
     -fx-border-width: 1.5;
-    -fx-padding: 5 10 5 10;
-    -fx-font-family: "Inter";
-    -fx-font-size: 16px;
-    -fx-text-fill: white;
 }
 
-.custom-combo-box:hover {
-    -fx-border-color: -fx-accent-lighter-red-text;
-    -fx-cursor: hand;
+/* ── Toolbar row ────────────────────────────────────────────────────────── */
+.toolbar-row {
+    -fx-background-color: #141928;
+    -fx-background-radius: 18 18 0 0;
 }
 
-/* Styling the arrow button */
-.custom-combo-box .arrow-button {
-    -fx-background-color: transparent;
-    -fx-padding: 0 3 0 3;
+.toolbar-divider {
+    -fx-background-color: #1e2540;
+    -fx-pref-height: 1;
+    -fx-max-height: 1;
 }
 
-/* Styling the actual arrow shape */
-.custom-combo-box .arrow {
-    -fx-background-color: #7a7f94; /* Muted gray arrow */
-    -fx-shape: "M 0 0 L 4 4 L 8 0 Z"; /* Clean triangle shape */
+/* ── Manage Coaches label ───────────────────────────────────────────────── */
+.label-manage {
+    -fx-text-fill: #ffffff;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
 }
 
-/* Styling the popup list that appears when clicked */
-.custom-combo-box .list-view {
+/* ── Search wrapper (dark pill with icon + field) ───────────────────────── */
+.search-wrapper {
     -fx-background-color: #1c2237;
     -fx-background-radius: 10;
     -fx-border-color: #2e3349;
-    -fx-border-width: 1;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 5);
+    -fx-border-radius: 10;
+    -fx-border-width: 1.5;
+    -fx-padding: 0 10 0 0;
+}
+
+.search-wrapper:focused-within {
+    -fx-border-color: #e53935;
+}
+
+/* ── Search field ───────────────────────────────────────────────────────── */
+.search-field {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent;
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: #4a5068;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 14px;
+    -fx-padding: 0 8 0 0;
+}
+
+.search-field:focused {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-effect: none;
+}
+
+/* ── Search icon ────────────────────────────────────────────────────────── */
+.search-icon {
+    -fx-opacity: 0.5;
+}
+
+/* ── Filter ComboBox ────────────────────────────────────────────────────── */
+.custom-combo-box {
+    -fx-background-color: #1e2130;
+    -fx-background-radius: 8;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 8;
+    -fx-text-fill: #ffffff;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+}
+
+.custom-combo-box .label {
+    -fx-text-fill: #ffffff;
+}
+
+.custom-combo-box .arrow {
+    -fx-background-color: #7a7f94;
+}
+
+.custom-combo-box .list-view {
+    -fx-background-color: #1e2130;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
 }
 
 .custom-combo-box .list-cell {
-    -fx-text-fill: #E8E6E9;
-    -fx-padding: 10;
-    -fx-font-size: 15px;
+    -fx-text-fill: #ffffff;
     -fx-background-color: transparent;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
 }
 
 .custom-combo-box .list-cell:hover {
-    -fx-background-color: #2e3349;
-    -fx-text-fill: -fx-accent-lighter-red-text;
+    -fx-background-color: #e53935;
+    -fx-text-fill: #ffffff;
 }
 
-/* ── ScrollPane ── */
+/* ── ScrollPane ─────────────────────────────────────────────────────────── */
 .custom-scroll-pane {
     -fx-background-color: transparent;
     -fx-background: transparent;
@@ -196,42 +174,40 @@
     -fx-background-color: transparent;
 }
 
-/* Vertical ScrollBar Track */
 .custom-scroll-pane .scroll-bar:vertical {
     -fx-background-color: transparent;
-    -fx-pref-width: 8;
+    -fx-pref-width: 7;
 }
 
-/* The Draggable Thumb */
+.custom-scroll-pane .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
 .custom-scroll-pane .scroll-bar:vertical .thumb {
-    -fx-background-color: #1c2237;
-    -fx-background-radius: 10;
+    -fx-background-color: #2e3349;
+    -fx-background-radius: 4;
 }
 
 .custom-scroll-pane .scroll-bar:vertical .thumb:hover {
-    -fx-background-color: #CB443E;
+    -fx-background-color: #e53935;
 }
 
-/* ── REMOVE ARROW BUTTONS COMPLETELY ── */
 .custom-scroll-pane .scroll-bar .increment-button,
 .custom-scroll-pane .scroll-bar .decrement-button {
     -fx-background-color: transparent;
-    -fx-background-radius: 0;
-    -fx-padding: 0 10 0 0; /* Forces height to zero */
+    -fx-padding: 0;
 }
 
 .custom-scroll-pane .scroll-bar .increment-arrow,
 .custom-scroll-pane .scroll-bar .decrement-arrow {
-    -fx-shape: "";         /* Erases the triangle */
-    -fx-padding: 0;        /* Removes the bounding box */
+    -fx-shape: "";
+    -fx-padding: 0;
     -fx-max-height: 0;
     -fx-max-width: 0;
 }
 
+/* ── TilePane ───────────────────────────────────────────────────────────── */
 .tile-pane {
-    /* Centers the entire grid inside the parent container */
-    -fx-alignment: CENTER;
-
-    /* Centers the content (labels, images) inside each individual tile */
-    -fx-tile-alignment: CENTER;
+    -fx-alignment: TOP_LEFT;
+    -fx-tile-alignment: TOP_LEFT;
 }

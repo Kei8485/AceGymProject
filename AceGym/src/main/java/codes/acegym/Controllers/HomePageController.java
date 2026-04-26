@@ -1,10 +1,13 @@
 package codes.acegym.Controllers;
 
+import codes.acegym.DB.AdminDAO;
+import codes.acegym.Session;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -33,6 +36,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +53,15 @@ public class HomePageController {
     @FXML private VBox        contentArea;
     @FXML private ToggleGroup menuGroup;
     @FXML private StackPane   homePageBgID;
+
+    // ── User profile nodes injected from FXML ──────────────────────────────
+    // Wire these up in your HomePage.fxml sidebar:
+    //   fx:id="userAvatarView"  → the ImageView inside the circle clip
+    //   fx:id="userNameLabel"   → full-name label
+    //   fx:id="userRoleLabel"   → role label  (e.g. "Admin")
+    @FXML private ImageView userAvatarView;
+    @FXML private Label     userNameLabel;
+    @FXML private Label     userRoleLabel;
 
     private AnimationTimer glowTimer;
     private double x = 0, y = 0;
@@ -114,6 +127,9 @@ public class HomePageController {
         setDashboardBackground();
         setupNavigation();
 
+        // ── Populate sidebar user profile ──────────────────────────────────
+        loadUserProfile();
+
         // Disable all nav buttons until loading is complete
         setNavDisabled(true);
 
@@ -141,19 +157,144 @@ public class HomePageController {
     }
 
     // ═══════════════════════════════════════════════════════════════
+    // USER PROFILE — sidebar avatar + name + role
+    // ═══════════════════════════════════════════════════════════════
+
+    /**
+     * Fetches the logged-in user's profile from the DB and populates the
+     * sidebar avatar, full name, and role label.
+     *
+     * If the three FXML nodes (userAvatarView / userNameLabel / userRoleLabel)
+     * are present in the layout they will be updated; if they are absent
+     * (null) the method silently skips those fields so no NPE is thrown.
+     *
+     * The avatar ImageView is given a circular clip automatically here so
+     * you do NOT need to clip it in FXML — just give it a fixed size, e.g.:
+     *   <ImageView fx:id="userAvatarView" fitWidth="44" fitHeight="44"
+     *              preserveRatio="false" />
+     */
+    private void loadUserProfile() {
+        String username = Session.getInstance().getLoggedInUsername();
+
+        // ── DEBUG: confirm what the session holds ──────────────────────────
+        System.out.println("[HomePageController] Session username = '" + username + "'");
+
+        if (username == null || username.isBlank()) {
+            // Session not set yet — apply clip to the fallback avatar so the
+            // circle border still looks correct, and leave labels as-is.
+            Platform.runLater(() -> {
+                if (userAvatarView != null) applyCircleClip(userAvatarView);
+                if (userNameLabel  != null) userNameLabel.setText("Unknown");
+                if (userRoleLabel  != null) userRoleLabel.setText("");
+            });
+            return;
+        }
+
+        Thread profileThread = new Thread(() -> {
+            AdminDAO.StaffProfile profile = AdminDAO.getProfileByUsername(username);
+
+            // ── DEBUG: confirm what the DB returned ────────────────────────
+            System.out.println("[HomePageController] Profile from DB = " + profile);
+
+            if (profile == null) {
+                // Username exists in session but not found in DB — show username at least
+                Platform.runLater(() -> {
+                    if (userAvatarView != null) applyCircleClip(userAvatarView);
+                    if (userNameLabel  != null) userNameLabel.setText(username);
+                    if (userRoleLabel  != null) userRoleLabel.setText("—");
+                });
+                return;
+            }
+
+            Image avatar = resolveAvatar(profile.staffImage());
+
+            Platform.runLater(() -> {
+                if (userAvatarView != null) {
+                    if (avatar != null) userAvatarView.setImage(avatar);
+                }
+                if (userNameLabel != null)
+                    userNameLabel.setText(profile.firstName() + " " + profile.lastName());
+                if (userRoleLabel != null)
+                    userRoleLabel.setText(profile.systemRole());
+
+                if (adminProfile != null)
+                    adminProfile.setText("Admin".equalsIgnoreCase(profile.systemRole())
+                            ? "Admin Profile" : "Staff Profile");
+            });
+        }, "profile-loader");
+        profileThread.setDaemon(true);
+        profileThread.start();
+    }
+
+    /**
+     * Call this from LoginController AFTER setting the session username,
+     * if HomePageController is already initialised.
+     * Example: HomePageController.getInstance().refreshUserProfile();
+     */
+    public void refreshUserProfile() {
+        loadUserProfile();
+    }
+
+    /**
+     * Applies a circular clip to the given ImageView so the photo is always
+     * displayed as a perfect circle with no extra CSS needed.
+     * The clip radius is derived from the node's fitWidth (assumed == fitHeight).
+     */
+    private void applyCircleClip(ImageView iv) {
+        double r = iv.getFitWidth() / 2.0;
+        Circle clip = new Circle(r, r, r);
+        iv.setClip(clip);
+    }
+
+    /**
+     * Resolves the StaffImage column value to an actual JavaFX {@link Image}.
+     * Strategy (in order):
+     *   1. Absolute file path on disk  →  file:// URI
+     *   2. Classpath resource          →  getResourceAsStream
+     *   3. Falls back to null (caller skips setting the image)
+     */
+    private Image resolveAvatar(String staffImage) {
+        if (staffImage == null || staffImage.isBlank() || staffImage.equalsIgnoreCase("none.png")) {
+            // Return a default placeholder from classpath
+            return loadClasspathImage("/codes/acegym/images/default_avatar.png");
+        }
+
+        // Try absolute / relative file path first
+        java.io.File f = new java.io.File(staffImage);
+        if (f.exists()) {
+            try {
+                return new Image(f.toURI().toString(), true);
+            } catch (Exception ignored) { }
+        }
+
+        // Try as classpath resource
+        Image cp = loadClasspathImage(staffImage.startsWith("/") ? staffImage : "/" + staffImage);
+        if (cp != null) return cp;
+
+        return null; // couldn't resolve — caller will leave the default avatar in place
+    }
+
+    private Image loadClasspathImage(String path) {
+        try (InputStream is = getClass().getResourceAsStream(path)) {
+            if (is != null) return new Image(is);
+        } catch (Exception ignored) { }
+        return null;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
     // LOADING OVERLAY — static design, no animations, no progress bar
     // ═══════════════════════════════════════════════════════════════
 
     private void showLoadingOverlay() {
         loadingOverlay = new StackPane();
         loadingOverlay.setStyle("-fx-background-color: transparent; -fx-padding: 0 0 150 0;");
-        loadingOverlay.setAlignment(javafx.geometry.Pos.CENTER);
-        StackPane.setAlignment(loadingOverlay, javafx.geometry.Pos.CENTER);
+        loadingOverlay.setAlignment(Pos.CENTER);
+        StackPane.setAlignment(loadingOverlay, Pos.CENTER);
 
         VBox inner = new VBox(28);
-        inner.setAlignment(javafx.geometry.Pos.CENTER);
+        inner.setAlignment(Pos.CENTER);
         inner.setMaxWidth(300);
-        StackPane.setAlignment(inner, javafx.geometry.Pos.CENTER);
+        StackPane.setAlignment(inner, Pos.CENTER);
 
         // Static logo ring (no animations)
         StackPane logoRing = buildLogoRing();
@@ -168,7 +309,7 @@ public class HomePageController {
                 "-fx-text-fill: #e8e8f0; -fx-font-family: 'Inter'; " +
                         "-fx-font-size: 28px; -fx-font-weight: bold; -fx-letter-spacing: 4px;");
         javafx.scene.layout.HBox nameRow = new javafx.scene.layout.HBox(6, nameAce, nameGym);
-        nameRow.setAlignment(javafx.geometry.Pos.CENTER);
+        nameRow.setAlignment(Pos.CENTER);
 
         // Tagline
         Label tagline = new Label("FITNESS MANAGEMENT");
@@ -259,8 +400,6 @@ public class HomePageController {
         logoCircleBg.setStroke(Color.web("#cb443e", 0.25));
         logoCircleBg.setStrokeWidth(1);
 
-
-
         // Assemble: glow → tracks → arcs → dots → logo bg
         javafx.scene.Group allShapes = new javafx.scene.Group(
                 glowCircle,
@@ -276,12 +415,6 @@ public class HomePageController {
 
     // ═══════════════════════════════════════════════════════════════
     // HIDE LOADING OVERLAY
-    // Sequence:
-    //  1. The inner VBox content gently rises + fades out (200ms)
-    //  2. The overlay itself fades to black, then scales down like a
-    //     lens closing (600ms total) — feels intentional, not abrupt.
-    //  3. The first page (Dashboard) scales in from 96% → 100% with
-    //     an opacity rise, so the reveal feels physical.
     // ═══════════════════════════════════════════════════════════════
 
     private void hideLoadingOverlay() {
@@ -293,7 +426,6 @@ public class HomePageController {
         loadingBar     = null;
 
         // ── Step 1: content drifts up and disappears (200ms) ──
-        // The inner VBox is the first (and only) child of the overlay StackPane
         if (!overlay.getChildren().isEmpty()) {
             javafx.scene.Node inner = overlay.getChildren().get(0);
             Timeline contentOut = new Timeline(
@@ -310,7 +442,6 @@ public class HomePageController {
         // ── Step 2: after content is gone, collapse the overlay (lens-close) ──
         PauseTransition wait = new PauseTransition(Duration.millis(180));
         wait.setOnFinished(ev -> {
-            // Fade + slight scale-down — like a shutter closing
             Timeline overlayOut = new Timeline(
                     new KeyFrame(Duration.ZERO,
                             new KeyValue(overlay.opacityProperty(),  1.0,  Interpolator.EASE_IN),
@@ -323,7 +454,6 @@ public class HomePageController {
             );
             overlayOut.setOnFinished(e -> {
                 contentArea.getChildren().remove(overlay);
-                // ── Step 3: reveal the first page with a satisfying scale-up ──
                 Parent firstPage = viewCache.get("/codes/acegym/Dashboard.fxml");
                 if (firstPage != null) {
                     firstPage.setOpacity(0);
@@ -364,20 +494,15 @@ public class HomePageController {
             final String  path    = ALL_PAGES.get(i);
             final boolean isFirst = (i == 0);
 
-            // Inside your HomePageController startBackgroundPreload loop
             loaderPool.submit(() -> {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
                     Parent view = loader.load();
 
-                    // --- THIS IS THE KEY ADDITION ---
-                    // We get the controller (e.g. ReportPageController)
-                    // and hide it inside the view's properties.
                     Object controller = loader.getController();
                     if (controller != null) {
                         view.getProperties().put("controller", controller);
                     }
-                    // --------------------------------
 
                     Platform.runLater(() -> registerPage(path, view, isFirst));
                 } catch (Exception e) {
@@ -397,7 +522,7 @@ public class HomePageController {
             r.setMaxWidth(Double.MAX_VALUE);
             r.setMaxHeight(Double.MAX_VALUE);
         }
-        StackPane.setAlignment(view, javafx.geometry.Pos.TOP_LEFT);
+        StackPane.setAlignment(view, Pos.TOP_LEFT);
 
         view.setVisible(false);
         view.setManaged(false);
@@ -437,17 +562,7 @@ public class HomePageController {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // PAGE DISPLAY — zero scene-graph mutation after initial load
-    // ═══════════════════════════════════════════════════════════════
-
-    // ═══════════════════════════════════════════════════════════════
     // PAGE TRANSITION  —  "parallax slide + depth" effect
-    //
-    // Outgoing page: fades out + slides left 28px + scales down to 0.97
-    // Incoming page: slides in from the right 28px + fades + scales to 1.0
-    // Both run in parallel on a single Timeline so they stay in sync.
-    // Duration: 260ms with EASE_BOTH — fast enough to feel snappy,
-    // slow enough to read as intentional motion.
     // ═══════════════════════════════════════════════════════════════
 
     private void showPage(String fxmlPath) {
@@ -456,21 +571,14 @@ public class HomePageController {
         Parent next = viewCache.get(fxmlPath);
         if (next == null) return;
 
-        // ── TRIGGER REFRESH ──────────────────────────────────────────
-        // We look into the "pocket" of the view to find its controller
         Object controller = next.getProperties().get("controller");
-
-        // Check if the controller implements our Refreshable interface
         if (controller instanceof Refreshable r) {
-            r.refreshData(); // Run the specific reload logic for this tab
+            r.refreshData();
         }
-        // ─────────────────────────────────────────────────────────────
 
         Parent prev = currentPagePath != null ? viewCache.get(currentPagePath) : null;
         currentPagePath = fxmlPath;
 
-
-        // ── Reset next page to starting position (right, slightly scaled down) ──
         next.setOpacity(0);
         next.setTranslateX(28);
         next.setScaleX(0.97);
@@ -481,14 +589,12 @@ public class HomePageController {
 
         if (switchTimeline != null) switchTimeline.stop();
 
-        // ── Outgoing keyframes ──
-        double OUT_X     = -22;   // slides left
-        double OUT_SCALE = 0.97;  // shrinks slightly
-        int    MS        = 260;   // total duration
+        double OUT_X     = -22;
+        double OUT_SCALE = 0.97;
+        int    MS        = 260;
 
         List<KeyFrame> frames = new java.util.ArrayList<>();
 
-        // t = 0 → snapshot current state of prev
         if (prev != null) {
             frames.add(new KeyFrame(Duration.ZERO,
                     new KeyValue(prev.opacityProperty(),    1,    Interpolator.EASE_BOTH),
@@ -504,7 +610,6 @@ public class HomePageController {
             ));
         }
 
-        // t = 0 → next starts right + transparent
         frames.add(new KeyFrame(Duration.ZERO,
                 new KeyValue(next.opacityProperty(),    0,    Interpolator.EASE_BOTH),
                 new KeyValue(next.translateXProperty(), 28,   Interpolator.EASE_BOTH),
@@ -521,7 +626,6 @@ public class HomePageController {
         switchTimeline = new Timeline(frames.toArray(new KeyFrame[0]));
         switchTimeline.setOnFinished(e -> {
             if (prev != null) {
-                // Clean up prev — reset transforms so it's ready if revisited
                 prev.setVisible(false);
                 prev.setManaged(false);
                 prev.setTranslateX(0);
@@ -534,21 +638,14 @@ public class HomePageController {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  PAYMENT NAVIGATION  — called by RegistrationController after the user
-    //  confirms "Avail Membership". Switches to the Payment page and pre-fills
-    //  the client in PaymentController so the user can complete the payment.
+    //  PAYMENT NAVIGATION
     // ════════════════════════════════════════════════════════════════════════
     public void navigateToPaymentTab(codes.acegym.Objects.Client client) {
-        // 1. Select the nav toggle so the UI stays consistent
         if (PaymentForm != null) {
             menuGroup.selectToggle(PaymentForm);
         }
-
-        // 2. Switch to the Payment page via the same mechanism as the nav buttons
         showPage("/codes/acegym/Payment.fxml");
 
-        // 3. Get the PaymentController from the view cache and pre-select the client.
-        //    Defer by one pulse so the page-switch animation starts first.
         Parent paymentView = viewCache.get("/codes/acegym/Payment.fxml");
         if (paymentView != null) {
             Object ctrl = paymentView.getProperties().get("controller");

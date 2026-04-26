@@ -20,21 +20,21 @@
                         <ToggleGroup fx:id="menuGroup" />
                     </fx:define>
                     <children>
-                  <AnchorPane prefHeight="142.0" prefWidth="259.0">
-                     <children>
-                        <ImageView fx:id="logoImg" fitHeight="201.0" fitWidth="116.0" layoutX="85.0" layoutY="-35.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../../image/etoNa.png" />
-                           </image>
-                        </ImageView>
-                              <Label fx:id="gymTitleHeader" alignment="BOTTOM_CENTER" contentDisplay="CENTER" layoutX="40.0" layoutY="104.0" prefHeight="46.0" prefWidth="198.0" styleClass="headerText" stylesheets="@../../../../../target/classes/Css/styles2.css" text="Ace Fitness Gym" textFill="#cb443e" wrapText="true">
-                                  <font>
-                                      <Font size="41.0" />
-                                  </font>
-                              </Label>
-                        <Circle fx:id="circleInLogo" fill="#c4433f29" layoutX="141.0" layoutY="67.0" radius="49.0" stroke="#cb443e" strokeType="INSIDE" />
-                     </children>
-                  </AnchorPane>
+                        <AnchorPane prefHeight="142.0" prefWidth="259.0">
+                            <children>
+                                <ImageView fx:id="logoImg" fitHeight="201.0" fitWidth="116.0" layoutX="85.0" layoutY="-35.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../../image/etoNa.png" />
+                                    </image>
+                                </ImageView>
+                                <Label fx:id="gymTitleHeader" alignment="BOTTOM_CENTER" contentDisplay="CENTER" layoutX="40.0" layoutY="104.0" prefHeight="46.0" prefWidth="198.0" styleClass="headerText" stylesheets="@../../../../../target/classes/Css/styles2.css" text="Ace Fitness Gym" textFill="#cb443e" wrapText="true">
+                                    <font>
+                                        <Font size="41.0" />
+                                    </font>
+                                </Label>
+                                <Circle fx:id="circleInLogo" fill="#c4433f29" layoutX="141.0" layoutY="67.0" radius="49.0" stroke="#cb443e" strokeType="INSIDE" />
+                            </children>
+                        </AnchorPane>
 
                         <VBox alignment="CENTER_RIGHT" prefHeight="244.0" prefWidth="259.0" spacing="4.0">
                             <children>
@@ -49,7 +49,7 @@
                                     </toggleGroup>
                                 </ToggleButton>
 
-                                <ToggleButton fx:id="adminProfile" alignment="CENTER_LEFT" graphicTextGap="10" maxHeight="55.0" minHeight="32.0" prefHeight="45.0" prefWidth="207.0" styleClass="menu-button" text="Admin Profile" toggleGroup="$menuGroup">
+                                <ToggleButton fx:id="adminProfile" alignment="CENTER_LEFT" graphicTextGap="10" maxHeight="55.0" minHeight="32.0" prefHeight="45.0" prefWidth="207.0" styleClass="menu-button" text="Profile" toggleGroup="$menuGroup">
                                     <graphic>
                                         <ImageView fitHeight="16.0" fitWidth="16.0" preserveRatio="true">
                                             <Image url="@../../image/admin-profile.png" />
@@ -108,27 +108,36 @@
                         </VBox>
 
                         <VBox alignment="CENTER_LEFT" prefHeight="284.0" prefWidth="259.0" spacing="35.0" style="-fx-padding: 0;">
-                            <HBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="143.0" spacing="10">
-                                <ImageView fitHeight="40" fitWidth="40">
-                                    <Image url="@../../image/User.png" />
-                                </ImageView>
-                                <VBox>
-                                    <Label style="-fx-text-fill: white; -fx-font-size: 14px;" styleClass="labelText" text="Peter Parker" />
-                                    <Label style="-fx-text-fill: #9aa4bf; -fx-font-size: 11px;" text="Admin" />
-                                    <HBox.margin>
-                                        <Insets />
-                                    </HBox.margin>
-                                </VBox>
-                                <VBox.margin>
-                                    <Insets />
-                                </VBox.margin>
-                                <opaqueInsets>
-                                    <Insets />
-                                </opaqueInsets>
+
+                            <!-- ═══ USER PROFILE CARD ═══ -->
+                            <HBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="229.0" spacing="10">
                                 <padding>
                                     <Insets left="15.0" />
                                 </padding>
+
+                                <!-- Avatar: Circle border behind a clipped ImageView -->
+                                <StackPane prefHeight="44.0" prefWidth="44.0">
+                                    <Circle fill="#1e2336" radius="22.0" stroke="#cb443e" strokeType="INSIDE" strokeWidth="2.0" />
+                                    <ImageView fx:id="userAvatarView" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="false">
+                                        <clip>
+                                            <Circle centerX="20.0" centerY="20.0" radius="20.0" />
+                                        </clip>
+                                        <image>
+                                            <Image url="@../../image/User.png" />
+                                        </image>
+                                    </ImageView>
+                                </StackPane>
+
+                                <!-- Name + Role -->
+                                <VBox alignment="CENTER_LEFT" prefHeight="44.0" prefWidth="120.0" spacing="2.0">
+                                    <Label fx:id="userNameLabel" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;" styleClass="labelText" text="Loading..." wrapText="true">
+                              <font>
+                                 <Font size="21.0" />
+                              </font></Label>
+                                    <Label fx:id="userRoleLabel" style="-fx-text-fill: #cb443e; -fx-font-size: 16px;" text="" />
+                                </VBox>
                             </HBox>
+                            <!-- ═══════════════════════════ -->
 
                             <HBox alignment="CENTER_RIGHT">
                                 <Button fx:id="logoutButton" alignment="CENTER_LEFT" graphicTextGap="6" onAction="#handleLogoutClick" prefHeight="30.0" prefWidth="131.0" styleClass="logout-badge" stylesheets="@../../Css/styles2.css" text="Logout">
@@ -142,43 +151,43 @@
                         </VBox>
                     </children>
                 </VBox>
-            <VBox prefHeight="738.0" prefWidth="775.0">
-               <children>
-                   <AnchorPane mouseTransparent="false" onMouseDragged="#handleTitleBarDragged" onMousePressed="#handleTitleBarPressed" prefHeight="59.0" prefWidth="879.0" style="-fx-background-color: #0E1223; -fx-background-radius: 0 25 0  0;">
-                       <children>
-                           <ImageView fx:id="minimizeWindow" fitHeight="36.0" fitWidth="32.0" layoutX="763.0" layoutY="7.0" onMouseClicked="#handleMinimize" pickOnBounds="true" preserveRatio="true">
-                               <image>
-                                   <Image url="@../../image/minus-solid.png" />
-                               </image>
-                           <cursor>
-                              <Cursor fx:constant="HAND" />
-                           </cursor>
-                           </ImageView>
-                               <ImageView fitHeight="36.0" fitWidth="32.0" layoutX="808.0" layoutY="7.0" onMouseClicked="#handleMaxMin" pickOnBounds="true" preserveRatio="true">
+
+                <VBox prefHeight="738.0" prefWidth="775.0">
+                    <children>
+                        <AnchorPane mouseTransparent="false" onMouseDragged="#handleTitleBarDragged" onMousePressed="#handleTitleBarPressed" prefHeight="59.0" prefWidth="879.0" style="-fx-background-color: #0E1223; -fx-background-radius: 0 25 0 0;">
+                            <children>
+                                <ImageView fx:id="minimizeWindow" fitHeight="36.0" fitWidth="32.0" layoutX="763.0" layoutY="7.0" onMouseClicked="#handleMinimize" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../../image/minus-solid.png" />
+                                    </image>
+                                    <cursor>
+                                        <Cursor fx:constant="HAND" />
+                                    </cursor>
+                                </ImageView>
+                                <ImageView fitHeight="36.0" fitWidth="32.0" layoutX="808.0" layoutY="7.0" onMouseClicked="#handleMaxMin" pickOnBounds="true" preserveRatio="true">
                                     <image>
                                         <Image url="@../../image/window-restore-regular.png" />
                                     </image>
-                           <cursor>
-                              <Cursor fx:constant="HAND" />
-                           </cursor>
+                                    <cursor>
+                                        <Cursor fx:constant="HAND" />
+                                    </cursor>
                                 </ImageView>
                                 <ImageView fx:id="closeWindowIcon" fitHeight="36.0" fitWidth="32.0" layoutX="847.0" layoutY="7.0" onMouseClicked="#handleClose" pickOnBounds="true" preserveRatio="true">
                                     <image>
                                         <Image url="@../../image/circle-xmark-solid.png" />
                                     </image>
-                           <cursor>
-                              <Cursor fx:constant="HAND" />
-                           </cursor>
+                                    <cursor>
+                                        <Cursor fx:constant="HAND" />
+                                    </cursor>
                                 </ImageView>
                             </children>
-                     <cursor>
-                        <Cursor fx:constant="OPEN_HAND" />
-                     </cursor>
-                   </AnchorPane>
-                     <VBox fx:id="contentArea" minHeight="650.0" style="-fx-background-color: #0E1223; -fx-background-radius: 0 0 25 25;" />
-
-               </children>
-            </VBox>
+                            <cursor>
+                                <Cursor fx:constant="OPEN_HAND" />
+                            </cursor>
+                        </AnchorPane>
+                        <VBox fx:id="contentArea" minHeight="650.0" style="-fx-background-color: #0E1223; -fx-background-radius: 0 0 25 25;" />
+                    </children>
+                </VBox>
 
             </children>
         </HBox>

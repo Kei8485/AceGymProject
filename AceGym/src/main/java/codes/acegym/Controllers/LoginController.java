@@ -1,34 +1,35 @@
 package codes.acegym.Controllers;
 
+import codes.acegym.Application_Launcher.AceGymApplication;
 import codes.acegym.DB.DBConnector;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import codes.acegym.Session;
-import codes.acegym.Session;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.Circle;
-import javafx.stage.Stage;
+import javafx.stage.*;
 import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Random;
+import java.util.prefs.Preferences;
 
 public class LoginController {
 
@@ -54,6 +55,9 @@ public class LoginController {
     private ScaleTransition pulseLogo;
     private ScaleTransition pulseImg;
 
+    // ── Preferences ─────────────────────────────────────────────────────────
+    private final Preferences prefs = Preferences.userRoot().node(AceGymApplication.PREF_NODE);
+
     public void initialize() {
         rememberMeCB.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
             Node mark = rememberMeCB.lookup(".mark");
@@ -68,16 +72,25 @@ public class LoginController {
         waveAnim2 = createWaveAnimation(outerCircle2, 0);
         waveAnim3 = createWaveAnimation(outerCircle3, 2000);
         pulseLogo = applyHeartbeat(logoCircle);
-        pulseImg = applyHeartbeat(logoImg);
+        pulseImg  = applyHeartbeat(logoImg);
         startParticleBackground();
+
+        // ── Pre-fill fields if Remember Me was previously checked ────────────
+        boolean remembered = prefs.getBoolean(AceGymApplication.KEY_REMEMBER, false);
+        if (remembered) {
+            String savedUser = prefs.get(AceGymApplication.KEY_USERNAME, "");
+            String savedPass = prefs.get(AceGymApplication.KEY_PASSWORD, "");
+            usernameField.setText(savedUser);
+            passwordField.setText(savedPass);
+            textFieldPass.setText(savedPass);
+            rememberMeCB.setSelected(true);
+        }
 
         rememberMeCB.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 newScene.windowProperty().addListener((wObs, oldWindow, newWindow) -> {
                     if (newWindow instanceof Stage stage) {
                         addResizeListener(stage);
-
-                        // Pause animations when window is minimized
                         stage.iconifiedProperty().addListener((o, wasNotMin, isMin) -> {
                             if (isMin) pauseAllAnimations();
                             else resumeAllAnimations();
@@ -88,15 +101,11 @@ public class LoginController {
         });
     }
 
-
-
-
-// ─── REPLACE your handleLogin() method body with this ────────────────────────
-// (Only the two lines marked ★ are new — everything else is your existing code)
-
+    // ═══════════════════════════════════════════════════════════════
+    // LOGIN
+    // ═══════════════════════════════════════════════════════════════
     @FXML
     public void handleLogin() {
-
         String username = usernameField.getText();
         String password = isPasswordVisible ? textFieldPass.getText() : passwordField.getText();
 
@@ -129,15 +138,26 @@ public class LoginController {
 
             if (loginSuccess) {
                 try {
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/codes/acegym/HomePage.fxml"));
+                    // ── Save or clear Remember Me ────────────────────────────
+                    if (rememberMeCB.isSelected()) {
+                        prefs.putBoolean(AceGymApplication.KEY_REMEMBER, true);
+                        prefs.put(AceGymApplication.KEY_USERNAME, username);
+                        prefs.put(AceGymApplication.KEY_PASSWORD, password);
+                    } else {
+                        prefs.putBoolean(AceGymApplication.KEY_REMEMBER, false);
+                        prefs.remove(AceGymApplication.KEY_USERNAME);
+                        prefs.remove(AceGymApplication.KEY_PASSWORD);
+                    }
+
+                    // ✅ Set session BEFORE loader.load()
+                    Session.getInstance().setLoggedInUsername(username);
+
+                    FXMLLoader loader = new FXMLLoader(
+                            getClass().getResource("/codes/acegym/HomePage.fxml"));
                     Parent root = loader.load();
 
                     Platform.runLater(() -> {
                         stopAllAnimations();
-
-                        // ★ Store the logged-in username so any screen can read it
-                        Session.getInstance().setLoggedInUsername(username);
-
                         Stage stage = (Stage) usernameField.getScene().getWindow();
                         stage.setScene(new Scene(root));
                         stage.show();
@@ -152,6 +172,11 @@ public class LoginController {
                 }
 
             } else {
+                // Bad credentials — clear any saved prefs so stale data doesn't linger
+                prefs.putBoolean(AceGymApplication.KEY_REMEMBER, false);
+                prefs.remove(AceGymApplication.KEY_USERNAME);
+                prefs.remove(AceGymApplication.KEY_PASSWORD);
+
                 Platform.runLater(() -> {
                     setInputsDisabled(false);
                     validationError.setText("⚠ Incorrect Email or Password!");
@@ -172,13 +197,103 @@ public class LoginController {
         loginThread.setDaemon(true);
         loginThread.start();
     }
-    // ─── ANIMATION CONTROL METHODS ──────────────────────────────────────────
+
+    // ═══════════════════════════════════════════════════════════════
+    // FORGOT PASSWORD POPUP
+    // ═══════════════════════════════════════════════════════════════
+    @FXML
+    private void handleForgotPassword() {
+        Stage dialog = new Stage();
+        dialog.initStyle(StageStyle.TRANSPARENT);
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initOwner(usernameField.getScene().getWindow());
+
+        // ── Icon circle ───────────────────────────────────────────
+        StackPane iconCircle = new StackPane();
+        iconCircle.setMinSize(48, 48);
+        iconCircle.setMaxSize(48, 48);
+        iconCircle.setStyle(
+                "-fx-background-color:#cb443e22;" +
+                        "-fx-background-radius:24;" +
+                        "-fx-border-color:#cb443e55;" +
+                        "-fx-border-radius:24;" +
+                        "-fx-border-width:1.5;");
+        Label iconLbl = new Label("🔒");
+        iconLbl.setStyle("-fx-font-size:20px;");
+        iconCircle.getChildren().add(iconLbl);
+
+        // ── Title + message ───────────────────────────────────────
+        Label title = new Label("Forgot Password?");
+        title.setStyle(
+                "-fx-text-fill:white;" +
+                        "-fx-font-family:'Inter';" +
+                        "-fx-font-size:16px;" +
+                        "-fx-font-weight:bold;");
+
+        Label message = new Label(
+                "Please contact the developer of the system\nto be assisted with your account.");
+        message.setWrapText(true);
+        message.setStyle(
+                "-fx-text-fill:#7a7f94;" +
+                        "-fx-font-family:'Inter';" +
+                        "-fx-font-size:13px;" +
+                        "-fx-line-spacing:3;");
+
+        VBox textCol = new VBox(6, title, message);
+        textCol.setAlignment(Pos.CENTER_LEFT);
+
+        HBox contentRow = new HBox(16, iconCircle, textCol);
+        contentRow.setAlignment(Pos.CENTER_LEFT);
+        contentRow.setPadding(new Insets(24, 24, 20, 24));
+        contentRow.setStyle(
+                "-fx-border-color:transparent transparent #2e3349 transparent;" +
+                        "-fx-border-width:0 0 1 0;");
+
+        // ── OK button ─────────────────────────────────────────────
+        String btnBase  = "-fx-background-color:#cb443e;-fx-text-fill:white;" +
+                "-fx-font-family:'Inter';-fx-font-size:13px;-fx-font-weight:bold;" +
+                "-fx-background-radius:9;-fx-cursor:hand;";
+        String btnHover = "-fx-background-color:#a83632;-fx-text-fill:white;" +
+                "-fx-font-family:'Inter';-fx-font-size:13px;-fx-font-weight:bold;" +
+                "-fx-background-radius:9;-fx-cursor:hand;";
+
+        Button okBtn = new Button("Got it");
+        okBtn.setPrefHeight(38);
+        okBtn.setPrefWidth(100);
+        okBtn.setStyle(btnBase);
+        okBtn.setOnMouseEntered(e -> okBtn.setStyle(btnHover));
+        okBtn.setOnMouseExited(e  -> okBtn.setStyle(btnBase));
+        okBtn.setOnAction(e -> dialog.close());
+
+        HBox footer = new HBox(okBtn);
+        footer.setAlignment(Pos.CENTER_RIGHT);
+        footer.setPadding(new Insets(14, 24, 18, 24));
+
+        // ── Root card ─────────────────────────────────────────────
+        VBox root = new VBox(contentRow, footer);
+        root.setStyle(
+                "-fx-background-color:#1c2237;" +
+                        "-fx-background-radius:16;" +
+                        "-fx-border-color:#2e3349;" +
+                        "-fx-border-radius:16;" +
+                        "-fx-border-width:1.5;");
+        root.setEffect(new DropShadow(40, Color.web("#000000", 0.85)));
+
+        Scene scene = new Scene(root, 380, 175);
+        scene.setFill(Color.TRANSPARENT);
+        dialog.setScene(scene);
+        dialog.showAndWait();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // ANIMATION CONTROLS
+    // ═══════════════════════════════════════════════════════════════
     private void pauseAllAnimations() {
         if (particleTimer != null) particleTimer.stop();
         if (waveAnim2 != null) waveAnim2.pause();
         if (waveAnim3 != null) waveAnim3.pause();
         if (pulseLogo != null) pulseLogo.pause();
-        if (pulseImg != null) pulseImg.pause();
+        if (pulseImg  != null) pulseImg.pause();
     }
 
     private void resumeAllAnimations() {
@@ -186,7 +301,7 @@ public class LoginController {
         if (waveAnim2 != null) waveAnim2.play();
         if (waveAnim3 != null) waveAnim3.play();
         if (pulseLogo != null) pulseLogo.play();
-        if (pulseImg != null) pulseImg.play();
+        if (pulseImg  != null) pulseImg.play();
     }
 
     private void stopAllAnimations() {
@@ -194,10 +309,12 @@ public class LoginController {
         if (waveAnim2 != null) waveAnim2.stop();
         if (waveAnim3 != null) waveAnim3.stop();
         if (pulseLogo != null) pulseLogo.stop();
-        if (pulseImg != null) pulseImg.stop();
+        if (pulseImg  != null) pulseImg.stop();
     }
 
-    // ─── HELPER METHODS ─────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════
+    // HELPERS
+    // ═══════════════════════════════════════════════════════════════
     private void setInputsDisabled(boolean disabled) {
         usernameField.setDisable(disabled);
         passwordField.setDisable(disabled);
@@ -296,14 +413,14 @@ public class LoginController {
             double x = e.getX(), y = e.getY();
             double w = stage.getWidth(), h = stage.getHeight();
             Cursor cursor = Cursor.DEFAULT;
-            if      (x < border && y < border)           cursor = Cursor.NW_RESIZE;
-            else if (x < border && y > h - border)       cursor = Cursor.SW_RESIZE;
-            else if (x > w - border && y < border)       cursor = Cursor.NE_RESIZE;
-            else if (x > w - border && y > h - border)   cursor = Cursor.SE_RESIZE;
-            else if (x < border)                         cursor = Cursor.W_RESIZE;
-            else if (x > w - border)                     cursor = Cursor.E_RESIZE;
-            else if (y < border)                         cursor = Cursor.N_RESIZE;
-            else if (y > h - border)                     cursor = Cursor.S_RESIZE;
+            if      (x < border && y < border)         cursor = Cursor.NW_RESIZE;
+            else if (x < border && y > h - border)     cursor = Cursor.SW_RESIZE;
+            else if (x > w - border && y < border)     cursor = Cursor.NE_RESIZE;
+            else if (x > w - border && y > h - border) cursor = Cursor.SE_RESIZE;
+            else if (x < border)                       cursor = Cursor.W_RESIZE;
+            else if (x > w - border)                   cursor = Cursor.E_RESIZE;
+            else if (y < border)                       cursor = Cursor.N_RESIZE;
+            else if (y > h - border)                   cursor = Cursor.S_RESIZE;
             stage.getScene().setCursor(cursor);
         });
 
@@ -326,7 +443,9 @@ public class LoginController {
         });
     }
 
-    // ─── BACKGROUND PARTICLES ───────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════
+    // BACKGROUND PARTICLES
+    // ═══════════════════════════════════════════════════════════════
     private void startParticleBackground() {
         Canvas bgCanvas = new Canvas();
         bgCanvas.widthProperty().bind(mainBGID.widthProperty());
@@ -422,7 +541,9 @@ public class LoginController {
         particleTimer.start();
     }
 
-    // ─── WAVE + HEARTBEAT ───────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════
+    // WAVE + HEARTBEAT
+    // ═══════════════════════════════════════════════════════════════
     private ParallelTransition createWaveAnimation(Circle circle, double delayMs) {
         if (circle == null) return null;
         Duration speed = Duration.millis(4000);
