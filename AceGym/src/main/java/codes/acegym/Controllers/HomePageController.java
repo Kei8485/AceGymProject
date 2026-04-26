@@ -217,9 +217,18 @@ public class HomePageController {
                 if (userRoleLabel != null)
                     userRoleLabel.setText(profile.systemRole());
 
-                if (adminProfile != null)
-                    adminProfile.setText("Admin".equalsIgnoreCase(profile.systemRole())
-                            ? "Admin Profile" : "Staff Profile");
+                // Determine if the user is an Admin
+                boolean isAdmin = "Admin".equalsIgnoreCase(profile.systemRole());
+
+                if (adminProfile != null) {
+                    adminProfile.setText(isAdmin ? "Admin Profile" : "Staff Profile");
+                }
+
+                // --- DISABLE PLAN FORM IF NOT ADMIN ---
+                if (planForm != null) {
+                    planForm.setVisible(isAdmin);
+                    planForm.setManaged(isAdmin);
+                }
             });
         }, "profile-loader");
         profileThread.setDaemon(true);
