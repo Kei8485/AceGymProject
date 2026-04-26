@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.Cursor?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="reportRoot" maxWidth="-Infinity" minHeight="650.0" minWidth="867.0" prefHeight="891.0" prefWidth="950.0" styleClass="payment-page-bg" stylesheets="@../../Css/ReportPage.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.ReportPageController">
+<AnchorPane fx:id="reportRoot" minHeight="650.0" minWidth="867.0" prefHeight="891.0" prefWidth="950.0" styleClass="payment-page-bg" stylesheets="@../../Css/ReportPage.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.ReportPageController">
     <children>
         <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <padding>
@@ -24,9 +15,9 @@
             <children>
 
                 <!-- ── HEADER ── -->
-                <HBox alignment="CENTER_LEFT" prefHeight="45.0" prefWidth="888.0" spacing="15.0">
+                <HBox alignment="CENTER_LEFT" spacing="15.0">
                     <children>
-                        <VBox alignment="CENTER" minHeight="19.0" prefHeight="19.0" prefWidth="61.0" styleClass="header-icon-box">
+                        <VBox alignment="CENTER" styleClass="header-icon-box">
                             <children>
                                 <ImageView fitHeight="41.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
@@ -35,12 +26,43 @@
                                 </ImageView>
                             </children>
                         </VBox>
-                        <VBox prefHeight="82.0" prefWidth="363.0">
+                        <VBox>
                             <children>
-                                <Label alignment="BOTTOM_LEFT" prefHeight="46.0" prefWidth="165.0" styleClass="pos-header" text="FINANCIAL SUMMARY">
-                                    <VBox.margin><Insets /></VBox.margin>
-                                </Label>
-                                <Label prefHeight="16.0" prefWidth="363.0" styleClass="add-payment-header" text="Sales Report" />
+                                <Label styleClass="pos-header" text="FINANCIAL SUMMARY" />
+                                <Label styleClass="add-payment-header" text="Sales Report" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <!-- ── FOOTER STATS (moved to top) ── -->
+                <HBox alignment="CENTER" spacing="20.0" styleClass="report-footer-bar">
+                    <children>
+                        <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="stat-label" text="TOTAL SALES" />
+                                <Label fx:id="totalSalesLabel" styleClass="stat-value-large" text="₱0.00" />
+                            </children>
+                        </VBox>
+                        <Region minHeight="40.0" prefWidth="1.5" styleClass="card-divider" />
+                        <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="stat-label" text="TRANSACTIONS" />
+                                <Label fx:id="transactionsLabel" styleClass="stat-value" text="0" />
+                            </children>
+                        </VBox>
+                        <Region minHeight="40.0" prefWidth="1.5" styleClass="card-divider" />
+                        <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="stat-label" text="CASH SALES" />
+                                <Label fx:id="cashSalesLabel" styleClass="stat-value" text="0" />
+                            </children>
+                        </VBox>
+                        <Region minHeight="40.0" prefWidth="1.5" styleClass="card-divider" />
+                        <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="stat-label" text="DIGITAL SALES" />
+                                <Label fx:id="digitalSalesLabel" styleClass="stat-value" text="0" />
                             </children>
                         </VBox>
                     </children>
@@ -66,9 +88,7 @@
 
                         <Label fx:id="resetDate" onMouseClicked="#handleResetDate" styleClass="detail-label" text="—">
                             <padding><Insets top="22.0" /></padding>
-                     <cursor>
-                        <Cursor fx:constant="HAND" />
-                     </cursor>
+                            <cursor><Cursor fx:constant="HAND" /></cursor>
                         </Label>
 
                         <!-- To Date -->
@@ -89,7 +109,7 @@
                 </HBox>
 
                 <!-- ── TABLE + CONTROLS ── -->
-                <VBox maxHeight="1.7976931348623157E308" prefHeight="442.0" prefWidth="888.0" spacing="15.0" styleClass="payment-card-step" VBox.vgrow="ALWAYS">
+                <VBox spacing="15.0" styleClass="payment-card-step" VBox.vgrow="ALWAYS">
                     <children>
                         <Label styleClass="step-title" text="Payment History" />
 
@@ -110,8 +130,8 @@
                             </children>
                         </HBox>
 
-                        <!-- TABLE — columns wired to Receipt property names -->
-                        <TableView fx:id="receiptTable" prefHeight="134.0" prefWidth="844.0" VBox.vgrow="ALWAYS">
+                        <!-- TABLE -->
+                        <TableView fx:id="receiptTable" VBox.vgrow="ALWAYS">
                             <columns>
                                 <TableColumn fx:id="colClientID" prefWidth="80.0" text="Client ID" />
                                 <TableColumn fx:id="colFirstName" prefWidth="120.0" text="First Name" />
@@ -125,28 +145,6 @@
                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                             </columnResizePolicy>
                         </TableView>
-      
-                              <!-- ── FOOTER STATS ── -->
-                        <HBox alignment="CENTER" spacing="40.0" styleClass="report-footer-bar">
-                            <children>
-                                <VBox alignment="CENTER">
-                                    <Label styleClass="stat-label" text="TOTAL SALES" />
-                                    <Label fx:id="totalSalesLabel" styleClass="stat-value-large" text="₱0.00" />
-                                </VBox>
-                                <VBox alignment="CENTER">
-                                    <Label styleClass="stat-label" text="TRANSACTIONS" />
-                                    <Label fx:id="transactionsLabel" styleClass="stat-value" text="0" />
-                                </VBox>
-                                <VBox alignment="CENTER">
-                                    <Label styleClass="stat-label" text="CASH SALES" />
-                                    <Label fx:id="cashSalesLabel" styleClass="stat-value" text="0" />
-                                </VBox>
-                                <VBox alignment="CENTER">
-                                    <Label styleClass="stat-label" text="DIGITAL SALES" />
-                                    <Label fx:id="digitalSalesLabel" styleClass="stat-value" text="0" />
-                                </VBox>
-                            </children>
-                        </HBox>
 
                     </children>
                 </VBox>
