@@ -24,7 +24,7 @@
 /* The message text */
 .text-header-smaller {
     -fx-font-family: 'Inter';
-    -fx-font-size: 36px;
+    -fx-font-size: 29px;
     -fx-text-fill: white;
     -fx-font-weight: bold;
 }

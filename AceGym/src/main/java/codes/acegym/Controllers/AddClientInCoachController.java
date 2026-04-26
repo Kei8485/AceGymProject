@@ -237,7 +237,7 @@ public class AddClientInCoachController {
             return;
         }
         showConfirmPopup(
-                "Add " + selectedClient.getFullName() + " to this coach?",
+                "Assign " + selectedClient.getFullName() + " to this coach?",
                 () -> {
                     boolean ok = CoachDAO.assignClient(
                             coach.getStaffID(), selectedClient.getClientID(), 0);
@@ -271,56 +271,144 @@ public class AddClientInCoachController {
         popup.initStyle(StageStyle.TRANSPARENT);
         popup.initOwner((Stage) mainListView.getScene().getWindow());
 
-        VBox root = new VBox(25); // Slightly more breathing room
-        root.setPadding(new Insets(35, 30, 30, 30));
+        VBox root = new VBox(20);
+        root.setPadding(new Insets(35, 35, 35, 35));
         root.setAlignment(Pos.CENTER);
-        root.setPrefWidth(400); // Wider for bigger text
-
-        // Updated to match your .main-container design
+        root.setPrefWidth(480);
+        root.setMaxWidth(480);
         root.setStyle(
-                "-fx-background-color: #1e2130;" +
+                "-fx-background-color: #1c2237;" +
                         "-fx-background-radius: 20;" +
-                        "-fx-border-color: #c2423d;" +
+                        "-fx-border-color: #e53935;" +
                         "-fx-border-radius: 20;" +
                         "-fx-border-width: 1.5;" +
-                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 40, 0, 0, 0);");
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.85), 40, 0, 0, 0);");
 
+        // ── Icon badge ──
+        VBox iconBox = new VBox();
+        iconBox.setAlignment(Pos.CENTER);
+        iconBox.setMinSize(60, 60);
+        iconBox.setMaxSize(60, 60);
+        iconBox.setStyle(
+                "-fx-background-color: #e53935;" +
+                        "-fx-background-radius: 16;");
         Label icon = new Label("?");
-        // Using Bebas Neue for the icon to match your step-numbers
-        icon.setStyle("-fx-font-family: 'Bebas Neue'; -fx-font-size: 55px; -fx-text-fill: #CB443E;");
+        icon.setStyle(
+                "-fx-font-family: 'Bebas Neue';" +
+                        "-fx-font-size: 36px;" +
+                        "-fx-text-fill: #ffffff;");
+        iconBox.getChildren().add(icon);
 
+        // ── Title ──
+        Label title = new Label("Confirm Action");
+        title.setStyle(
+                "-fx-text-fill: #ffffff;" +
+                        "-fx-font-family: 'Inter';" +
+                        "-fx-font-size: 20px;" +
+                        "-fx-font-weight: bold;");
+
+        // ── Divider ──
+        javafx.scene.layout.Region divider = new javafx.scene.layout.Region();
+        divider.setPrefHeight(1);
+        divider.setMaxWidth(Double.MAX_VALUE);
+        divider.setStyle("-fx-background-color: #2e3349;");
+
+        // ── Message ──
         Label msg = new Label(message);
-        // Bigger, bolder text using Inter
-        msg.setStyle("-fx-text-fill: #E8E6E9; " +
-                "-fx-font-family: 'Inter'; " +
-                "-fx-font-size: 20px; " +
-                "-fx-font-weight: 800; " +
-                "-fx-alignment: CENTER;"); // Centering added here        msg.setWrapText(true);
+        msg.setStyle(
+                "-fx-text-fill: #9da3b4;" +
+                        "-fx-font-family: 'Inter';" +
+                        "-fx-font-size: 15px;" +
+                        "-fx-line-spacing: 4;");
+        msg.setWrapText(true);
+        msg.setMaxWidth(410);
         msg.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
-        msg.setPrefWidth(340);
+        msg.setAlignment(Pos.CENTER);
 
-        HBox btnRow = new HBox(15);
+        // ── Buttons ──
+        HBox btnRow = new HBox(14);
         btnRow.setAlignment(Pos.CENTER);
+        btnRow.setPadding(new Insets(10, 0, 0, 0));
 
         Button cancelBtn = new Button("Cancel");
-        // Matches your .cancel-button
-        cancelBtn.setStyle("-fx-background-color: #1e2130; -fx-text-fill: #cfd8dc; " +
-                "-fx-background-radius: 9; -fx-border-color: #2e3349; -fx-border-radius: 9; " +
-                "-fx-font-family: 'Inter'; -fx-font-weight: bold; -fx-font-size: 14px; " +
-                "-fx-min-width: 110; -fx-min-height: 40; -fx-cursor: hand;");
+        cancelBtn.setPrefWidth(140);
+        cancelBtn.setPrefHeight(44);
+        cancelBtn.setStyle(
+                "-fx-background-color: #1e2130;" +
+                        "-fx-text-fill: #c0c5d8;" +
+                        "-fx-font-family: 'Inter';" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: #2e3349;" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-border-width: 1.5;" +
+                        "-fx-cursor: hand;");
+        cancelBtn.setOnMouseEntered(e -> cancelBtn.setStyle(
+                "-fx-background-color: #252a3a;" +
+                        "-fx-text-fill: #ffffff;" +
+                        "-fx-font-family: 'Inter';" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: #3e4460;" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-border-width: 1.5;" +
+                        "-fx-cursor: hand;"));
+        cancelBtn.setOnMouseExited(e -> cancelBtn.setStyle(
+                "-fx-background-color: #1e2130;" +
+                        "-fx-text-fill: #c0c5d8;" +
+                        "-fx-font-family: 'Inter';" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: #2e3349;" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-border-width: 1.5;" +
+                        "-fx-cursor: hand;"));
 
         Button confirmBtn = new Button("Confirm");
-        // Matches your .confirm-button
-        confirmBtn.setStyle("-fx-background-color: #e53935; -fx-text-fill: white; " +
-                "-fx-background-radius: 9; -fx-font-family: 'Inter'; -fx-font-weight: bold; " +
-                "-fx-font-size: 14px; -fx-min-width: 130; -fx-min-height: 40; -fx-cursor: hand; " +
-                "-fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.3), 10, 0, 0, 2);");
+        confirmBtn.setPrefWidth(160);
+        confirmBtn.setPrefHeight(44);
+        confirmBtn.setStyle(
+                "-fx-background-color: #e53935;" +
+                        "-fx-text-fill: #ffffff;" +
+                        "-fx-font-family: 'Inter';" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(229,57,53,0.45), 12, 0, 0, 3);");
+        confirmBtn.setOnMouseEntered(e -> confirmBtn.setStyle(
+                "-fx-background-color: #c62828;" +
+                        "-fx-text-fill: #ffffff;" +
+                        "-fx-font-family: 'Inter';" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(229,57,53,0.65), 18, 0, 0, 4);"));
+        confirmBtn.setOnMouseExited(e -> confirmBtn.setStyle(
+                "-fx-background-color: #e53935;" +
+                        "-fx-text-fill: #ffffff;" +
+                        "-fx-font-family: 'Inter';" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(229,57,53,0.45), 12, 0, 0, 3);"));
 
         cancelBtn.setOnAction(e -> popup.close());
         confirmBtn.setOnAction(e -> { popup.close(); onConfirm.run(); });
 
         btnRow.getChildren().addAll(cancelBtn, confirmBtn);
-        root.getChildren().addAll(icon, msg, btnRow);
+        root.getChildren().addAll(iconBox, title, divider, msg, btnRow);
 
         Scene scene = new Scene(root);
         scene.setFill(Color.TRANSPARENT);
@@ -333,9 +421,10 @@ public class AddClientInCoachController {
 
         root.setOpacity(0);
         FadeTransition ft = new FadeTransition(Duration.millis(200), root);
-        ft.setFromValue(0); ft.setToValue(1); ft.play();
+        ft.setFromValue(0);
+        ft.setToValue(1);
+        ft.play();
     }
-
     private void clearDisplayFields() {
         if (displayClientId   != null) displayClientId.clear();
         if (displayFullName   != null) displayFullName.clear();
