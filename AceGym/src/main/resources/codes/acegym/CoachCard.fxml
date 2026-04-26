@@ -5,19 +5,19 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="260.0" prefWidth="340.0" styleClass="card-container" stylesheets="@../../Css/CoachCard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.CoachCardController">
+<AnchorPane prefWidth="340.0" styleClass="card-container" stylesheets="@../../Css/CoachCard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.CoachCardController">
     <children>
 
         <VBox spacing="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
 
                 <!-- ── HEADER: Avatar + Name/ID/Badge + X ── -->
-                <HBox alignment="CENTER_LEFT" prefHeight="80.0" prefWidth="337.0" spacing="14.0" styleClass="card-header">
+                <HBox alignment="CENTER_LEFT" prefWidth="337.0" spacing="14.0" styleClass="card-header">
                     <children>
 
-                        <StackPane maxHeight="68.0" maxWidth="60.0" minHeight="56.0" minWidth="56.0" prefHeight="68.0" prefWidth="60.0" styleClass="avatar-frame">
+                        <StackPane maxHeight="60.0" maxWidth="60.0" minHeight="56.0" minWidth="56.0" prefHeight="60.0" prefWidth="60.0" styleClass="avatar-frame">
                             <children>
-                                <ImageView fx:id="coachImage" fitHeight="73.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                                <ImageView fx:id="coachImage" fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
                                         <Image url="@../../image/admin-user.png" />
                                     </image>
@@ -27,20 +27,25 @@
 
                         <VBox alignment="CENTER_LEFT" spacing="4.0" HBox.hgrow="ALWAYS">
                             <children>
-                                <Label fx:id="nameLabel" maxWidth="Infinity" styleClass="coach-name" text="Coach Name" wrapText="true" />
+                                <Label fx:id="nameLabel"
+                                       maxWidth="Infinity"
+                                       styleClass="coach-name"
+                                       text="Coach Name"
+                                       wrapText="true"
+                                       HBox.hgrow="ALWAYS" />
                                 <HBox alignment="CENTER_LEFT" spacing="8.0">
                                     <children>
-                                        <Label fx:id="idLabel" prefHeight="20.0" prefWidth="79.0" styleClass="coach-id" text="ST000" />
-                                        <Label fx:id="trainingTypeLabel" prefHeight="23.0" prefWidth="142.0" styleClass="training-type-badge" text="No Training Type" />
+                                        <Label fx:id="idLabel" styleClass="coach-id" text="ST000" />
+                                        <Label fx:id="trainingTypeLabel" styleClass="training-type-badge" text="No Training Type" wrapText="true" />
                                     </children>
                                 </HBox>
                             </children>
                         </VBox>
 
                         <!-- X remove button -->
-                        <StackPane alignment="CENTER" maxHeight="38.0" maxWidth="26.0" minHeight="26.0" minWidth="26.0" prefWidth="40.0" styleClass="remove-btn-bg">
+                        <StackPane alignment="CENTER" maxHeight="38.0" maxWidth="38.0" minHeight="26.0" minWidth="26.0" prefWidth="38.0" styleClass="remove-btn-bg">
                             <children>
-                                <ImageView fx:id="removeCoachBtn" fitHeight="29.0" fitWidth="31.0" pickOnBounds="true" preserveRatio="true">
+                                <ImageView fx:id="removeCoachBtn" fitHeight="29.0" fitWidth="29.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
                                         <Image url="@../../image/xmark-solid.png" />
                                     </image>
