@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-public class PaymentController implements Initializable {
+public class PaymentController implements Initializable, Refreshable  {
 
     // ── Step 1: Client ───────────────────────────────────────────────────────
     @FXML private ComboBox<Client> clientSearchCombo;
@@ -90,14 +90,25 @@ public class PaymentController implements Initializable {
     private Client        selectedClient  = null;
     private UpgradeResult currentUpgrade  = null;
 
-    /**
-     * TRUE when this payment comes from the "Avail Membership" flow in
-     * RegistrationController.  In this mode:
-     *  - The membership fee (₱1000) is added to the total.
-     *  - The coach combo is always enabled (client is about to become a Member).
-     *  - If the client already has an active Monthly/Yearly plan, the period and
-     *    type combos are locked (they keep their plan, just pay the membership fee).
-     */
+    @Override
+    public void refreshData() {
+        javafx.application.Platform.runLater(() -> {
+            loadClients();
+            loadTrainingData();
+            loadPaymentMethods();
+            resetSummary();
+            hideValidation();
+            hideUpgradeBadge();
+            clearClientDetails();
+            periodCombo.getSelectionModel().clearSelection();
+            typeCombo.getSelectionModel().clearSelection();
+            coachCombo.getSelectionModel().clearSelection();
+            methodCombo.getSelectionModel().clearSelection();
+            System.out.println("Payment Page Refreshed from Database.");
+        });
+    }
+
+
     private boolean isFromRegistration = false;
 
     /**
@@ -1095,54 +1106,92 @@ public class PaymentController implements Initializable {
         if (validationBox != null) {
             validationBox.getChildren().clear();
             validationBox.setStyle(
-                    "-fx-background-color: rgba(229,57,53,0.10);" +
+                    "-fx-background-color: #1c2237;" +
                             "-fx-background-radius: 12;" +
                             "-fx-border-color: rgba(229,57,53,0.50);" +
                             "-fx-border-width: 1.5;" +
                             "-fx-border-radius: 12;" +
-                            "-fx-padding: 12 16 12 16;");
-            HBox header = new HBox(8);
+                            "-fx-padding: 14 18 14 18;" +
+                            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 0);");
+
+            // ── Header row ──
+            HBox header = new HBox(10);
             header.setAlignment(Pos.CENTER_LEFT);
+            header.setStyle(
+                    "-fx-padding: 0 0 10 0;" +
+                            "-fx-border-color: transparent transparent rgba(229,57,53,0.25) transparent;" +
+                            "-fx-border-width: 0 0 1 0;");
+
+            // Red icon badge
+            VBox iconBox = new VBox();
+            iconBox.setAlignment(Pos.CENTER);
+            iconBox.setMinSize(28, 28);
+            iconBox.setMaxSize(28, 28);
+            iconBox.setStyle(
+                    "-fx-background-color: #e53935;" +
+                            "-fx-background-radius: 8;");
             Label warningIcon = new Label("⚠");
-            warningIcon.setStyle("-fx-text-fill:#e53935;-fx-font-size:16px;");
+            warningIcon.setStyle(
+                    "-fx-text-fill: #ffffff;" +
+                            "-fx-font-size: 13px;" +
+                            "-fx-font-weight: bold;");
+            iconBox.getChildren().add(warningIcon);
+
             Label headerText = new Label("Please fix the following before saving:");
             headerText.setStyle(
-                    "-fx-text-fill:#e53935;-fx-font-size:13px;" +
-                            "-fx-font-weight:bold;-fx-font-family:'Inter';");
-            header.getChildren().addAll(warningIcon, headerText);
+                    "-fx-text-fill: #ffffff;" +
+                            "-fx-font-size: 14px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-font-family: 'Inter';");
+
+            header.getChildren().addAll(iconBox, headerText);
             validationBox.getChildren().add(header);
 
+            // ── Error rows ──
             for (String err : errors) {
-                HBox row = new HBox(8);
+                HBox row = new HBox(10);
                 row.setAlignment(Pos.CENTER_LEFT);
-                VBox.setMargin(row, new Insets(5, 0, 0, 4));
+                VBox.setMargin(row, new Insets(8, 0, 0, 4));
+
+                // Bullet dot
                 Label bullet = new Label("•");
-                bullet.setStyle("-fx-text-fill:#ff6b6b;-fx-font-size:16px;");
+                bullet.setStyle(
+                        "-fx-text-fill: #e53935;" +
+                                "-fx-font-size: 18px;" +
+                                "-fx-font-weight: bold;");
+                bullet.setMinWidth(12);
+
                 Label msgLbl = new Label(err);
                 msgLbl.setStyle(
-                        "-fx-text-fill:#fca5a5;-fx-font-size:13px;-fx-font-family:'Inter';");
+                        "-fx-text-fill: #9da3b4;" +
+                                "-fx-font-size: 13px;" +
+                                "-fx-font-family: 'Inter';");
                 msgLbl.setWrapText(true);
+
                 row.getChildren().addAll(bullet, msgLbl);
                 validationBox.getChildren().add(row);
             }
+
             validationBox.setVisible(true);
             validationBox.setManaged(true);
             FadeTransition ft = new FadeTransition(Duration.millis(180), validationBox);
             ft.setFromValue(0);
             ft.setToValue(1);
             ft.play();
+
         } else if (validationLabel != null) {
             StringBuilder sb = new StringBuilder();
             for (String e : errors) sb.append("⚠  ").append(e).append("\n");
             validationLabel.setText(sb.toString().trim());
             validationLabel.setStyle(
-                    "-fx-text-fill:#ff6b6b;-fx-font-size:13px;" +
-                            "-fx-font-family:'Inter';-fx-font-weight:bold;");
+                    "-fx-text-fill: #e53935;" +
+                            "-fx-font-size: 13px;" +
+                            "-fx-font-family: 'Inter';" +
+                            "-fx-font-weight: bold;");
             validationLabel.setVisible(true);
             validationLabel.setManaged(true);
         }
     }
-
     private void showSuccess(String msg) {
         if (validationBox != null) {
             validationBox.getChildren().clear();
