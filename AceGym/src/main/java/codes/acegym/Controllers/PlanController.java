@@ -11,8 +11,6 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.GaussianBlur;
@@ -22,7 +20,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
-import java.io.IOException;
 
 public class PlanController {
 
@@ -556,46 +553,136 @@ public class PlanController {
         alert.showAndWait();
     }
 
-    // ── Confirmation modal ────────────────────────────────────────
+    // ── Confirmation modal (pure Java — no FXML load lag) ─────────
     private void showModal(String message, Runnable onConfirm) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/codes/acegym/ConfirmationPopup.fxml"));
-            Parent root = loader.load();
+        Stage owner = (Stage) addPlanBtn.getScene().getWindow();
 
-            ConfirmationController popup = loader.getController();
-            popup.setMessage(message);
-            popup.setOnConfirm(onConfirm);
+        // ── Card (VBox) ──────────────────────────────────────────
+        javafx.scene.layout.VBox card = new javafx.scene.layout.VBox(25);
+        card.setAlignment(javafx.geometry.Pos.CENTER);
+        card.setPadding(new javafx.geometry.Insets(30));
+        card.setMinWidth(400);
+        card.setStyle(
+                "-fx-background-color: radial-gradient(center 50% 50%, radius 70%, #1e293b 0%, #111827 100%);" +
+                        "-fx-background-radius: 15;" +
+                        "-fx-border-color: linear-gradient(to bottom, #CB443E, rgba(203,68,62,0.2));" +
+                        "-fx-border-width: 1.5;" +
+                        "-fx-border-radius: 15;" +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(203,68,62,0.4), 15, 0, 0, 0);"
+        );
 
-            Stage confirmStage = new Stage();
-            confirmStage.initStyle(StageStyle.TRANSPARENT);
-            confirmStage.initModality(Modality.APPLICATION_MODAL);
+        // ── Question icon (circle drawn in Java — no image file needed) ──
+        Label iconCircle = new Label("?");
+        iconCircle.setPrefSize(90, 90);
+        iconCircle.setMinSize(90, 90);
+        iconCircle.setMaxSize(90, 90);
+        iconCircle.setAlignment(javafx.geometry.Pos.CENTER);
+        iconCircle.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-border-color: #CB443E;" +
+                        "-fx-border-width: 3;" +
+                        "-fx-border-radius: 45;" +
+                        "-fx-background-radius: 45;" +
+                        "-fx-text-fill: #CB443E;" +
+                        "-fx-font-size: 42px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-family: 'Inter';" +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(203,68,62,0.5), 10, 0, 0, 0);"
+        );
 
-            Stage owner = (Stage) addPlanBtn.getScene().getWindow();
-            confirmStage.initOwner(owner);
+        // ── Message label ────────────────────────────────────────
+        Label msgLabel = new Label(message);
+        msgLabel.setMaxWidth(500);
+        msgLabel.setWrapText(true);
+        msgLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+        msgLabel.setAlignment(javafx.geometry.Pos.CENTER);
+        msgLabel.setStyle(
+                "-fx-font-family: 'Inter';" +
+                        "-fx-font-size: 22px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: white;"
+        );
 
-            Scene scene = new Scene(root);
-            scene.setFill(Color.TRANSPARENT);
-            confirmStage.setScene(scene);
+        // ── Buttons ──────────────────────────────────────────────
+        Button confirmBtn = new Button("Confirm");
+        confirmBtn.setPrefWidth(151);
+        confirmBtn.setPrefHeight(55);
+        confirmBtn.setStyle(
+                "-fx-background-color: #CB443E;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 24px;" +
+                        "-fx-padding: 10 25;" +
+                        "-fx-cursor: hand;"
+        );
+        confirmBtn.setOnMouseEntered(e ->
+                confirmBtn.setStyle(confirmBtn.getStyle().replace("#CB443E", "#d9635d")));
+        confirmBtn.setOnMouseExited(e ->
+                confirmBtn.setStyle(confirmBtn.getStyle().replace("#d9635d", "#CB443E")));
 
-            GaussianBlur blur = new GaussianBlur(10);
-            owner.getScene().getRoot().setEffect(blur);
+        Button cancelBtn = new Button("Cancel");
+        cancelBtn.setPrefWidth(140);
+        cancelBtn.setPrefHeight(45);
+        cancelBtn.setStyle(
+                "-fx-background-color: white;" +
+                        "-fx-text-fill: #0D1117;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 24px;" +
+                        "-fx-padding: 10 25;" +
+                        "-fx-cursor: hand;"
+        );
+        cancelBtn.setOnMouseEntered(e ->
+                cancelBtn.setStyle(cancelBtn.getStyle().replace("white", "#E8E6E9")));
+        cancelBtn.setOnMouseExited(e ->
+                cancelBtn.setStyle(cancelBtn.getStyle().replace("#E8E6E9", "white")));
 
-            confirmStage.show();
-            centerStage(confirmStage, owner);
+        javafx.scene.layout.HBox btnRow = new javafx.scene.layout.HBox(20);
+        btnRow.setAlignment(javafx.geometry.Pos.CENTER);
+        btnRow.getChildren().addAll(confirmBtn, cancelBtn);
 
-            // Fade in
-            root.setOpacity(0);
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), root);
-            fadeIn.setFromValue(0);
-            fadeIn.setToValue(1);
-            fadeIn.play();
+        card.getChildren().addAll(iconCircle, msgLabel, btnRow);
 
-            confirmStage.setOnHidden(ev -> owner.getScene().getRoot().setEffect(null));
+        // ── Root wrapper (transparent bg for rounded corners) ────
+        javafx.scene.layout.AnchorPane root = new javafx.scene.layout.AnchorPane(card);
+        root.setStyle("-fx-background-color: transparent;");
+        javafx.scene.layout.AnchorPane.setTopAnchor(card, 10.0);
+        javafx.scene.layout.AnchorPane.setBottomAnchor(card, 10.0);
+        javafx.scene.layout.AnchorPane.setLeftAnchor(card, 10.0);
+        javafx.scene.layout.AnchorPane.setRightAnchor(card, 10.0);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // ── Stage ────────────────────────────────────────────────
+        Stage confirmStage = new Stage();
+        confirmStage.initStyle(StageStyle.TRANSPARENT);
+        confirmStage.initModality(Modality.APPLICATION_MODAL);
+        confirmStage.initOwner(owner);
+
+        Scene scene = new Scene(root);
+        scene.setFill(Color.TRANSPARENT);
+        confirmStage.setScene(scene);
+
+        // ── Blur owner while open ────────────────────────────────
+        GaussianBlur blur = new GaussianBlur(10);
+        owner.getScene().getRoot().setEffect(blur);
+        confirmStage.setOnHidden(ev -> owner.getScene().getRoot().setEffect(null));
+
+        // ── Button actions ───────────────────────────────────────
+        confirmBtn.setOnAction(ev -> {
+            confirmStage.close();
+            if (onConfirm != null) onConfirm.run();
+        });
+        cancelBtn.setOnAction(ev -> confirmStage.close());
+
+        // ── Show + center + fade in ──────────────────────────────
+        confirmStage.show();
+        centerStage(confirmStage, owner);
+
+        root.setOpacity(0);
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), root);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+        fadeIn.play();
     }
 
     private void centerStage(Stage stage, Stage owner) {

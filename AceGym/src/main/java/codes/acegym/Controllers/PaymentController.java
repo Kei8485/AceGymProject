@@ -8,11 +8,9 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.GaussianBlur;
@@ -26,7 +24,6 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 
-import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
@@ -1105,46 +1102,48 @@ public class PaymentController implements Initializable, Refreshable  {
     private void showErrors(List<String> errors) {
         if (validationBox != null) {
             validationBox.getChildren().clear();
+            // ── Card style matching ConfirmationPopup CSS ──
             validationBox.setStyle(
-                    "-fx-background-color: #1c2237;" +
+                    "-fx-background-color: radial-gradient(center 50% 50%, radius 70%, #1e293b 0%, #111827 100%);" +
                             "-fx-background-radius: 12;" +
-                            "-fx-border-color: rgba(229,57,53,0.50);" +
+                            "-fx-border-color: linear-gradient(to bottom, #CB443E, rgba(203,68,62,0.2));" +
                             "-fx-border-width: 1.5;" +
                             "-fx-border-radius: 12;" +
                             "-fx-padding: 14 18 14 18;" +
-                            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 0);");
+                            "-fx-effect: dropshadow(three-pass-box, rgba(203,68,62,0.4), 15, 0, 0, 0);"
+            );
 
             // ── Header row ──
             HBox header = new HBox(10);
             header.setAlignment(Pos.CENTER_LEFT);
             header.setStyle(
                     "-fx-padding: 0 0 10 0;" +
-                            "-fx-border-color: transparent transparent rgba(229,57,53,0.25) transparent;" +
-                            "-fx-border-width: 0 0 1 0;");
+                            "-fx-border-color: transparent transparent rgba(203,68,62,0.25) transparent;" +
+                            "-fx-border-width: 0 0 1 0;"
+            );
 
-            // Red icon badge
-            VBox iconBox = new VBox();
-            iconBox.setAlignment(Pos.CENTER);
-            iconBox.setMinSize(28, 28);
-            iconBox.setMaxSize(28, 28);
-            iconBox.setStyle(
-                    "-fx-background-color: #e53935;" +
-                            "-fx-background-radius: 8;");
-            Label warningIcon = new Label("⚠");
-            warningIcon.setStyle(
-                    "-fx-text-fill: #ffffff;" +
+            // Red circle badge
+            Label warningBadge = new Label("⚠");
+            warningBadge.setMinSize(28, 28);
+            warningBadge.setMaxSize(28, 28);
+            warningBadge.setAlignment(Pos.CENTER);
+            warningBadge.setStyle(
+                    "-fx-background-color: #CB443E;" +
+                            "-fx-background-radius: 8;" +
+                            "-fx-text-fill: #ffffff;" +
                             "-fx-font-size: 13px;" +
-                            "-fx-font-weight: bold;");
-            iconBox.getChildren().add(warningIcon);
+                            "-fx-font-weight: bold;"
+            );
 
             Label headerText = new Label("Please fix the following before saving:");
             headerText.setStyle(
-                    "-fx-text-fill: #ffffff;" +
+                    "-fx-text-fill: #E8E6E9;" +
                             "-fx-font-size: 14px;" +
                             "-fx-font-weight: bold;" +
-                            "-fx-font-family: 'Inter';");
+                            "-fx-font-family: 'Inter';"
+            );
 
-            header.getChildren().addAll(iconBox, headerText);
+            header.getChildren().addAll(warningBadge, headerText);
             validationBox.getChildren().add(header);
 
             // ── Error rows ──
@@ -1153,19 +1152,20 @@ public class PaymentController implements Initializable, Refreshable  {
                 row.setAlignment(Pos.CENTER_LEFT);
                 VBox.setMargin(row, new Insets(8, 0, 0, 4));
 
-                // Bullet dot
                 Label bullet = new Label("•");
                 bullet.setStyle(
-                        "-fx-text-fill: #e53935;" +
+                        "-fx-text-fill: #CB443E;" +
                                 "-fx-font-size: 18px;" +
-                                "-fx-font-weight: bold;");
+                                "-fx-font-weight: bold;"
+                );
                 bullet.setMinWidth(12);
 
                 Label msgLbl = new Label(err);
                 msgLbl.setStyle(
                         "-fx-text-fill: #9da3b4;" +
                                 "-fx-font-size: 13px;" +
-                                "-fx-font-family: 'Inter';");
+                                "-fx-font-family: 'Inter';"
+                );
                 msgLbl.setWrapText(true);
 
                 row.getChildren().addAll(bullet, msgLbl);
@@ -1184,10 +1184,11 @@ public class PaymentController implements Initializable, Refreshable  {
             for (String e : errors) sb.append("⚠  ").append(e).append("\n");
             validationLabel.setText(sb.toString().trim());
             validationLabel.setStyle(
-                    "-fx-text-fill: #e53935;" +
+                    "-fx-text-fill: #CB443E;" +
                             "-fx-font-size: 13px;" +
                             "-fx-font-family: 'Inter';" +
-                            "-fx-font-weight: bold;");
+                            "-fx-font-weight: bold;"
+            );
             validationLabel.setVisible(true);
             validationLabel.setManaged(true);
         }
@@ -1195,23 +1196,59 @@ public class PaymentController implements Initializable, Refreshable  {
     private void showSuccess(String msg) {
         if (validationBox != null) {
             validationBox.getChildren().clear();
+            // ── Card style matching ConfirmationPopup CSS — green accent variant ──
             validationBox.setStyle(
-                    "-fx-background-color: rgba(74,222,128,0.10);" +
+                    "-fx-background-color: radial-gradient(center 50% 50%, radius 70%, #0d2818 0%, #111827 100%);" +
                             "-fx-background-radius: 12;" +
-                            "-fx-border-color: rgba(74,222,128,0.45);" +
+                            "-fx-border-color: linear-gradient(to bottom, #4ade80, rgba(74,222,128,0.2));" +
                             "-fx-border-width: 1.5;" +
                             "-fx-border-radius: 12;" +
-                            "-fx-padding: 12 16 12 16;");
-            Label lbl = new Label("✅  " + msg);
+                            "-fx-padding: 12 16 12 16;" +
+                            "-fx-effect: dropshadow(three-pass-box, rgba(74,222,128,0.35), 15, 0, 0, 0);"
+            );
+
+            HBox row = new HBox(10);
+            row.setAlignment(Pos.CENTER_LEFT);
+
+            Label checkBadge = new Label("✓");
+            checkBadge.setMinSize(28, 28);
+            checkBadge.setMaxSize(28, 28);
+            checkBadge.setAlignment(Pos.CENTER);
+            checkBadge.setStyle(
+                    "-fx-background-color: #16a34a;" +
+                            "-fx-background-radius: 8;" +
+                            "-fx-text-fill: #ffffff;" +
+                            "-fx-font-size: 15px;" +
+                            "-fx-font-weight: bold;"
+            );
+
+            Label lbl = new Label(msg);
             lbl.setStyle(
-                    "-fx-text-fill:#4ade80;-fx-font-size:13px;" +
-                            "-fx-font-weight:bold;-fx-font-family:'Inter';");
-            validationBox.getChildren().add(lbl);
+                    "-fx-text-fill: #4ade80;" +
+                            "-fx-font-size: 13px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-font-family: 'Inter';"
+            );
+            lbl.setWrapText(true);
+
+            row.getChildren().addAll(checkBadge, lbl);
+            validationBox.getChildren().add(row);
             validationBox.setVisible(true);
             validationBox.setManaged(true);
+
+            FadeTransition ft = new FadeTransition(Duration.millis(180), validationBox);
+            ft.setFromValue(0);
+            ft.setToValue(1);
+            ft.play();
+
         } else if (validationLabel != null) {
-            validationLabel.setStyle("-fx-text-fill:#4ade80;-fx-font-size:13px;-fx-font-weight:bold;");
-            validationLabel.setText("✅ " + msg);
+            validationLabel.setStyle(
+                    "-fx-text-fill: #4ade80;" +
+                            "-fx-font-size: 13px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-font-family: 'Inter';"
+            );
+            validationLabel.setText("✓  " + msg);
             validationLabel.setVisible(true);
             validationLabel.setManaged(true);
         }
@@ -1235,41 +1272,134 @@ public class PaymentController implements Initializable, Refreshable  {
     //  CONFIRM MODAL
     // ════════════════════════════════════════════════════════════════════════
     private void showConfirmModal(String message, Runnable onConfirm) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/codes/acegym/ConfirmationPopup.fxml"));
-            Parent root = loader.load();
+        Stage owner = (Stage) AddPaymentBtn.getScene().getWindow();
 
-            ConfirmationController popup = loader.getController();
-            popup.setMessage(message);
-            popup.setOnConfirm(onConfirm);
+        // ── Card (VBox) ──────────────────────────────────────────
+        VBox card = new VBox(25);
+        card.setAlignment(javafx.geometry.Pos.CENTER);
+        card.setPadding(new javafx.geometry.Insets(30));
+        card.setMinWidth(400);
+        card.setStyle(
+                "-fx-background-color: radial-gradient(center 50% 50%, radius 70%, #1e293b 0%, #111827 100%);" +
+                        "-fx-background-radius: 15;" +
+                        "-fx-border-color: linear-gradient(to bottom, #CB443E, rgba(203,68,62,0.2));" +
+                        "-fx-border-width: 1.5;" +
+                        "-fx-border-radius: 15;" +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(203,68,62,0.4), 15, 0, 0, 0);"
+        );
 
-            Stage confirmStage = new Stage();
-            confirmStage.initStyle(StageStyle.TRANSPARENT);
-            confirmStage.initModality(Modality.APPLICATION_MODAL);
+        // ── Question icon (circle drawn in Java — no image file needed) ──
+        Label iconCircle = new Label("?");
+        iconCircle.setPrefSize(90, 90);
+        iconCircle.setMinSize(90, 90);
+        iconCircle.setMaxSize(90, 90);
+        iconCircle.setAlignment(javafx.geometry.Pos.CENTER);
+        iconCircle.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-border-color: #CB443E;" +
+                        "-fx-border-width: 3;" +
+                        "-fx-border-radius: 45;" +
+                        "-fx-background-radius: 45;" +
+                        "-fx-text-fill: #CB443E;" +
+                        "-fx-font-size: 42px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-family: 'Inter';" +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(203,68,62,0.5), 10, 0, 0, 0);"
+        );
 
-            Stage owner = (Stage) AddPaymentBtn.getScene().getWindow();
-            confirmStage.initOwner(owner);
+        // ── Message label ────────────────────────────────────────
+        Label msgLabel = new Label(message);
+        msgLabel.setMaxWidth(500);
+        msgLabel.setWrapText(true);
+        msgLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+        msgLabel.setAlignment(javafx.geometry.Pos.CENTER);
+        msgLabel.setStyle(
+                "-fx-font-family: 'Inter';" +
+                        "-fx-font-size: 22px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: white;"
+        );
 
-            Scene scene = new Scene(root);
-            scene.setFill(Color.TRANSPARENT);
-            confirmStage.setScene(scene);
+        // ── Buttons ──────────────────────────────────────────────
+        Button confirmBtn = new Button("Confirm");
+        confirmBtn.setPrefWidth(151);
+        confirmBtn.setPrefHeight(55);
+        confirmBtn.setStyle(
+                "-fx-background-color: #CB443E;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 24px;" +
+                        "-fx-padding: 10 25;" +
+                        "-fx-cursor: hand;"
+        );
+        confirmBtn.setOnMouseEntered(e ->
+                confirmBtn.setStyle(confirmBtn.getStyle().replace("#CB443E", "#d9635d")));
+        confirmBtn.setOnMouseExited(e ->
+                confirmBtn.setStyle(confirmBtn.getStyle().replace("#d9635d", "#CB443E")));
 
-            GaussianBlur blur = new GaussianBlur(10);
-            owner.getScene().getRoot().setEffect(blur);
-            confirmStage.setOnHidden(e -> owner.getScene().getRoot().setEffect(null));
+        Button cancelBtn = new Button("Cancel");
+        cancelBtn.setPrefWidth(140);
+        cancelBtn.setPrefHeight(45);
+        cancelBtn.setStyle(
+                "-fx-background-color: white;" +
+                        "-fx-text-fill: #0D1117;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 24px;" +
+                        "-fx-padding: 10 25;" +
+                        "-fx-cursor: hand;"
+        );
+        cancelBtn.setOnMouseEntered(e ->
+                cancelBtn.setStyle(cancelBtn.getStyle().replace("white", "#E8E6E9")));
+        cancelBtn.setOnMouseExited(e ->
+                cancelBtn.setStyle(cancelBtn.getStyle().replace("#E8E6E9", "white")));
 
-            confirmStage.show();
-            centerStage(confirmStage, owner);
+        HBox btnRow = new HBox(20);
+        btnRow.setAlignment(javafx.geometry.Pos.CENTER);
+        btnRow.getChildren().addAll(confirmBtn, cancelBtn);
 
-            root.setOpacity(0);
-            FadeTransition ft = new FadeTransition(Duration.millis(250), root);
-            ft.setToValue(1);
-            ft.play();
+        card.getChildren().addAll(iconCircle, msgLabel, btnRow);
 
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        // ── Root wrapper (transparent bg for rounded corners) ────
+        javafx.scene.layout.AnchorPane root = new javafx.scene.layout.AnchorPane(card);
+        root.setStyle("-fx-background-color: transparent;");
+        javafx.scene.layout.AnchorPane.setTopAnchor(card, 10.0);
+        javafx.scene.layout.AnchorPane.setBottomAnchor(card, 10.0);
+        javafx.scene.layout.AnchorPane.setLeftAnchor(card, 10.0);
+        javafx.scene.layout.AnchorPane.setRightAnchor(card, 10.0);
+
+        // ── Stage ────────────────────────────────────────────────
+        Stage confirmStage = new Stage();
+        confirmStage.initStyle(StageStyle.TRANSPARENT);
+        confirmStage.initModality(Modality.APPLICATION_MODAL);
+        confirmStage.initOwner(owner);
+
+        Scene scene = new Scene(root);
+        scene.setFill(Color.TRANSPARENT);
+        confirmStage.setScene(scene);
+
+        // ── Blur owner while open ────────────────────────────────
+        GaussianBlur blur = new GaussianBlur(10);
+        owner.getScene().getRoot().setEffect(blur);
+        confirmStage.setOnHidden(e -> owner.getScene().getRoot().setEffect(null));
+
+        // ── Button actions ───────────────────────────────────────
+        confirmBtn.setOnAction(ev -> {
+            confirmStage.close();
+            if (onConfirm != null) onConfirm.run();
+        });
+        cancelBtn.setOnAction(ev -> confirmStage.close());
+
+        // ── Show + center + fade in ──────────────────────────────
+        confirmStage.show();
+        centerStage(confirmStage, owner);
+
+        root.setOpacity(0);
+        FadeTransition ft = new FadeTransition(Duration.millis(200), root);
+        ft.setFromValue(0);
+        ft.setToValue(1);
+        ft.play();
     }
 
     private void centerStage(Stage stage, Stage owner) {
