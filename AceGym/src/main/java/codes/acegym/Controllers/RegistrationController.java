@@ -28,9 +28,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-// FIX #5: Implements Refreshable so HomePageController calls refreshData() automatically
-//          every time the user switches back to the Registration tab — this keeps the
-//          non-member search list in sync after a payment converts a client to Member.
 public class RegistrationController implements Refreshable {
 
     // ── Section 1: Client Registration ──────────────────────────────────────
@@ -46,21 +43,19 @@ public class RegistrationController implements Refreshable {
     @FXML private ComboBox<Client> clientSearchBox;
     @FXML private TextField        memFirstNameField;
     @FXML private TextField        memLastNameField;
-    @FXML private TextField        memDateField;   // may be null if not in FXML — always null-checked
+    @FXML private TextField        memDateField;
     @FXML private TextField        memEmailField;
     @FXML private TextField        memContactField;
     @FXML private Button           AvailMembershipBtn;
     @FXML private Button           resetBtn;
     @FXML private VBox             memValidationBox;
 
-    // ── Bridge to PaymentController (optional — kept for backward compat) ────
+    // ── Bridge to PaymentController ──────────────────────────────────────────
     private PaymentController paymentControllerRef;
     private Tab               paymentTabRef;
 
     // ── State ────────────────────────────────────────────────────────────────
-    // Master list loaded from DB — never modified after load
     private final ObservableList<Client> nonMemberClients = FXCollections.observableArrayList();
-    // The list actually bound to the ComboBox — mutated in place, NEVER replaced via setItems()
     private final ObservableList<Client> displayedClients = FXCollections.observableArrayList();
 
     private Client  selectedMember = null;
@@ -76,20 +71,11 @@ public class RegistrationController implements Refreshable {
         setupSection2Buttons();
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    //  REFRESHABLE  (FIX #5)
-    //  HomePageController calls this every time the user switches to this tab.
-    //  It reloads the non-member list from DB so any client who just paid and
-    //  became a Member is excluded from the search.
-    // ════════════════════════════════════════════════════════════════════════
     @Override
     public void refreshData() {
         reloadNonMemberClients();
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    //  BRIDGE SETTER  (call from MainController after loading both FXMLs)
-    // ════════════════════════════════════════════════════════════════════════
     public void setPaymentBridge(PaymentController paymentController, Tab paymentTab) {
         this.paymentControllerRef = paymentController;
         this.paymentTabRef        = paymentTab;
@@ -146,14 +132,43 @@ public class RegistrationController implements Refreshable {
 
         if (!email.matches("^[\\w.+\\-]+@[\\w\\-]+(\\.[\\w\\-]+)+$"))
             errors.add("Email address format is invalid.");
-        if (!contact.matches("^[0-9+\\-\\s]{7,15}$"))
-            errors.add("Contact number must be 7-15 digits (numbers, +, - allowed).");
+
+        // ── Philippine mobile number validation ──────────────────────────
+        // Accepts: 09XXXXXXXXX (11 digits) or +639XXXXXXXXX (13 chars)
+        // The 3rd digit after 09 must NOT turn it into a non-existent prefix.
+        // Valid PH mobile prefixes: 0900-0999 range but only real networks:
+        //   Globe/TM:  0905,0906,0915,0916,0917,0926,0927,0935,0936,0945,0946,0955,0956,0966,0967,0976,0977,0978,0979,0995,0996,0997
+        //   Smart/TNT: 0900,0907,0908,0909,0910,0911,0912,0913,0914,0918,0919,0920,0921,0928,0929,0930,0938,0939,0940,0946,0947,0948,0949,0950,0951,0961,0998,0999
+        //   DITO:      0895,0896,0897,0898,0991,0992,0993,0994
+        //   Sun/Unlimit: 0922,0923,0924,0925,0931,0932,0933,0934,0942,0943
+        // Rather than hardcode every prefix, we enforce:
+        //   - Must be exactly 11 digits starting with 09, OR
+        //   - Must be exactly +639 followed by 9 digits
+        //   - The 3rd digit (after 09) must be 0-9 (already covered)
+        //   - No repeating digit sequences (catches 09----323--- style junk)
+        //   - All characters after optional leading + must be digits only
+        if (!contact.isEmpty()) {
+            String normalized = contact.replaceAll("[\\s\\-]", ""); // strip spaces and hyphens for length check
+            boolean valid = false;
+
+            if (normalized.matches("^09\\d{9}$")) {
+                // 09XXXXXXXXX — 11 digits, starts with 09
+                valid = true;
+            } else if (normalized.matches("^\\+639\\d{9}$")) {
+                // +639XXXXXXXXX — international format
+                valid = true;
+            }
+
+            if (!valid) {
+                errors.add("Contact number must be a valid Philippine mobile number (e.g. 09171234567 or +639171234567).");
+            }
+        }
 
         if (!errors.isEmpty()) return errors;
 
         if (isEmailTaken(email))
             errors.add("Email address is already registered to another client.");
-        if (isContactTaken(contact))
+        if (isContactTaken(regContactField.getText().trim()))
             errors.add("Contact number is already registered to another client.");
 
         return errors;
@@ -217,17 +232,38 @@ public class RegistrationController implements Refreshable {
         if (regValidationBox == null) return;
         regValidationBox.getChildren().clear();
         regValidationBox.setStyle(
-                "-fx-background-color:rgba(74,222,128,0.10);" +
-                        "-fx-background-radius:12;" +
-                        "-fx-border-color:rgba(74,222,128,0.45);" +
-                        "-fx-border-width:1.5;-fx-border-radius:12;" +
-                        "-fx-padding:12 16 12 16;");
-        Label lbl = new Label("✅  " + msg);
-        lbl.setStyle("-fx-text-fill:#4ade80;-fx-font-size:13px;" +
-                "-fx-font-weight:bold;-fx-font-family:'Inter';");
-        regValidationBox.getChildren().add(lbl);
+                "-fx-background-color: radial-gradient(center 50% 50%, radius 70%, #0d2818 0%, #111827 100%);" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-border-color: linear-gradient(to bottom, #4ade80, rgba(74,222,128,0.2));" +
+                        "-fx-border-width: 1.5;" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-padding: 12 16 12 16;" +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(74,222,128,0.35), 15, 0, 0, 0);");
+
+        HBox row = new HBox(10);
+        row.setAlignment(Pos.CENTER_LEFT);
+
+        Label checkBadge = new Label("✓");
+        checkBadge.setMinSize(28, 28);
+        checkBadge.setMaxSize(28, 28);
+        checkBadge.setAlignment(Pos.CENTER);
+        checkBadge.setStyle(
+                "-fx-background-color: #16a34a;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-text-fill: #ffffff;" +
+                        "-fx-font-size: 15px;" +
+                        "-fx-font-weight: bold;");
+
+        Label lbl = new Label(msg);
+        lbl.setStyle("-fx-text-fill: #4ade80; -fx-font-size: 13px;" +
+                "-fx-font-weight: bold; -fx-font-family: 'Inter';");
+        lbl.setWrapText(true);
+
+        row.getChildren().addAll(checkBadge, lbl);
+        regValidationBox.getChildren().add(row);
         regValidationBox.setVisible(true);
         regValidationBox.setManaged(true);
+
         javafx.animation.PauseTransition p =
                 new javafx.animation.PauseTransition(Duration.seconds(3));
         p.setOnFinished(ev -> hideRegValidation());
@@ -244,47 +280,32 @@ public class RegistrationController implements Refreshable {
 
     // ════════════════════════════════════════════════════════════════════════
     //  SECTION 2 — MEMBERSHIP SEARCH
-    //
-    //  CRITICAL: clientSearchBox.setItems() is called EXACTLY ONCE here.
-    //  All filtering is done via displayedClients.setAll() — mutating the
-    //  existing list in place, deferred via Platform.runLater() to avoid the
-    //  JavaFX 21 IndexOutOfBoundsException that fires when the list is mutated
-    //  while a click-selection event is still in-flight.
     // ════════════════════════════════════════════════════════════════════════
     private void setupMembershipSearch() {
-
-        // Step 1: Load master data into nonMemberClients
         loadNonMemberClientsFromDB();
 
-        // Step 2: Converter — controls what text appears in the editor/dropdown
         clientSearchBox.setConverter(new StringConverter<Client>() {
             @Override
             public String toString(Client c) {
                 return c == null ? "" : c.getFirstName() + " " + c.getLastName();
             }
             @Override
-            public Client fromString(String s) {
-                return null; // we handle selection via selectedItemProperty
-            }
+            public Client fromString(String s) { return null; }
         });
 
-        // Step 3: Bind combo to the stable displayedClients list — ONE TIME ONLY
         displayedClients.setAll(nonMemberClients);
         clientSearchBox.setItems(displayedClients);
 
-        // Step 4: Text listener — only filters, never calls setItems()
         clientSearchBox.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {
             if (suppressSearch) return;
             applyFilter(newVal == null ? "" : newVal.trim());
         });
 
-        // Step 5: Selection listener — fires when user clicks a row
         clientSearchBox.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldVal, newVal) -> {
                     if (suppressSearch || newVal == null) return;
                     suppressSearch = true;
                     selectMembershipClient(newVal);
-                    // Restore the selected name into the editor cleanly
                     Platform.runLater(() -> {
                         String name = newVal.getFirstName() + " " + newVal.getLastName();
                         clientSearchBox.getEditor().setText(name);
@@ -294,7 +315,6 @@ public class RegistrationController implements Refreshable {
                 });
     }
 
-    // ── DB load ───────────────────────────────────────────────────────────
     private void loadNonMemberClientsFromDB() {
         nonMemberClients.clear();
         String sql =
@@ -328,20 +348,12 @@ public class RegistrationController implements Refreshable {
         } catch (SQLException e) { e.printStackTrace(); }
     }
 
-    // FIX #2: Reload defers the setAll() to the next UI pulse so it never
-    // races with an in-flight click event — prevents JavaFX 21 crash.
     private void reloadNonMemberClients() {
         loadNonMemberClientsFromDB();
         Platform.runLater(() -> displayedClients.setAll(nonMemberClients));
     }
 
-    // ── FIX #1: Filter — hide popup first, then defer the setAll() ────────
-    // The popup must be hidden BEFORE the backing list is mutated.
-    // If the popup is open and we mutate the list, JavaFX 21's
-    // ListViewBehavior tries to call getAddedSubList(0, 1) on a now-empty
-    // list → IndexOutOfBoundsException: [fromIndex: 0, toIndex: 1, size: 0]
     private void applyFilter(String query) {
-        // Build the result list first — pure logic, no UI mutation yet
         final List<Client> matched = new ArrayList<>();
         if (query.isBlank()) {
             matched.addAll(nonMemberClients);
@@ -355,10 +367,8 @@ public class RegistrationController implements Refreshable {
             }
         }
 
-        // Hide the popup before touching the list — no event in-flight
         if (clientSearchBox.isShowing()) clientSearchBox.hide();
 
-        // Defer the actual mutation to the next pulse
         Platform.runLater(() -> {
             displayedClients.setAll(matched);
             if (!query.isBlank() && !matched.isEmpty() && !clientSearchBox.isShowing()) {
@@ -367,7 +377,6 @@ public class RegistrationController implements Refreshable {
         });
     }
 
-    // ── Populate read-only fields ─────────────────────────────────────────
     private void selectMembershipClient(Client c) {
         selectedMember = c;
         String[] extra = getClientExtraInfo(c.getClientID());
@@ -376,7 +385,6 @@ public class RegistrationController implements Refreshable {
         memLastNameField.setText(c.getLastName());
         memEmailField.setText(extra[0] != null ? extra[0] : "");
         memContactField.setText(c.getContact() != null ? c.getContact() : "");
-        // FIX #4: memDateField may be null if not wired in the FXML
         if (memDateField != null) memDateField.setText(extra[1] != null ? extra[1] : "—");
 
         hideMemValidation();
@@ -395,7 +403,6 @@ public class RegistrationController implements Refreshable {
                     return new String[]{ rs.getString("ClientEmail"), rs.getString("RegDate") };
             }
         } catch (SQLException e) {
-            // CreatedAt column doesn't exist — fallback
             String fallback = "SELECT COALESCE(ClientEmail,'') AS ClientEmail " +
                     "FROM ClientTable WHERE ClientID = ?";
             try (Connection con = DBConnector.connect();
@@ -416,7 +423,6 @@ public class RegistrationController implements Refreshable {
         memLastNameField.clear();
         memEmailField.clear();
         memContactField.clear();
-        // FIX #4: null-check — memDateField is not in the current FXML
         if (memDateField != null) memDateField.clear();
     }
 
@@ -442,24 +448,15 @@ public class RegistrationController implements Refreshable {
         );
     }
 
-    // FIX #3: The old code searched for a TabPane with a "payment" tab — but
-    // HomePageController uses a StackPane + ToggleButton system, not a TabPane.
-    // There are ZERO TabPanes in this app, so paymentTabRef was always null and
-    // navigation never happened. Now we delegate directly to HomePageController.
     private void navigateToPayment(Client client) {
-        // Clear the membership form immediately so the UI looks responsive
         resetMembershipSection();
 
-        // Delegate navigation to HomePageController — it owns the page switcher
         HomePageController hpc = HomePageController.getInstance();
         if (hpc != null) {
             hpc.navigateToPaymentTab(client);
             return;
         }
 
-        // Fallback: if HomePageController isn't available (e.g. embedded in a
-        // different host), try to pre-select the client in PaymentController directly
-        // without switching pages.
         PaymentController pc = (paymentControllerRef != null)
                 ? paymentControllerRef
                 : PaymentController.getInstance();
@@ -494,37 +491,61 @@ public class RegistrationController implements Refreshable {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  SHARED ERROR BOX BUILDER
+    //  SHARED ERROR BOX BUILDER — matches ConfirmationPopup CSS theme
     // ════════════════════════════════════════════════════════════════════════
     private void buildErrorBox(VBox box, List<String> errors) {
         if (box == null) return;
         box.getChildren().clear();
         box.setStyle(
-                "-fx-background-color:rgba(229,57,53,0.10);" +
-                        "-fx-background-radius:12;" +
-                        "-fx-border-color:rgba(229,57,53,0.50);" +
-                        "-fx-border-width:1.5;-fx-border-radius:12;" +
-                        "-fx-padding:12 16 12 16;");
+                "-fx-background-color: radial-gradient(center 50% 50%, radius 70%, #1e293b 0%, #111827 100%);" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-border-color: linear-gradient(to bottom, #CB443E, rgba(203,68,62,0.2));" +
+                        "-fx-border-width: 1.5;" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-padding: 14 18 14 18;" +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(203,68,62,0.4), 15, 0, 0, 0);");
 
-        HBox header = new HBox(8);
+        HBox header = new HBox(10);
         header.setAlignment(Pos.CENTER_LEFT);
-        Label icon  = new Label("⚠");
-        icon.setStyle("-fx-text-fill:#e53935;-fx-font-size:16px;");
-        Label title = new Label("Please fix the following:");
-        title.setStyle("-fx-text-fill:#e53935;-fx-font-size:13px;" +
-                "-fx-font-weight:bold;-fx-font-family:'Inter';");
-        header.getChildren().addAll(icon, title);
+        header.setStyle(
+                "-fx-padding: 0 0 10 0;" +
+                        "-fx-border-color: transparent transparent rgba(203,68,62,0.25) transparent;" +
+                        "-fx-border-width: 0 0 1 0;");
+
+        Label warningBadge = new Label("⚠");
+        warningBadge.setMinSize(28, 28);
+        warningBadge.setMaxSize(28, 28);
+        warningBadge.setAlignment(Pos.CENTER);
+        warningBadge.setStyle(
+                "-fx-background-color: #CB443E;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-text-fill: #ffffff;" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-font-weight: bold;");
+
+        Label headerText = new Label("Please fix the following:");
+        headerText.setStyle(
+                "-fx-text-fill: #E8E6E9;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-family: 'Inter';");
+
+        header.getChildren().addAll(warningBadge, headerText);
         box.getChildren().add(header);
 
         for (String err : errors) {
-            HBox row = new HBox(8);
+            HBox row = new HBox(10);
             row.setAlignment(Pos.CENTER_LEFT);
-            VBox.setMargin(row, new Insets(5, 0, 0, 4));
+            VBox.setMargin(row, new Insets(8, 0, 0, 4));
+
             Label bullet = new Label("•");
-            bullet.setStyle("-fx-text-fill:#ff6b6b;-fx-font-size:16px;");
+            bullet.setStyle("-fx-text-fill: #CB443E; -fx-font-size: 18px; -fx-font-weight: bold;");
+            bullet.setMinWidth(12);
+
             Label msg = new Label(err);
-            msg.setStyle("-fx-text-fill:#fca5a5;-fx-font-size:13px;-fx-font-family:'Inter';");
+            msg.setStyle("-fx-text-fill: #9da3b4; -fx-font-size: 13px; -fx-font-family: 'Inter';");
             msg.setWrapText(true);
+
             row.getChildren().addAll(bullet, msg);
             box.getChildren().add(row);
         }
@@ -538,45 +559,130 @@ public class RegistrationController implements Refreshable {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  CONFIRMATION MODAL
+    //  CONFIRMATION MODAL — pure Java, no FXML load lag
     // ════════════════════════════════════════════════════════════════════════
     private void showModal(String message, Button ownerBtn, Runnable onConfirm) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/codes/acegym/ConfirmationPopup.fxml"));
-            Parent root = loader.load();
+        Stage owner = (Stage) ownerBtn.getScene().getWindow();
 
-            ConfirmationController popup = loader.getController();
-            popup.setMessage(message);
-            popup.setOnConfirm(onConfirm);
+        // ── Icon ─────────────────────────────────────────────────
+        Label iconCircle = new Label("?");
+        iconCircle.setPrefSize(90, 90);
+        iconCircle.setMinSize(90, 90);
+        iconCircle.setMaxSize(90, 90);
+        iconCircle.setAlignment(javafx.geometry.Pos.CENTER);
+        iconCircle.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-border-color: #CB443E;" +
+                        "-fx-border-width: 3;" +
+                        "-fx-border-radius: 45;" +
+                        "-fx-background-radius: 45;" +
+                        "-fx-text-fill: #CB443E;" +
+                        "-fx-font-size: 42px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-family: 'Inter';" +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(203,68,62,0.5), 10, 0, 0, 0);"
+        );
 
-            Stage confirmStage = new Stage();
-            confirmStage.initStyle(StageStyle.TRANSPARENT);
-            confirmStage.initModality(Modality.APPLICATION_MODAL);
+        // ── Message ───────────────────────────────────────────────
+        Label msgLabel = new Label(message);
+        msgLabel.setMaxWidth(500);
+        msgLabel.setWrapText(true);
+        msgLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+        msgLabel.setAlignment(javafx.geometry.Pos.CENTER);
+        msgLabel.setStyle(
+                "-fx-font-family: 'Inter';" +
+                        "-fx-font-size: 22px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: white;"
+        );
 
-            Stage owner = (Stage) ownerBtn.getScene().getWindow();
-            confirmStage.initOwner(owner);
+        // ── Confirm button ────────────────────────────────────────
+        Button confirmBtn = new Button("Confirm");
+        confirmBtn.setPrefWidth(151);
+        confirmBtn.setPrefHeight(55);
+        confirmBtn.setStyle(
+                "-fx-background-color: #CB443E;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 24px;" +
+                        "-fx-padding: 10 25;" +
+                        "-fx-cursor: hand;"
+        );
+        confirmBtn.setOnMouseEntered(e -> confirmBtn.setStyle(confirmBtn.getStyle().replace("#CB443E", "#d9635d")));
+        confirmBtn.setOnMouseExited(e  -> confirmBtn.setStyle(confirmBtn.getStyle().replace("#d9635d", "#CB443E")));
 
-            Scene scene = new Scene(root);
-            scene.setFill(Color.TRANSPARENT);
-            confirmStage.setScene(scene);
+        // ── Cancel button ─────────────────────────────────────────
+        Button cancelBtn = new Button("Cancel");
+        cancelBtn.setPrefWidth(140);
+        cancelBtn.setPrefHeight(45);
+        cancelBtn.setStyle(
+                "-fx-background-color: white;" +
+                        "-fx-text-fill: #0D1117;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 24px;" +
+                        "-fx-padding: 10 25;" +
+                        "-fx-cursor: hand;"
+        );
+        cancelBtn.setOnMouseEntered(e -> cancelBtn.setStyle(cancelBtn.getStyle().replace("white", "#E8E6E9")));
+        cancelBtn.setOnMouseExited(e  -> cancelBtn.setStyle(cancelBtn.getStyle().replace("#E8E6E9", "white")));
 
-            GaussianBlur blur = new GaussianBlur(10);
-            owner.getScene().getRoot().setEffect(blur);
-            confirmStage.setOnHidden(e -> owner.getScene().getRoot().setEffect(null));
+        javafx.scene.layout.HBox btnRow = new javafx.scene.layout.HBox(20);
+        btnRow.setAlignment(javafx.geometry.Pos.CENTER);
+        btnRow.getChildren().addAll(confirmBtn, cancelBtn);
 
-            confirmStage.show();
-            centerStage(confirmStage, owner);
+        // ── Card ──────────────────────────────────────────────────
+        javafx.scene.layout.VBox card = new javafx.scene.layout.VBox(25);
+        card.setAlignment(javafx.geometry.Pos.CENTER);
+        card.setPadding(new javafx.geometry.Insets(30));
+        card.setMinWidth(400);
+        card.setStyle(
+                "-fx-background-color: radial-gradient(center 50% 50%, radius 70%, #1e293b 0%, #111827 100%);" +
+                        "-fx-background-radius: 15;" +
+                        "-fx-border-color: linear-gradient(to bottom, #CB443E, rgba(203,68,62,0.2));" +
+                        "-fx-border-width: 1.5;" +
+                        "-fx-border-radius: 15;" +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(203,68,62,0.4), 15, 0, 0, 0);"
+        );
+        card.getChildren().addAll(iconCircle, msgLabel, btnRow);
 
-            root.setOpacity(0);
-            FadeTransition ft = new FadeTransition(Duration.millis(300), root);
-            ft.setFromValue(0);
-            ft.setToValue(1);
-            ft.play();
+        // ── Root ──────────────────────────────────────────────────
+        javafx.scene.layout.AnchorPane root = new javafx.scene.layout.AnchorPane(card);
+        root.setStyle("-fx-background-color: transparent;");
+        javafx.scene.layout.AnchorPane.setTopAnchor(card, 10.0);
+        javafx.scene.layout.AnchorPane.setBottomAnchor(card, 10.0);
+        javafx.scene.layout.AnchorPane.setLeftAnchor(card, 10.0);
+        javafx.scene.layout.AnchorPane.setRightAnchor(card, 10.0);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // ── Stage ─────────────────────────────────────────────────
+        Stage confirmStage = new Stage();
+        confirmStage.initStyle(StageStyle.TRANSPARENT);
+        confirmStage.initModality(Modality.APPLICATION_MODAL);
+        confirmStage.initOwner(owner);
+
+        Scene scene = new Scene(root);
+        scene.setFill(Color.TRANSPARENT);
+        confirmStage.setScene(scene);
+
+        GaussianBlur blur = new GaussianBlur(10);
+        owner.getScene().getRoot().setEffect(blur);
+        confirmStage.setOnHidden(ev -> owner.getScene().getRoot().setEffect(null));
+
+        confirmBtn.setOnAction(ev -> {
+            confirmStage.close();
+            if (onConfirm != null) onConfirm.run();
+        });
+        cancelBtn.setOnAction(ev -> confirmStage.close());
+
+        confirmStage.show();
+        centerStage(confirmStage, owner);
+
+        root.setOpacity(0);
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), root);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+        fadeIn.play();
     }
 
     private void centerStage(Stage stage, Stage owner) {
