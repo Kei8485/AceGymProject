@@ -1,18 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="650.0" prefWidth="500.0" styleClass="main-content-bg" stylesheets="@../../Css/AddCoach.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.AddCoachController">
+<AnchorPane prefHeight="650.0" prefWidth="500.0" styleClass="main-content-bg" stylesheets="@../../Css/AddCoach.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.AddCoachController">
     <children>
         <VBox alignment="TOP_CENTER" spacing="25.0" styleClass="profile-card" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="60.0">
             <padding>
@@ -67,17 +60,12 @@
 
                         <VBox spacing="5.0">
                             <Label styleClass="input-label" text="Training Type" />
-                            <ComboBox fx:id="trainingTypeCombo" prefWidth="400.0" promptText="Select Training Type" styleClass="transparent-combo" />
+                            <ComboBox fx:id="trainingTypeCombo" prefWidth="400.0" promptText="Select Training Type" styleClass="combo-field" />
                         </VBox>
                     </children>
                 </VBox>
 
-                <Label fx:id="errorLabel"
-                       managed="false"
-                       style="-fx-text-fill: #e53935; -fx-font-size: 12px;"
-                       text=""
-                       visible="false"
-                       wrapText="true" />
+                <Label fx:id="errorLabel" managed="false" style="-fx-text-fill: #e53935; -fx-font-size: 12px;" text="" visible="false" wrapText="true" />
 
                 <HBox alignment="CENTER" spacing="15.0">
                     <children>
