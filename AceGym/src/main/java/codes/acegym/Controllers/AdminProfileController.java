@@ -93,6 +93,22 @@ public class AdminProfileController implements Refreshable {
         setupEyeToggle(toggleNewPass,     newPasswordField);
         setupEyeToggle(toggleRetypePass,  retypePasswordField);
         avatarStackPane.setOnMouseClicked(e -> pickProfileImage());
+
+        // ── Live "same as current" warning on the new-password field ────────────
+        // Fires on every keystroke so the user gets instant feedback without
+        // having to submit the form first.
+        newPasswordField.textProperty().addListener((obs, oldVal, newVal) -> {
+            String current = currentPasswordField.getText();
+            if (!newVal.isBlank() && !current.isBlank() && newVal.equals(current)) {
+                newPassError.setText("New password cannot be the same as your current password.");
+            } else {
+                // Only clear this specific error — don't wipe unrelated ones
+                if (newPassError.getText().contains("same as")) {
+                    newPassError.setText("");
+                }
+            }
+        });
+
         refreshData();
     }
 
@@ -218,19 +234,16 @@ public class AdminProfileController implements Refreshable {
             newPassError.setText("New password is required."); valid = false;
         } else if (newPass.length() < 6) {
             newPassError.setText("Password must be at least 6 characters."); valid = false;
+        } else if (newPass.equals(current)) {
+            // ── New password must differ from the current one — caught here
+            //    before any DB call or confirm popup so no round-trip is wasted.
+            newPassError.setText("New password must be different from your current password."); valid = false;
         }
-        if (!newPass.equals(retype)) {
+        if (!retype.isBlank() && !newPass.equals(retype)) {
             retypePassError.setText("Passwords do not match."); valid = false;
         }
         if (!valid) return;
 
-        // ── FIX 1: showConfirm callback previously called showInfo() which also
-        //    calls showAndWait(). Nesting two showAndWait() calls crashes JavaFX
-        //    with IllegalStateException. The fix is two-part:
-        //      a) Platform.runLater() inside showConfirm defers the callback so
-        //         the first showAndWait() has fully returned before we open another.
-        //      b) AdminDAO.changePassword() is now on a background Task so the
-        //         FX thread doesn't freeze during the MySQL round-trip.
         showConfirm("Change Password", "Are you sure you want to change your password?", confirmed -> {
             if (!confirmed) return;
 
@@ -245,9 +258,10 @@ public class AdminProfileController implements Refreshable {
             task.setOnSucceeded(e -> {
                 if (btnChangePassword != null) btnChangePassword.setDisable(false);
                 if (task.getValue()) {
-                    handleClearPassword(); // ← clear fields immediately on success
+                    handleClearPassword();
                     showInfo("Success", "Password changed successfully.");
                 } else {
+                    // DB rejected it — current password was wrong
                     currentPassError.setText("Current password is incorrect.");
                 }
             });
