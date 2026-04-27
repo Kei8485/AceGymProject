@@ -2,23 +2,19 @@ package codes.acegym.Controllers;
 
 import codes.acegym.DB.ClientDAO;
 import codes.acegym.DB.CoachDAO;
+import codes.acegym.ModalHelper;
 import codes.acegym.Objects.Client;
 import codes.acegym.Objects.Coach;
-import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import javafx.util.Duration;
-
+    
 public class AddClientInCoachController {
 
     // ── FXML — main list view ────────────────────────────────────────────────
@@ -149,21 +145,31 @@ public class AddClientInCoachController {
                 });
     }
 
-    // ── Load currently assigned clients ──────────────────────────────────────
+    // ── Load currently assigned clients (async — keeps UI responsive) ───────
     private void loadAssignedClients() {
         if (clientListContainer == null || coach == null) return;
         clientListContainer.getChildren().clear();
 
-        ObservableList<String[]> assigned = CoachDAO.getAssignedClients(coach.getStaffID());
-        if (assigned.isEmpty()) {
-            Label none = new Label("No clients assigned yet.");
-            none.setStyle("-fx-text-fill: #6b7280; -fx-font-style: italic;");
-            clientListContainer.getChildren().add(none);
-            return;
-        }
-        for (String[] row : assigned) {
-            addClientRowToList(row[2] + " " + row[3], row[1], Integer.parseInt(row[0]));
-        }
+        Task<ObservableList<String[]>> task = new Task<>() {
+            @Override protected ObservableList<String[]> call() {
+                return CoachDAO.getAssignedClients(coach.getStaffID());
+            }
+        };
+        task.setOnSucceeded(e -> {
+            ObservableList<String[]> assigned = task.getValue();
+            if (assigned.isEmpty()) {
+                Label none = new Label("No clients assigned yet.");
+                none.setStyle("-fx-text-fill: #6b7280; -fx-font-style: italic;");
+                clientListContainer.getChildren().add(none);
+            } else {
+                for (String[] row : assigned)
+                    addClientRowToList(row[2] + " " + row[3], row[1], Integer.parseInt(row[0]));
+            }
+        });
+        task.setOnFailed(e -> task.getException().printStackTrace());
+        Thread t = new Thread(task);
+        t.setDaemon(true);
+        t.start();
     }
 
     private void addClientRowToList(String name, String clientIDStr, int assignmentID) {
@@ -217,17 +223,28 @@ public class AddClientInCoachController {
         mainListView.setVisible(false);
         clientDetailsView.setVisible(true);
 
-        allUnassigned = ClientDAO.getUnassignedClients(coach.getStaffID());
-        // Mutate the stable list in place — never call setItems() again
-        javafx.application.Platform.runLater(() -> {
-            displayedClients.setAll(allUnassigned);
-            clientListView.getSelectionModel().clearSelection();
-        });
-
         if (searchField != null) searchField.clear();
         clearDisplayFields();
         selectedClient = null;
         hideError();
+
+        // DB call off the FX thread — this is what caused the click-lag
+        Task<ObservableList<Client>> task = new Task<>() {
+            @Override protected ObservableList<Client> call() {
+                return ClientDAO.getUnassignedClients(coach.getStaffID());
+            }
+        };
+        task.setOnSucceeded(e -> {
+            allUnassigned = task.getValue();
+            Platform.runLater(() -> {
+                displayedClients.setAll(allUnassigned);
+                clientListView.getSelectionModel().clearSelection();
+            });
+        });
+        task.setOnFailed(e -> task.getException().printStackTrace());
+        Thread t = new Thread(task);
+        t.setDaemon(true);
+        t.start();
     }
 
     @FXML
@@ -266,164 +283,8 @@ public class AddClientInCoachController {
     }
 
     private void showConfirmPopup(String message, Runnable onConfirm) {
-        Stage popup = new Stage();
-        popup.initModality(Modality.APPLICATION_MODAL);
-        popup.initStyle(StageStyle.TRANSPARENT);
-        popup.initOwner((Stage) mainListView.getScene().getWindow());
-
-        VBox root = new VBox(20);
-        root.setPadding(new Insets(35, 35, 35, 35));
-        root.setAlignment(Pos.CENTER);
-        root.setPrefWidth(480);
-        root.setMaxWidth(480);
-        root.setStyle(
-                "-fx-background-color: #1c2237;" +
-                        "-fx-background-radius: 20;" +
-                        "-fx-border-color: #e53935;" +
-                        "-fx-border-radius: 20;" +
-                        "-fx-border-width: 1.5;" +
-                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.85), 40, 0, 0, 0);");
-
-        // ── Icon badge ──
-        VBox iconBox = new VBox();
-        iconBox.setAlignment(Pos.CENTER);
-        iconBox.setMinSize(60, 60);
-        iconBox.setMaxSize(60, 60);
-        iconBox.setStyle(
-                "-fx-background-color: #e53935;" +
-                        "-fx-background-radius: 16;");
-        Label icon = new Label("?");
-        icon.setStyle(
-                "-fx-font-family: 'Bebas Neue';" +
-                        "-fx-font-size: 36px;" +
-                        "-fx-text-fill: #ffffff;");
-        iconBox.getChildren().add(icon);
-
-        // ── Title ──
-        Label title = new Label("Confirm Action");
-        title.setStyle(
-                "-fx-text-fill: #ffffff;" +
-                        "-fx-font-family: 'Inter';" +
-                        "-fx-font-size: 20px;" +
-                        "-fx-font-weight: bold;");
-
-        // ── Divider ──
-        javafx.scene.layout.Region divider = new javafx.scene.layout.Region();
-        divider.setPrefHeight(1);
-        divider.setMaxWidth(Double.MAX_VALUE);
-        divider.setStyle("-fx-background-color: #2e3349;");
-
-        // ── Message ──
-        Label msg = new Label(message);
-        msg.setStyle(
-                "-fx-text-fill: #9da3b4;" +
-                        "-fx-font-family: 'Inter';" +
-                        "-fx-font-size: 15px;" +
-                        "-fx-line-spacing: 4;");
-        msg.setWrapText(true);
-        msg.setMaxWidth(410);
-        msg.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
-        msg.setAlignment(Pos.CENTER);
-
-        // ── Buttons ──
-        HBox btnRow = new HBox(14);
-        btnRow.setAlignment(Pos.CENTER);
-        btnRow.setPadding(new Insets(10, 0, 0, 0));
-
-        Button cancelBtn = new Button("Cancel");
-        cancelBtn.setPrefWidth(140);
-        cancelBtn.setPrefHeight(44);
-        cancelBtn.setStyle(
-                "-fx-background-color: #1e2130;" +
-                        "-fx-text-fill: #c0c5d8;" +
-                        "-fx-font-family: 'Inter';" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-font-size: 14px;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-border-color: #2e3349;" +
-                        "-fx-border-radius: 10;" +
-                        "-fx-border-width: 1.5;" +
-                        "-fx-cursor: hand;");
-        cancelBtn.setOnMouseEntered(e -> cancelBtn.setStyle(
-                "-fx-background-color: #252a3a;" +
-                        "-fx-text-fill: #ffffff;" +
-                        "-fx-font-family: 'Inter';" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-font-size: 14px;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-border-color: #3e4460;" +
-                        "-fx-border-radius: 10;" +
-                        "-fx-border-width: 1.5;" +
-                        "-fx-cursor: hand;"));
-        cancelBtn.setOnMouseExited(e -> cancelBtn.setStyle(
-                "-fx-background-color: #1e2130;" +
-                        "-fx-text-fill: #c0c5d8;" +
-                        "-fx-font-family: 'Inter';" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-font-size: 14px;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-border-color: #2e3349;" +
-                        "-fx-border-radius: 10;" +
-                        "-fx-border-width: 1.5;" +
-                        "-fx-cursor: hand;"));
-
-        Button confirmBtn = new Button("Confirm");
-        confirmBtn.setPrefWidth(160);
-        confirmBtn.setPrefHeight(44);
-        confirmBtn.setStyle(
-                "-fx-background-color: #e53935;" +
-                        "-fx-text-fill: #ffffff;" +
-                        "-fx-font-family: 'Inter';" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-font-size: 14px;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-border-color: transparent;" +
-                        "-fx-border-radius: 10;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(229,57,53,0.45), 12, 0, 0, 3);");
-        confirmBtn.setOnMouseEntered(e -> confirmBtn.setStyle(
-                "-fx-background-color: #c62828;" +
-                        "-fx-text-fill: #ffffff;" +
-                        "-fx-font-family: 'Inter';" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-font-size: 14px;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-border-color: transparent;" +
-                        "-fx-border-radius: 10;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(229,57,53,0.65), 18, 0, 0, 4);"));
-        confirmBtn.setOnMouseExited(e -> confirmBtn.setStyle(
-                "-fx-background-color: #e53935;" +
-                        "-fx-text-fill: #ffffff;" +
-                        "-fx-font-family: 'Inter';" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-font-size: 14px;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-border-color: transparent;" +
-                        "-fx-border-radius: 10;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(229,57,53,0.45), 12, 0, 0, 3);"));
-
-        cancelBtn.setOnAction(e -> popup.close());
-        confirmBtn.setOnAction(e -> { popup.close(); onConfirm.run(); });
-
-        btnRow.getChildren().addAll(cancelBtn, confirmBtn);
-        root.getChildren().addAll(iconBox, title, divider, msg, btnRow);
-
-        Scene scene = new Scene(root);
-        scene.setFill(Color.TRANSPARENT);
-        popup.setScene(scene);
-        popup.show();
-
         Stage owner = (Stage) mainListView.getScene().getWindow();
-        popup.setX(owner.getX() + (owner.getWidth()  / 2) - (popup.getWidth()  / 2));
-        popup.setY(owner.getY() + (owner.getHeight() / 2) - (popup.getHeight() / 2));
-
-        root.setOpacity(0);
-        FadeTransition ft = new FadeTransition(Duration.millis(200), root);
-        ft.setFromValue(0);
-        ft.setToValue(1);
-        ft.play();
+        ModalHelper.get().showConfirm(message, onConfirm, owner);
     }
     private void clearDisplayFields() {
         if (displayClientId   != null) displayClientId.clear();

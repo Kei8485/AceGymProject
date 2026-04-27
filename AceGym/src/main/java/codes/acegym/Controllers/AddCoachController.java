@@ -1,22 +1,17 @@
 package codes.acegym.Controllers;
 
 import codes.acegym.DB.CoachDAO;
+import codes.acegym.ModalHelper;
+import javafx.application.Platform;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import javafx.animation.FadeTransition;
-import javafx.util.Duration;
 import java.io.File;
 
 public class AddCoachController {
@@ -41,10 +36,6 @@ public class AddCoachController {
         Circle clip = new Circle(55, 55, 55);
         coachImageView.setClip(clip);
 
-        for (String[] type : CoachDAO.getTrainingTypes()) {
-            trainingTypeCombo.getItems().add(type[0] + " | " + type[1]);
-        }
-
         if (errorLabel != null) {
             errorLabel.setVisible(false);
             errorLabel.setManaged(false);
@@ -54,6 +45,22 @@ public class AddCoachController {
         firstNameField.textProperty().addListener((o, oldV, newV) -> clearError(firstNameField));
         lastNameField.textProperty().addListener((o, oldV, newV)  -> clearError(lastNameField));
         trainingTypeCombo.valueProperty().addListener((o, oldV, newV) -> clearError(trainingTypeCombo));
+
+        // DB call off the FX thread — getTrainingTypes() hits MySQL and was
+        // blocking the modal from appearing until the query finished.
+        Task<ObservableList<String[]>> task = new Task<>() {
+            @Override protected ObservableList<String[]> call() {
+                return CoachDAO.getTrainingTypes();
+            }
+        };
+        task.setOnSucceeded(e -> {
+            for (String[] type : task.getValue())
+                trainingTypeCombo.getItems().add(type[0] + " | " + type[1]);
+        });
+        task.setOnFailed(e -> task.getException().printStackTrace());
+        Thread t = new Thread(task);
+        t.setDaemon(true);
+        t.start();
     }
 
     @FXML
@@ -120,58 +127,12 @@ public class AddCoachController {
         }
     }
 
-    // ── Success popup — small floating notification ──────────────────────────
+    // ── Success popup — delegates to ModalHelper (Stage built once, reused) ──
     private void showSuccessPopup(String message) {
-        Stage popup = new Stage();
-        popup.initStyle(StageStyle.TRANSPARENT);
-        popup.initModality(Modality.APPLICATION_MODAL);
-        popup.initOwner((Stage) btnCancel.getScene().getWindow());
-
-        VBox box = new VBox(14);
-        box.setAlignment(Pos.CENTER);
-        box.setPadding(new Insets(28, 36, 28, 36));
-        box.setStyle(
-                "-fx-background-color: #1c2237;" +
-                        "-fx-background-radius: 16;" +
-                        "-fx-border-color: #2e3349;" +
-                        "-fx-border-radius: 16;" +
-                        "-fx-border-width: 1.5;" +
-                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.85), 40, 0, 0, 0);");
-
-        Label icon = new Label("✅");
-        icon.setStyle("-fx-font-size: 30px;");
-
-        Label msg = new Label(message);
-        msg.setStyle("-fx-text-fill: #e8e8f0; -fx-font-size: 14px; -fx-font-weight: bold;");
-        msg.setWrapText(true);
-        msg.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
-
-        Button okBtn = new Button("OK");
-        okBtn.setStyle(
-                "-fx-background-color: #e53935; -fx-text-fill: white;" +
-                        "-fx-font-weight: bold; -fx-font-size: 13px;" +
-                        "-fx-background-radius: 8; -fx-padding: 8 28 8 28; -fx-cursor: hand;");
-        okBtn.setOnAction(e -> {
-            popup.close();
-            closeWindow();  // close the AddCoach form AFTER the popup is dismissed
-        });
-
-        box.getChildren().addAll(icon, msg, okBtn);
-
-        Scene scene = new Scene(box);
-        scene.setFill(Color.TRANSPARENT);
-        popup.setScene(scene);
-
-        popup.show();
-
-        // Centre over owner
         Stage owner = (Stage) btnCancel.getScene().getWindow();
-        popup.setX(owner.getX() + (owner.getWidth()  / 2) - (popup.getWidth()  / 2));
-        popup.setY(owner.getY() + (owner.getHeight() / 2) - (popup.getHeight() / 2));
-
-        box.setOpacity(0);
-        FadeTransition ft = new FadeTransition(Duration.millis(200), box);
-        ft.setFromValue(0); ft.setToValue(1); ft.play();
+        // Re-use ModalHelper's confirm popup: Confirm = OK, which closes the form.
+        // The "cancel" path on the popup does nothing, which is fine for a success notice.
+        ModalHelper.get().showConfirm(message, this::closeWindow, owner);
     }
 
     @FXML

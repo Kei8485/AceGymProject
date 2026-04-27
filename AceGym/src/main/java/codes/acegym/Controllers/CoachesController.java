@@ -2,6 +2,7 @@ package codes.acegym.Controllers;
 
 import codes.acegym.DB.AdminDAO;
 import codes.acegym.DB.CoachDAO;
+import codes.acegym.ModalHelper;
 import codes.acegym.Objects.Coach;
 import codes.acegym.Session;
 import javafx.application.Platform;
@@ -33,10 +34,9 @@ public class CoachesController implements Refreshable {
     @FXML private ComboBox<String> filterCombo;
 
     private ObservableList<Coach> allCoaches;
-
     private boolean isAdmin = false;
 
-    // ── Resolve role from session ────────────────────────────────────────────
+    // ── Role resolve ─────────────────────────────────────────────────────────
     private void resolveRole() {
         String username = Session.getInstance().getLoggedInUsername();
         if (username == null) return;
@@ -67,16 +67,12 @@ public class CoachesController implements Refreshable {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    // REFRESH
+    // REFRESH  — FIX: removed the pointless 350 ms PauseTransition delay
     // ════════════════════════════════════════════════════════════════════════
     @Override
     public void refreshData() {
         coachContainer.getChildren().clear();
-
-        javafx.animation.PauseTransition delay =
-                new javafx.animation.PauseTransition(Duration.millis(350));
-        delay.setOnFinished(e -> loadCoachesAsync());
-        delay.play();
+        loadCoachesAsync();   // straight to work, no artificial wait
     }
 
     private void loadCoachesAsync() {
@@ -84,7 +80,6 @@ public class CoachesController implements Refreshable {
             @Override
             protected List<Node> call() throws Exception {
                 allCoaches = CoachDAO.getAllCoaches();
-
                 List<Node> cards = new ArrayList<>(allCoaches.size());
                 for (Coach coach : allCoaches) {
                     cards.add(buildCard(coach));
@@ -101,13 +96,12 @@ public class CoachesController implements Refreshable {
         t.start();
     }
 
-    // ── Card builder — no FXMLLoader, no XML parsing overhead ────────────────
     private Node buildCard(Coach coach) {
         CoachCardController ctrl = new CoachCardController();
         ctrl.setAdminMode(isAdmin);
         ctrl.setOnDeleteCallback(() -> Platform.runLater(CoachesController.this::refreshData));
-        Node card = ctrl.createCard();   // builds the node tree in code
-        ctrl.setCoach(coach);            // populates data into the built nodes
+        Node card = ctrl.createCard();
+        ctrl.setCoach(coach);
         return card;
     }
 
@@ -235,38 +229,57 @@ public class CoachesController implements Refreshable {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    // MODAL
+    // MODAL  — FIX: FXML loaded on a background thread so the UI stays responsive
     // ════════════════════════════════════════════════════════════════════════
     private void openAddCoachModal() {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/codes/acegym/AddCoach.fxml"));
-            Parent root = loader.load();
+        Stage owner = (Stage) addCoachBtn.getScene().getWindow();
+
+        // Load FXML off the FX thread — no more freeze while XML parses
+        Task<Parent> loadTask = new Task<>() {
+            @Override
+            protected Parent call() throws Exception {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/codes/acegym/AddCoach.fxml"));
+                Parent root = loader.load();
+                // Store loader so we can get the controller back on FX thread
+                root.getProperties().put("loader", loader);
+                return root;
+            }
+        };
+
+        loadTask.setOnSucceeded(e -> {
+            Parent root = loadTask.getValue();
+            FXMLLoader loader = (FXMLLoader) root.getProperties().get("loader");
             AddCoachController ctrl = loader.getController();
             ctrl.setOnCoachAdded(this::refreshData);
 
             Stage modalStage = new Stage();
             modalStage.initStyle(StageStyle.TRANSPARENT);
             modalStage.initModality(Modality.APPLICATION_MODAL);
-            Stage owner = (Stage) addCoachBtn.getScene().getWindow();
             modalStage.initOwner(owner);
 
             Scene scene = new Scene(root);
             scene.setFill(Color.TRANSPARENT);
             modalStage.setScene(scene);
             owner.getScene().getRoot().setEffect(new GaussianBlur(15));
-            modalStage.show();
 
+            modalStage.show();
             Platform.runLater(() -> centerStage(modalStage, owner));
+
             root.setOpacity(0);
-            FadeTransition ft = new FadeTransition(Duration.millis(300), root);
+            FadeTransition ft = new FadeTransition(Duration.millis(250), root);
             ft.setFromValue(0);
             ft.setToValue(1);
             ft.play();
-            modalStage.setOnHidden(e -> owner.getScene().getRoot().setEffect(null));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+            modalStage.setOnHidden(ev -> owner.getScene().getRoot().setEffect(null));
+        });
+
+        loadTask.setOnFailed(e -> loadTask.getException().printStackTrace());
+
+        Thread t = new Thread(loadTask);
+        t.setDaemon(true);
+        t.start();
     }
 
     private void centerStage(Stage stage, Stage owner) {
