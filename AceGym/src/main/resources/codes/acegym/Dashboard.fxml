@@ -253,12 +253,20 @@
                                         </HBox>
                                         <Region maxHeight="1.0" minHeight="1.0" styleClass="card-divider" />
 
-                                        <!-- Renewal rows — populated by controller -->
-                                        <VBox fx:id="renewalListContainer" spacing="8.0" VBox.vgrow="ALWAYS">
-                                            <children>
-                                                <Label styleClass="empty-state-label" text="No renewals due soon." />
-                                            </children>
-                                        </VBox>
+                                        <ScrollPane fitToWidth="true" maxHeight="260.0"
+                                                    styleClass="renewal-scroll"
+                                                    VBox.vgrow="ALWAYS">
+                                            <content>
+                                                <VBox fx:id="renewalListContainer" spacing="8.0">
+                                                    <padding>
+                                                        <Insets bottom="4.0" right="4.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label styleClass="empty-state-label" text="No renewals due soon." />
+                                                    </children>
+                                                </VBox>
+                                            </content>
+                                        </ScrollPane>
 
                                     </children>
                                 </VBox>

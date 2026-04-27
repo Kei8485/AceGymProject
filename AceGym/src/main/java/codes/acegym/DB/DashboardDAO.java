@@ -138,11 +138,17 @@ public class DashboardDAO {
 
     /**
      * Row model for the Renewals Due list.
+     *
      * @param name       full name
-     * @param expiryDate formatted expiry date
-     * @param daysLeft   e.g. "3 days" or "Today"
+     * @param email      client email — used by the per-row Notify button
+     *                   (empty string if not on file; button will be disabled)
+     * @param expiryDate formatted expiry date  e.g. "Expires Apr 28, 2026"
+     * @param daysLeft   display badge  e.g. "3 days" or "Today"
+     * @param daysLeftRaw raw int days — passed to RenewalNotificationService.sendToOne()
      */
-    public record RenewalRow(String name, String expiryDate, String daysLeft) {}
+    public record RenewalRow(String name, String email,
+                             String expiryDate, String daysLeft,
+                             int daysLeftRaw) {}
 
     /**
      * Up to 10 active members whose membership expires within the next 7 days,
@@ -151,9 +157,10 @@ public class DashboardDAO {
     public static List<RenewalRow> getRenewalsDue() {
         List<RenewalRow> list = new ArrayList<>();
         String sql =
-                "SELECT CONCAT(c.FirstName,' ',c.LastName) AS FullName, " +
+                "SELECT CONCAT(c.FirstName,' ',c.LastName)      AS FullName, " +
+                        "       COALESCE(c.ClientEmail, '')              AS ClientEmail, " +
                         "       DATE_FORMAT(m.DateExpired, '%b %d, %Y') AS ExpiryDate, " +
-                        "       DATEDIFF(m.DateExpired, CURDATE()) AS DaysLeft " +
+                        "       DATEDIFF(m.DateExpired, CURDATE())       AS DaysLeft " +
                         "FROM MembershipTable m " +
                         "JOIN ClientTable c ON c.ClientID = m.ClientID " +
                         "WHERE m.DateExpired >= CURDATE() " +
@@ -178,8 +185,10 @@ public class DashboardDAO {
                         : days + " days";
                 list.add(new RenewalRow(
                         rs.getString("FullName"),
+                        rs.getString("ClientEmail"),
                         "Expires " + rs.getString("ExpiryDate"),
-                        badge
+                        badge,
+                        days
                 ));
             }
         } catch (SQLException e) {

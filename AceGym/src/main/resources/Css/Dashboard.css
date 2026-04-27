@@ -346,3 +346,96 @@
     -fx-text-fill: #4a5068;
     -fx-padding: 20 0;
 }
+
+
+
+
+/* ── Renewal ScrollPane ───────────────────────────────────────── */
+.renewal-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.renewal-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.renewal-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 6;
+}
+
+.renewal-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #d28200;
+    -fx-background-radius: 10;
+    -fx-opacity: 0.5;
+}
+
+.renewal-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-opacity: 1.0;
+}
+
+.renewal-scroll .scroll-bar .increment-button,
+.renewal-scroll .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.renewal-scroll .scroll-bar .increment-arrow,
+.renewal-scroll .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+}
+
+/* ── Notify Button — default (orange, matches renewal card) ────── */
+.notify-btn {
+    -fx-background-color: rgba(210, 130, 0, 0.18);
+    -fx-border-color: rgba(210, 130, 0, 0.55);
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-text-fill: #f0a500;
+    -fx-font-family: 'Inter';
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 5 10 5 10;
+}
+
+.notify-btn:hover {
+    -fx-background-color: rgba(210, 130, 0, 0.35);
+    -fx-border-color: #d28200;
+    -fx-text-fill: #ffc107;
+}
+
+.notify-btn:pressed {
+    -fx-background-color: rgba(210, 130, 0, 0.5);
+}
+
+/* ── Sending state (set in code via setDisable + setText) ───────── */
+.notify-btn:disabled {
+    -fx-opacity: 0.6;
+}
+
+/* ── Success state ───────────────────────────────────────────────── */
+.notify-btn-success {
+    -fx-background-color: rgba(46, 160, 67, 0.18);
+    -fx-border-color: rgba(46, 160, 67, 0.55);
+    -fx-text-fill: #4caf50;
+}
+
+/* ── Fail state ──────────────────────────────────────────────────── */
+.notify-btn-fail {
+    -fx-background-color: rgba(229, 57, 53, 0.18);
+    -fx-border-color: rgba(229, 57, 53, 0.55);
+    -fx-text-fill: #e53935;
+}
+
+/* ── Disabled (no email on file) ────────────────────────────────── */
+.notify-btn-disabled {
+    -fx-background-color: rgba(255, 255, 255, 0.04);
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-text-fill: #4a5068;
+    -fx-cursor: default;
+}

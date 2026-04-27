@@ -1,13 +1,18 @@
 package codes.acegym.Controllers;
 
 import codes.acegym.DB.DashboardDAO;
+import codes.acegym.DB.RenewalNotificationService;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -46,7 +51,6 @@ public class DashboardController {
         loadDashboardData();
     }
 
-    // ── Call this from any other controller to force a refresh ──────────────
     public void refresh() {
         loadDashboardData();
     }
@@ -57,9 +61,7 @@ public class DashboardController {
     private void startClock() {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm:ss a");
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d");
-
         dateLabel.setText(LocalDate.now().format(dateFormatter));
-
         Timeline clock = new Timeline(new KeyFrame(Duration.seconds(1), e ->
                 clockLabel.setText(LocalTime.now().format(timeFormatter))
         ));
@@ -68,7 +70,7 @@ public class DashboardController {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // MAIN LOAD — calls DB and populates every widget
+    // MAIN LOAD
     // ─────────────────────────────────────────────────────────────────────────
     private void loadDashboardData() {
 
@@ -92,7 +94,10 @@ public class DashboardController {
             renewalListContainer.getChildren().add(emptyStateLabel("No renewals due in the next 7 days."));
         } else {
             for (DashboardDAO.RenewalRow row : renewals) {
-                addRenewalRow(row.name(), row.expiryDate(), row.daysLeft());
+                renewalListContainer.getChildren().add(
+                        buildRenewalRow(row.name(), row.email(), row.expiryDate(),
+                                row.daysLeftRaw(), row.daysLeft())
+                );
             }
         }
 
@@ -120,42 +125,105 @@ public class DashboardController {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // ROW BUILDERS  (unchanged from original — keep your existing CSS classes)
+    // RENEWAL ROW — with notify button
     // ─────────────────────────────────────────────────────────────────────────
 
-    public void addRenewalRow(String name, String date, String daysLeft) {
+    /**
+     * Builds one renewal row containing:
+     *  • Member name + expiry date (left)
+     *  • Days-left badge (center-right)
+     *  • ✉ Notify button (far right)
+     *
+     * The button runs the email send on a background thread so the UI
+     * never freezes. States: default → "Sending…" → "✔ Sent" or "✘ Failed"
+     */
+    private HBox buildRenewalRow(String name, String email,
+                                 String expiryDate, int daysLeftRaw,
+                                 String daysLeftLabel) {
         HBox row = new HBox(10);
         row.getStyleClass().add("renewal-row");
         row.setPadding(new Insets(10, 12, 10, 12));
-        row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        row.setAlignment(Pos.CENTER_LEFT);
 
+        // ── Left: name + date ────────────────────────────────────────────────
         VBox info = new VBox(2);
         Label nameLabel = new Label(name);
         nameLabel.getStyleClass().add("renewal-name");
-        Label dateLabel = new Label(date);
-        dateLabel.getStyleClass().add("renewal-date");
-        info.getChildren().addAll(nameLabel, dateLabel);
+        Label dateLbl = new Label(expiryDate);
+        dateLbl.getStyleClass().add("renewal-date");
+        info.getChildren().addAll(nameLabel, dateLbl);
 
         Region spacer = new Region();
-        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Label badge = new Label(daysLeft);
+        // ── Days badge ───────────────────────────────────────────────────────
+        Label badge = new Label(daysLeftLabel);
         badge.getStyleClass().add("renewal-badge");
 
-        row.getChildren().addAll(info, spacer, badge);
+        // ── Notify button ────────────────────────────────────────────────────
+        Button notifyBtn = new Button("✉ Notify");
+        notifyBtn.getStyleClass().add("notify-btn");
+
+        boolean noEmail = (email == null || email.isBlank() || email.equals("—"));
+        if (noEmail) {
+            notifyBtn.setText("No Email");
+            notifyBtn.getStyleClass().add("notify-btn-disabled");
+            notifyBtn.setDisable(true);
+        } else {
+            notifyBtn.setOnAction(e -> sendEmailAsync(notifyBtn, name, email, expiryDate, daysLeftRaw));
+        }
+
+        row.getChildren().addAll(info, spacer, badge, notifyBtn);
         VBox.setMargin(row, new Insets(0, 0, 6, 0));
-        renewalListContainer.getChildren().add(row);
+        return row;
     }
 
+    /**
+     * Sends the email on a daemon thread. Updates button text on the FX thread.
+     * Button is disabled during send to prevent double-clicks.
+     */
+    private void sendEmailAsync(Button btn, String name, String email,
+                                String expiryDate, int daysLeftRaw) {
+        btn.setDisable(true);
+        btn.setText("Sending…");
+        btn.getStyleClass().removeAll("notify-btn-success", "notify-btn-fail");
+
+        Thread worker = new Thread(() -> {
+            boolean ok = RenewalNotificationService.sendToOne(name, email, expiryDate, daysLeftRaw);
+            Platform.runLater(() -> {
+                if (ok) {
+                    btn.setText("✔ Sent");
+                    btn.getStyleClass().add("notify-btn-success");
+                } else {
+                    btn.setText("✘ Failed");
+                    btn.getStyleClass().add("notify-btn-fail");
+                    btn.setDisable(false); // allow retry on failure
+                }
+            });
+        });
+        worker.setDaemon(true);
+        worker.start();
+    }
+
+    // ── kept for backward compatibility ──────────────────────────────────────
+    public void addRenewalRow(String name, String date, String daysLeft) {
+        renewalListContainer.getChildren().add(
+                buildRenewalRow(name, null, date, 0, daysLeft)
+        );
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // MEMBER ROW
+    // ─────────────────────────────────────────────────────────────────────────
     public void addMemberRow(String name, String enrolled, String status) {
         HBox row = new HBox();
         row.getStyleClass().add("mini-table-row");
         row.setPadding(new Insets(10, 10, 10, 10));
-        row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        row.setAlignment(Pos.CENTER_LEFT);
 
         Label nameLabel = new Label(name);
         nameLabel.getStyleClass().add("mini-row-name");
-        HBox.setHgrow(nameLabel, javafx.scene.layout.Priority.ALWAYS);
+        HBox.setHgrow(nameLabel, Priority.ALWAYS);
 
         Label enrolledLabel = new Label(enrolled);
         enrolledLabel.getStyleClass().add("mini-row-value");
@@ -170,15 +238,18 @@ public class DashboardController {
         memberListContainer.getChildren().add(row);
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // COACH ROW
+    // ─────────────────────────────────────────────────────────────────────────
     public void addCoachRow(String name, String coachId, String clientCount) {
         HBox row = new HBox();
         row.getStyleClass().add("mini-table-row");
         row.setPadding(new Insets(10, 10, 10, 10));
-        row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        row.setAlignment(Pos.CENTER_LEFT);
 
         Label nameLabel = new Label(name);
         nameLabel.getStyleClass().add("mini-row-name");
-        HBox.setHgrow(nameLabel, javafx.scene.layout.Priority.ALWAYS);
+        HBox.setHgrow(nameLabel, Priority.ALWAYS);
 
         Label idLabel = new Label(coachId);
         idLabel.getStyleClass().add("mini-row-value");
@@ -195,13 +266,10 @@ public class DashboardController {
     // ─────────────────────────────────────────────────────────────────────────
     // HELPERS
     // ─────────────────────────────────────────────────────────────────────────
-
-    /** Formats a double as ₱1,234.50 */
     private String formatPeso(double amount) {
         return String.format("₱%,.2f", amount);
     }
 
-    /** Placeholder label shown when a list is empty. */
     private Label emptyStateLabel(String text) {
         Label lbl = new Label(text);
         lbl.getStyleClass().add("empty-state-label");
