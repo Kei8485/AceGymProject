@@ -34,7 +34,6 @@ public class CoachesController implements Refreshable {
 
     private ObservableList<Coach> allCoaches;
 
-    // Resolved once in initialize() — true if logged-in user is Admin
     private boolean isAdmin = false;
 
     // ── Resolve role from session ────────────────────────────────────────────
@@ -54,7 +53,6 @@ public class CoachesController implements Refreshable {
     public void initialize() {
         resolveRole();
 
-        // Hide "Add Coach" button for Staff
         if (addCoachBtn != null) {
             addCoachBtn.setVisible(isAdmin);
             addCoachBtn.setManaged(isAdmin);
@@ -89,8 +87,7 @@ public class CoachesController implements Refreshable {
 
                 List<Node> cards = new ArrayList<>(allCoaches.size());
                 for (Coach coach : allCoaches) {
-                    Node card = buildCard(coach);
-                    cards.add(card);
+                    cards.add(buildCard(coach));
                 }
                 return cards;
             }
@@ -104,16 +101,13 @@ public class CoachesController implements Refreshable {
         t.start();
     }
 
-    // ── Shared card builder — passes isAdmin into every card ─────────────────
-    private Node buildCard(Coach coach) throws IOException {
-        FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/codes/acegym/CoachCard.fxml"));
-        Node card = loader.load();
-        CoachCardController ctrl = loader.getController();
-        ctrl.setAdminMode(isAdmin);   // ← role flag goes in BEFORE setCoach
-        ctrl.setCoach(coach);
-        ctrl.setOnDeleteCallback(
-                () -> Platform.runLater(CoachesController.this::refreshData));
+    // ── Card builder — no FXMLLoader, no XML parsing overhead ────────────────
+    private Node buildCard(Coach coach) {
+        CoachCardController ctrl = new CoachCardController();
+        ctrl.setAdminMode(isAdmin);
+        ctrl.setOnDeleteCallback(() -> Platform.runLater(CoachesController.this::refreshData));
+        Node card = ctrl.createCard();   // builds the node tree in code
+        ctrl.setCoach(coach);            // populates data into the built nodes
         return card;
     }
 
@@ -266,7 +260,9 @@ public class CoachesController implements Refreshable {
             Platform.runLater(() -> centerStage(modalStage, owner));
             root.setOpacity(0);
             FadeTransition ft = new FadeTransition(Duration.millis(300), root);
-            ft.setFromValue(0); ft.setToValue(1); ft.play();
+            ft.setFromValue(0);
+            ft.setToValue(1);
+            ft.play();
             modalStage.setOnHidden(e -> owner.getScene().getRoot().setEffect(null));
         } catch (IOException e) {
             e.printStackTrace();

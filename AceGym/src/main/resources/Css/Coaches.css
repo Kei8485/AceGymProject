@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@100..900&display=swap');
 
-/* ── Variables ──────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════
+   VARIABLES
+   ══════════════════════════════════════════════════════════════════════════ */
 .root {
     -fx-red:        #e53935;
     -fx-red-hover:  #ef5350;
@@ -14,7 +16,10 @@
     -fx-sub:        #c9cdd6;
 }
 
-/* ── Page header icon box ───────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════
+   PAGE HEADER
+   ══════════════════════════════════════════════════════════════════════════ */
+
 .header-icon-box {
     -fx-min-width:  52px;
     -fx-min-height: 52px;
@@ -24,7 +29,6 @@
     -fx-background-radius: 14px;
 }
 
-/* ── Page header text ───────────────────────────────────────────────────── */
 .pos-header {
     -fx-text-fill: #7a7f94;
     -fx-font-size: 13px;
@@ -39,7 +43,10 @@
     -fx-text-fill: #ffffff;
 }
 
-/* ── Add Coach button ───────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════
+   ADD COACH BUTTON
+   ══════════════════════════════════════════════════════════════════════════ */
+
 .btn-add-coach {
     -fx-background-color: #e53935;
     -fx-background-radius: 10;
@@ -51,15 +58,13 @@
     -fx-cursor: hand;
 }
 
-.btn-add-coach:hover {
-    -fx-background-color: #ef5350;
-}
+.btn-add-coach:hover   { -fx-background-color: #ef5350; }
+.btn-add-coach:pressed { -fx-background-color: #c62828; }
 
-.btn-add-coach:pressed {
-    -fx-background-color: #c62828;
-}
+/* ══════════════════════════════════════════════════════════════════════════
+   CONTENT AREA & TOOLBAR
+   ══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Content area card ──────────────────────────────────────────────────── */
 .card-content-area {
     -fx-background-color: #111827;
     -fx-background-radius: 18;
@@ -68,7 +73,6 @@
     -fx-border-width: 1.5;
 }
 
-/* ── Toolbar row ────────────────────────────────────────────────────────── */
 .toolbar-row {
     -fx-background-color: #141928;
     -fx-background-radius: 18 18 0 0;
@@ -80,7 +84,6 @@
     -fx-max-height: 1;
 }
 
-/* ── Manage Coaches label ───────────────────────────────────────────────── */
 .label-manage {
     -fx-text-fill: #ffffff;
     -fx-font-family: 'Inter';
@@ -88,7 +91,10 @@
     -fx-font-weight: 700;
 }
 
-/* ── Search wrapper (dark pill with icon + field) ───────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════
+   SEARCH
+   ══════════════════════════════════════════════════════════════════════════ */
+
 .search-wrapper {
     -fx-background-color: #1c2237;
     -fx-background-radius: 10;
@@ -98,11 +104,8 @@
     -fx-padding: 0 10 0 0;
 }
 
-.search-wrapper:focused-within {
-    -fx-border-color: #e53935;
-}
+.search-wrapper:focused-within { -fx-border-color: #e53935; }
 
-/* ── Search field ───────────────────────────────────────────────────────── */
 .search-field {
     -fx-background-color: transparent;
     -fx-background-radius: 0;
@@ -120,12 +123,12 @@
     -fx-effect: none;
 }
 
-/* ── Search icon ────────────────────────────────────────────────────────── */
-.search-icon {
-    -fx-opacity: 0.5;
-}
+.search-icon { -fx-opacity: 0.5; }
 
-/* ── Filter ComboBox ────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════
+   FILTER COMBOBOX
+   ══════════════════════════════════════════════════════════════════════════ */
+
 .custom-combo-box {
     -fx-background-color: #1e2130;
     -fx-background-radius: 8;
@@ -136,13 +139,8 @@
     -fx-font-size: 13px;
 }
 
-.custom-combo-box .label {
-    -fx-text-fill: #ffffff;
-}
-
-.custom-combo-box .arrow {
-    -fx-background-color: #7a7f94;
-}
+.custom-combo-box .label     { -fx-text-fill: #ffffff; }
+.custom-combo-box .arrow     { -fx-background-color: #7a7f94; }
 
 .custom-combo-box .list-view {
     -fx-background-color: #1e2130;
@@ -163,34 +161,31 @@
     -fx-text-fill: #ffffff;
 }
 
-/* ── ScrollPane ─────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════
+   SCROLLPANE (page-level)
+   ══════════════════════════════════════════════════════════════════════════ */
+
 .custom-scroll-pane {
     -fx-background-color: transparent;
     -fx-background: transparent;
     -fx-border-color: transparent;
 }
 
-.custom-scroll-pane .viewport {
-    -fx-background-color: transparent;
-}
+.custom-scroll-pane .viewport { -fx-background-color: transparent; }
 
 .custom-scroll-pane .scroll-bar:vertical {
     -fx-background-color: transparent;
     -fx-pref-width: 7;
 }
 
-.custom-scroll-pane .scroll-bar:vertical .track {
-    -fx-background-color: transparent;
-}
+.custom-scroll-pane .scroll-bar:vertical .track  { -fx-background-color: transparent; }
 
 .custom-scroll-pane .scroll-bar:vertical .thumb {
     -fx-background-color: #2e3349;
     -fx-background-radius: 4;
 }
 
-.custom-scroll-pane .scroll-bar:vertical .thumb:hover {
-    -fx-background-color: #e53935;
-}
+.custom-scroll-pane .scroll-bar:vertical .thumb:hover { -fx-background-color: #e53935; }
 
 .custom-scroll-pane .scroll-bar .increment-button,
 .custom-scroll-pane .scroll-bar .decrement-button {
@@ -206,8 +201,166 @@
     -fx-max-width: 0;
 }
 
-/* ── TilePane ───────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════
+   TILEPANE
+   ══════════════════════════════════════════════════════════════════════════ */
+
 .tile-pane {
     -fx-alignment: TOP_LEFT;
     -fx-tile-alignment: TOP_LEFT;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   COACH CARD  (merged from CoachCard.css — CoachCard.css can now be deleted)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.card-container {
+    -fx-background-color: #1c2237;
+    -fx-background-radius: 16;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 16;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.55), 18, 0, 0, 4);
+}
+
+.card-container:hover {
+    -fx-border-color: rgba(229, 57, 53, 0.5);
+    -fx-effect: dropshadow(three-pass-box, rgba(229,57,53,0.10), 24, 0, 0, 4);
+}
+
+.card-header {
+    -fx-background-color: #1e2540;
+    -fx-background-radius: 16 16 0 0;
+}
+
+.avatar-frame {
+    -fx-background-color: #141928;
+    -fx-background-radius: 12;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 12;
+    -fx-border-width: 1.5;
+}
+
+.coach-name {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 21px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #ffffff;
+}
+
+.coach-id {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #7a7f94;
+}
+
+.training-type-badge {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #e53935;
+    -fx-background-color: rgba(229, 57, 53, 0.15);
+    -fx-background-radius: 5;
+    -fx-padding: 2 7 2 7;
+}
+
+.card-divider {
+    -fx-background-color: #2e3349;
+    -fx-pref-height: 1;
+    -fx-max-height: 1;
+}
+
+.section-dot {
+    -fx-background-color: #e53935;
+    -fx-background-radius: 3;
+}
+
+.section-title {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #e53935;
+}
+
+.client-name {
+    -fx-font-family: 'Inter';
+    -fx-font-size: 13px;
+    -fx-text-fill: #c9cdd6;
+}
+
+/* ── Clients scroll (card-level) ────────────────────────────────────────── */
+.clients-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.clients-scroll .viewport { -fx-background-color: transparent; }
+
+.clients-scroll .scroll-bar:vertical {
+    -fx-pref-width: 6;
+    -fx-background-color: transparent;
+}
+
+.clients-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #2e3349;
+    -fx-background-radius: 3;
+}
+
+.clients-scroll .scroll-bar:vertical .thumb:hover { -fx-background-color: #e53935; }
+
+.clients-scroll .scroll-bar .increment-button,
+.clients-scroll .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.clients-scroll .scroll-bar .increment-arrow,
+.clients-scroll .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+    -fx-max-height: 0;
+    -fx-max-width: 0;
+}
+
+/* ── Card action buttons ────────────────────────────────────────────────── */
+.btn-edit {
+    -fx-background-color: #252d45;
+    -fx-background-radius: 9;
+    -fx-border-color: #2e3349;
+    -fx-border-radius: 9;
+    -fx-border-width: 1;
+    -fx-text-fill: #c9cdd6;
+    -fx-font-family: 'Inter';
+    -fx-font-weight: 700;
+    -fx-font-size: 16px;
+    -fx-padding: 8 0;
+    -fx-cursor: hand;
+}
+
+.btn-edit:hover  { -fx-background-color: #2e3855; -fx-border-color: #4a5068; -fx-text-fill: #ffffff; }
+.btn-edit:pressed { -fx-background-color: #1a2035; }
+
+.btn-manage {
+    -fx-background-color: #e53935;
+    -fx-background-radius: 9;
+    -fx-text-fill: white;
+    -fx-font-family: 'Inter';
+    -fx-font-weight: 700;
+    -fx-font-size: 16px;
+    -fx-padding: 8 0;
+    -fx-cursor: hand;
+}
+
+.btn-manage:hover   { -fx-background-color: #ef5350; }
+.btn-manage:pressed { -fx-background-color: #c62828; }
+
+/* ── Remove X button ────────────────────────────────────────────────────── */
+.remove-btn-bg {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.remove-btn-bg:hover { -fx-background-color: rgba(229, 57, 53, 0.2); }

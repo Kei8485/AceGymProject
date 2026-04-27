@@ -4,10 +4,10 @@ import codes.acegym.DB.CoachDAO;
 import codes.acegym.Objects.Coach;
 import javafx.animation.FadeTransition;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -20,34 +20,172 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
+
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Card controller — no longer tied to CoachCard.fxml.
+ * Call createCard() to get the fully built node, then setAdminMode() + setCoach().
+ * This eliminates one FXMLLoader.load() call per card, which was the primary lag source.
+ */
 public class CoachCardController {
 
-    @FXML private Button    manageClientBtn;
-    @FXML private Button    editCoachBtn;
-    @FXML private ImageView removeCoachBtn;
-    @FXML private ImageView coachImage;
-    @FXML private Label     nameLabel;
-    @FXML private Label     idLabel;
-    @FXML private Label     trainingTypeLabel;
-    @FXML private VBox      clientsContainer;
+    // ── UI nodes (previously @FXML injected) ────────────────────────────────
+    private Button    manageClientBtn;
+    private Button    editCoachBtn;
+    private ImageView removeCoachBtn;
+    private ImageView coachImage;
+    private Label     nameLabel;
+    private Label     idLabel;
+    private Label     trainingTypeLabel;
+    private VBox      clientsContainer;
 
     private Coach    coach;
     private Runnable onDeleteCallback;
-
-    // Set by CoachesController BEFORE setCoach() is called
-    private boolean adminMode = false;
+    private boolean  adminMode = false;
 
     // ════════════════════════════════════════════════════════════════════════
-    // PUBLIC API
+    // FACTORY — replaces FXMLLoader.load() + controller wiring
     // ════════════════════════════════════════════════════════════════════════
 
     /**
-     * Called by CoachesController to pass the role flag before binding data.
-     * Must be called before setCoach().
+     * Builds the full card node tree programmatically.
+     * Mirrors CoachCard.fxml exactly — same style classes, same layout.
+     * Must be called before setAdminMode() / setCoach().
      */
+    public AnchorPane createCard() {
+
+        // ── Avatar ───────────────────────────────────────────────────────────
+        coachImage = new ImageView();
+        coachImage.setFitHeight(60);
+        coachImage.setFitWidth(60);
+        coachImage.setPickOnBounds(true);
+        coachImage.setPreserveRatio(true);
+
+        StackPane avatarFrame = new StackPane(coachImage);
+        avatarFrame.getStyleClass().add("avatar-frame");
+        avatarFrame.setMinSize(56, 56);
+        avatarFrame.setMaxSize(60, 60);
+        avatarFrame.setPrefSize(60, 60);
+
+        // ── Name / ID / badge column ─────────────────────────────────────────
+        nameLabel = new Label("Coach Name");
+        nameLabel.getStyleClass().add("coach-name");
+        nameLabel.setWrapText(true);
+        nameLabel.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(nameLabel, Priority.ALWAYS);
+
+        idLabel = new Label("ST000");
+        idLabel.getStyleClass().add("coach-id");
+
+        trainingTypeLabel = new Label("No Training Type");
+        trainingTypeLabel.getStyleClass().add("training-type-badge");
+        trainingTypeLabel.setWrapText(true);
+
+        HBox idRow = new HBox(8, idLabel, trainingTypeLabel);
+        idRow.setAlignment(Pos.CENTER_LEFT);
+
+        VBox nameBlock = new VBox(4, nameLabel, idRow);
+        nameBlock.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(nameBlock, Priority.ALWAYS);
+
+        // ── Remove X button ──────────────────────────────────────────────────
+        removeCoachBtn = new ImageView();
+        removeCoachBtn.setFitHeight(29);
+        removeCoachBtn.setFitWidth(29);
+        removeCoachBtn.setPickOnBounds(true);
+        removeCoachBtn.setPreserveRatio(true);
+        loadIcon(removeCoachBtn, "/image/xmark-solid.png");
+
+        StackPane removeBtnBg = new StackPane(removeCoachBtn);
+        removeBtnBg.getStyleClass().add("remove-btn-bg");
+        removeBtnBg.setAlignment(Pos.CENTER);
+        removeBtnBg.setMinSize(26, 26);
+        removeBtnBg.setMaxSize(38, 38);
+        removeBtnBg.setPrefWidth(38);
+
+        // ── Header row ───────────────────────────────────────────────────────
+        HBox header = new HBox(14, avatarFrame, nameBlock, removeBtnBg);
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.setPrefWidth(337);
+        header.getStyleClass().add("card-header");
+        header.setPadding(new Insets(16));
+
+        // ── Divider ──────────────────────────────────────────────────────────
+        Region divider1 = divider();
+
+        // ── Clients section ──────────────────────────────────────────────────
+        Region dot = new Region();
+        dot.getStyleClass().add("section-dot");
+        dot.setMinSize(6, 6);
+        dot.setMaxSize(6, 6);
+
+        Label sectionTitle = new Label("CLIENTS HANDLING");
+        sectionTitle.getStyleClass().add("section-title");
+
+        HBox sectionHeader = new HBox(6, dot, sectionTitle);
+        sectionHeader.setAlignment(Pos.CENTER_LEFT);
+
+        clientsContainer = new VBox(4);
+
+        ScrollPane clientsScroll = new ScrollPane(clientsContainer);
+        clientsScroll.setFitToWidth(true);
+        clientsScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        clientsScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        clientsScroll.setMaxHeight(72);
+        clientsScroll.setPrefHeight(72);
+        clientsScroll.getStyleClass().add("clients-scroll");
+
+        VBox clientsSection = new VBox(8, sectionHeader, clientsScroll);
+        clientsSection.setPadding(new Insets(14, 16, 14, 16));
+        VBox.setVgrow(clientsSection, Priority.ALWAYS);
+
+        // ── Divider ──────────────────────────────────────────────────────────
+        Region divider2 = divider();
+
+        // ── Action buttons ───────────────────────────────────────────────────
+        editCoachBtn = new Button("Edit Coach");
+        editCoachBtn.getStyleClass().add("btn-edit");
+        editCoachBtn.setMaxWidth(Double.MAX_VALUE);
+        editCoachBtn.setMnemonicParsing(false);
+        HBox.setHgrow(editCoachBtn, Priority.ALWAYS);
+
+        manageClientBtn = new Button("Manage Clients");
+        manageClientBtn.getStyleClass().add("btn-manage");
+        manageClientBtn.setMaxWidth(Double.MAX_VALUE);
+        manageClientBtn.setMnemonicParsing(false);
+        HBox.setHgrow(manageClientBtn, Priority.ALWAYS);
+
+        HBox btnRow = new HBox(8, editCoachBtn, manageClientBtn);
+        btnRow.setPadding(new Insets(12, 16, 12, 16));
+
+        // ── Assemble ─────────────────────────────────────────────────────────
+        VBox body = new VBox(0, header, divider1, clientsSection, divider2, btnRow);
+
+        AnchorPane root = new AnchorPane(body);
+        root.setPrefWidth(340);
+        root.getStyleClass().add("card-container");
+        AnchorPane.setTopAnchor(body, 0.0);
+        AnchorPane.setBottomAnchor(body, 0.0);
+        AnchorPane.setLeftAnchor(body, 0.0);
+        AnchorPane.setRightAnchor(body, 0.0);
+
+        // All card styles now live in Coaches.css — CoachCard.css deleted
+        String css = resolveStylesheet("/codes/acegym/Css/Coaches.css");
+        if (css != null) root.getStylesheets().add(css);
+
+        // Wire events now that all nodes exist
+        wireEvents();
+        applyRoleVisibility();
+
+        return root;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // PUBLIC API (unchanged from before)
+    // ════════════════════════════════════════════════════════════════════════
+
     public void setAdminMode(boolean isAdmin) {
         this.adminMode = isAdmin;
         applyRoleVisibility();
@@ -63,47 +201,9 @@ public class CoachCardController {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    // INIT
-    // ════════════════════════════════════════════════════════════════════════
-    @FXML
-    public void initialize() {
-        if (manageClientBtn != null)
-            manageClientBtn.setOnAction(e -> openModal("/codes/acegym/AddClientInCoach.fxml"));
-
-        if (editCoachBtn != null)
-            editCoachBtn.setOnAction(e -> openModal("/codes/acegym/EditCoach.fxml"));
-
-        if (removeCoachBtn != null) {
-            removeCoachBtn.setOnMouseClicked(e -> {
-                if (coach == null) return;
-                if (CoachDAO.hasClients(coach.getStaffID())) {
-                    showToast("Cannot delete — coach still has assigned clients.\n" +
-                            "Remove all clients first via Manage Clients.");
-                } else {
-                    showInlineConfirm(
-                            "Are you sure you want to remove this coach?",
-                            () -> {
-                                if (CoachDAO.deleteCoach(coach.getStaffID())) {
-                                    if (onDeleteCallback != null) onDeleteCallback.run();
-                                }
-                            }
-                    );
-                }
-            });
-        }
-
-        // Apply visibility in case setAdminMode() was called before initialize()
-        applyRoleVisibility();
-    }
-
-    // ════════════════════════════════════════════════════════════════════════
     // ROLE VISIBILITY
     // ════════════════════════════════════════════════════════════════════════
 
-    /**
-     * Shows admin-only controls (Edit, Remove X) only when adminMode is true.
-     * Manage Clients is visible to everyone.
-     */
     private void applyRoleVisibility() {
         if (editCoachBtn != null) {
             editCoachBtn.setVisible(adminMode);
@@ -113,15 +213,16 @@ public class CoachCardController {
             removeCoachBtn.setVisible(adminMode);
             removeCoachBtn.setManaged(adminMode);
         }
-        // ADD THIS:
         if (manageClientBtn != null) {
             manageClientBtn.setVisible(adminMode);
             manageClientBtn.setManaged(adminMode);
         }
     }
+
     // ════════════════════════════════════════════════════════════════════════
     // CARD REFRESH
     // ════════════════════════════════════════════════════════════════════════
+
     public void refreshCard() {
         if (coach == null) return;
 
@@ -132,8 +233,7 @@ public class CoachCardController {
             String cat = coach.getTrainingCategory();
             trainingTypeLabel.setText(
                     (cat == null || cat.isBlank() || cat.equals("Unassigned"))
-                            ? "No Training Type"
-                            : cat);
+                            ? "No Training Type" : cat);
         }
 
         String imgPath = coach.getStaffImage();
@@ -157,8 +257,8 @@ public class CoachCardController {
 
     private void loadDefaultImage() {
         try {
-            coachImage.setImage(new Image(
-                    getClass().getResourceAsStream("/image/admin-user.png")));
+            coachImage.setImage(
+                    new Image(getClass().getResourceAsStream("/image/admin-user.png")));
         } catch (Exception ignored) {}
     }
 
@@ -182,8 +282,34 @@ public class CoachCardController {
     }
 
     // ════════════════════════════════════════════════════════════════════════
+    // EVENT WIRING  (was initialize())
+    // ════════════════════════════════════════════════════════════════════════
+
+    private void wireEvents() {
+        manageClientBtn.setOnAction(e -> openModal("/codes/acegym/AddClientInCoach.fxml"));
+        editCoachBtn.setOnAction(e   -> openModal("/codes/acegym/EditCoach.fxml"));
+
+        removeCoachBtn.setOnMouseClicked(e -> {
+            if (coach == null) return;
+            if (CoachDAO.hasClients(coach.getStaffID())) {
+                showToast("Cannot delete — coach still has assigned clients.\n" +
+                        "Remove all clients first via Manage Clients.");
+            } else {
+                showInlineConfirm(
+                        "Are you sure you want to remove this coach?",
+                        () -> {
+                            if (CoachDAO.deleteCoach(coach.getStaffID())) {
+                                if (onDeleteCallback != null) onDeleteCallback.run();
+                            }
+                        });
+            }
+        });
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
     // MODALS
     // ════════════════════════════════════════════════════════════════════════
+
     private void openModal(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
@@ -213,7 +339,9 @@ public class CoachCardController {
 
             root.setOpacity(0);
             FadeTransition ft = new FadeTransition(Duration.millis(300), root);
-            ft.setFromValue(0); ft.setToValue(1); ft.play();
+            ft.setFromValue(0);
+            ft.setToValue(1);
+            ft.play();
 
             modalStage.setOnHidden(e -> {
                 owner.getScene().getRoot().setEffect(null);
@@ -228,6 +356,7 @@ public class CoachCardController {
     // ════════════════════════════════════════════════════════════════════════
     // CONFIRM POPUP
     // ════════════════════════════════════════════════════════════════════════
+
     private void showInlineConfirm(String message, Runnable onConfirm) {
         Stage popup = new Stage();
         popup.initModality(Modality.APPLICATION_MODAL);
@@ -291,18 +420,20 @@ public class CoachCardController {
 
         owner.getScene().getRoot().setEffect(new GaussianBlur(10));
         popup.setOnHidden(e -> owner.getScene().getRoot().setEffect(null));
-
         popup.show();
         centerStage(popup);
 
         root.setOpacity(0);
         FadeTransition ft = new FadeTransition(Duration.millis(200), root);
-        ft.setFromValue(0); ft.setToValue(1); ft.play();
+        ft.setFromValue(0);
+        ft.setToValue(1);
+        ft.play();
     }
 
     // ════════════════════════════════════════════════════════════════════════
     // TOAST
     // ════════════════════════════════════════════════════════════════════════
+
     private void showToast(String message) {
         Stage owner = (Stage) removeCoachBtn.getScene().getWindow();
 
@@ -322,9 +453,9 @@ public class CoachCardController {
                         "-fx-border-width: 1.5;" +
                         "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.80), 30, 0, 0, 0);");
 
-        Label icon = new Label("⚠");
-        icon.setStyle("-fx-font-size: 18px; -fx-text-fill: #e53935;");
-        toast.getChildren().addAll(icon, lbl);
+        Label warnIcon = new Label("⚠");
+        warnIcon.setStyle("-fx-font-size: 18px; -fx-text-fill: #e53935;");
+        toast.getChildren().addAll(warnIcon, lbl);
 
         Stage toastStage = new Stage();
         toastStage.initStyle(StageStyle.TRANSPARENT);
@@ -335,18 +466,21 @@ public class CoachCardController {
         toastStage.setScene(scene);
         toastStage.show();
 
-        toastStage.setX(owner.getX() + owner.getWidth() - toastStage.getWidth() - 24);
+        toastStage.setX(owner.getX() + owner.getWidth()  - toastStage.getWidth()  - 24);
         toastStage.setY(owner.getY() + owner.getHeight() - toastStage.getHeight() - 24);
 
         toast.setOpacity(0);
         FadeTransition fadeIn = new FadeTransition(Duration.millis(200), toast);
-        fadeIn.setFromValue(0); fadeIn.setToValue(1); fadeIn.play();
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+        fadeIn.play();
 
         javafx.animation.PauseTransition hold =
                 new javafx.animation.PauseTransition(Duration.millis(3000));
         hold.setOnFinished(ev -> {
             FadeTransition fadeOut = new FadeTransition(Duration.millis(300), toast);
-            fadeOut.setFromValue(1); fadeOut.setToValue(0);
+            fadeOut.setFromValue(1);
+            fadeOut.setToValue(0);
             fadeOut.setOnFinished(ev2 -> toastStage.close());
             fadeOut.play();
         });
@@ -356,6 +490,29 @@ public class CoachCardController {
     // ════════════════════════════════════════════════════════════════════════
     // HELPERS
     // ════════════════════════════════════════════════════════════════════════
+
+    private Region divider() {
+        Region r = new Region();
+        r.getStyleClass().add("card-divider");
+        r.setMaxWidth(Double.MAX_VALUE);
+        return r;
+    }
+
+    private void loadIcon(ImageView iv, String resourcePath) {
+        try {
+            iv.setImage(new Image(getClass().getResourceAsStream(resourcePath)));
+        } catch (Exception ignored) {}
+    }
+
+    private String resolveStylesheet(String path) {
+        try {
+            java.net.URL url = getClass().getResource(path);
+            return url != null ? url.toExternalForm() : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private void centerStage(Stage stage) {
         Stage owner = (Stage) nameLabel.getScene().getWindow();
         stage.setX(owner.getX() + (owner.getWidth()  / 2) - (stage.getWidth()  / 2));
