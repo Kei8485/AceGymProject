@@ -148,17 +148,35 @@
 
                                                 <Region maxHeight="1.0" minHeight="1.0" styleClass="card-divider" />
 
+                                                <!-- First Name — with icon (matches Username pattern) -->
                                                 <VBox spacing="6.0">
                                                     <children>
                                                         <Label styleClass="field-label" text="First Name" />
-                                                        <TextField fx:id="firstNameField" prefHeight="42.0" promptText="First Name" styleClass="input-field-icon" />
+                                                        <StackPane>
+                                                            <children>
+                                                                <TextField fx:id="firstNameField" prefHeight="42.0" promptText="First Name" styleClass="input-field-icon" />
+                                                                <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+                                                                    <image><Image url="@../../image/user-solid.png" /></image>
+                                                                    <StackPane.margin><Insets right="370.0" /></StackPane.margin>
+                                                                </ImageView>
+                                                            </children>
+                                                        </StackPane>
                                                     </children>
                                                 </VBox>
 
+                                                <!-- Last Name — with icon (matches Username pattern) -->
                                                 <VBox spacing="6.0">
                                                     <children>
                                                         <Label styleClass="field-label" text="Last Name" />
-                                                        <TextField fx:id="lastNameField" prefHeight="42.0" promptText="Last Name" styleClass="input-field-icon" />
+                                                        <StackPane>
+                                                            <children>
+                                                                <TextField fx:id="lastNameField" prefHeight="42.0" promptText="Last Name" styleClass="input-field-icon" />
+                                                                <ImageView fitHeight="15.0" fitWidth="15.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+                                                                    <image><Image url="@../../image/user-solid.png" /></image>
+                                                                    <StackPane.margin><Insets right="370.0" /></StackPane.margin>
+                                                                </ImageView>
+                                                            </children>
+                                                        </StackPane>
                                                     </children>
                                                 </VBox>
 
