@@ -90,17 +90,31 @@ public class PaymentController implements Initializable, Refreshable  {
     @Override
     public void refreshData() {
         javafx.application.Platform.runLater(() -> {
-            loadClients();
+            // ── Reset all state first so selectedClient is null ──────────
+            // This ensures loadCoachesForClient is re-triggered cleanly
+            // when the next client is selected, not with stale coachMap data.
+            suppressSearch = true;
+            isFromRegistration  = false;
+            clientHasActivePlan = false;
+            clientSearchCombo.getSelectionModel().clearSelection();
+            clientSearchCombo.getEditor().clear();
+
+            clearClientDetails();   // clears selectedClient, coachMap, coachCombo, etc.
+
+            loadClients();          // repopulates allClients + displayedClients
             loadTrainingData();
             loadPaymentMethods();
-            resetSummary();
-            hideValidation();
-            hideUpgradeBadge();
-            clearClientDetails();
+
             periodCombo.getSelectionModel().clearSelection();
             typeCombo.getSelectionModel().clearSelection();
             coachCombo.getSelectionModel().clearSelection();
             methodCombo.getSelectionModel().clearSelection();
+
+            Platform.runLater(() -> suppressSearch = false);
+
+            resetSummary();
+            hideValidation();
+            hideUpgradeBadge();
             System.out.println("Payment Page Refreshed from Database.");
         });
     }
