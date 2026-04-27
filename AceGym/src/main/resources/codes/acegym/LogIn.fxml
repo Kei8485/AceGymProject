@@ -57,7 +57,7 @@
                      <children>
                         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="165.0" prefWidth="456.0" styleClass="login-V-Box" stylesheets="@../../Css/styles.css">
                            <children>
-                              <Label alignment="TOP_LEFT" prefHeight="0.0" prefWidth="456.0" styleClass="sub-header" stylesheets="@../../Css/styles.css" text="Email" />
+                              <Label alignment="TOP_LEFT" prefHeight="0.0" prefWidth="456.0" styleClass="sub-header" stylesheets="@../../Css/styles.css" text="Username" />
                               <TextField fx:id="usernameField" maxWidth="-Infinity" prefHeight="40.0" prefWidth="400.0" promptText="you@acefitness.com" styleClass="text-field-login" stylesheets="@../../Css/styles.css">
                                  <VBox.margin>
                                     <Insets top="6.0" />
