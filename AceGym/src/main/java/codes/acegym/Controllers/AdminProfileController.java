@@ -24,7 +24,6 @@ import javafx.util.StringConverter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -94,15 +93,11 @@ public class AdminProfileController implements Refreshable {
         setupEyeToggle(toggleRetypePass,  retypePasswordField);
         avatarStackPane.setOnMouseClicked(e -> pickProfileImage());
 
-        // ── Live "same as current" warning on the new-password field ────────────
-        // Fires on every keystroke so the user gets instant feedback without
-        // having to submit the form first.
         newPasswordField.textProperty().addListener((obs, oldVal, newVal) -> {
             String current = currentPasswordField.getText();
             if (!newVal.isBlank() && !current.isBlank() && newVal.equals(current)) {
                 newPassError.setText("New password cannot be the same as your current password.");
             } else {
-                // Only clear this specific error — don't wipe unrelated ones
                 if (newPassError.getText().contains("same as")) {
                     newPassError.setText("");
                 }
@@ -141,7 +136,7 @@ public class AdminProfileController implements Refreshable {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    // ACCOUNT INFO
+    // ACCOUNT INFO — SAVE
     // ════════════════════════════════════════════════════════════════════════
     @FXML
     private void handleSaveChanges() {
@@ -149,16 +144,26 @@ public class AdminProfileController implements Refreshable {
         String lName = lastNameField.getText().trim();
         String uName = usernameField.getText().trim();
 
+        // ── Basic client-side validation ─────────────────────────────────────
         if (fName.isEmpty() || lName.isEmpty() || uName.isEmpty()) {
             showError("Validation Error", "Please fill in all fields.");
             return;
         }
+        if (uName.length() < 3) {
+            usernameError.setText("Username must be at least 3 characters.");
+            return;
+        }
+        if (uName.contains(" ")) {
+            usernameError.setText("Username cannot contain spaces.");
+            return;
+        }
+
+        usernameError.setText("");
 
         String imageToSave = (pendingImagePath != null && !pendingImagePath.isBlank())
                 ? pendingImagePath
                 : currentProfile.staffImage();
 
-        // ── FIX: DB write moved off the FX thread — previously caused UI freeze ──
         if (btnSaveChanges != null) btnSaveChanges.setDisable(true);
 
         final String finalFName = fName;
@@ -166,8 +171,9 @@ public class AdminProfileController implements Refreshable {
         final String finalUName = uName;
         final String finalImage = imageToSave;
 
-        Task<Boolean> task = new Task<>() {
-            @Override protected Boolean call() {
+        // ── DB work off the FX thread ────────────────────────────────────────
+        Task<String> task = new Task<>() {
+            @Override protected String call() {
                 return AdminDAO.updateAdminProfile(
                         currentProfile.staffID(), finalFName, finalLName, finalUName, finalImage);
             }
@@ -175,22 +181,23 @@ public class AdminProfileController implements Refreshable {
 
         task.setOnSucceeded(e -> {
             if (btnSaveChanges != null) btnSaveChanges.setDisable(false);
-            if (task.getValue()) {
-                Session.getInstance().setLoggedInUsername(finalUName);
-                pendingImagePath = null;
-                refreshData();
-                // ── FIX: showInfo uses showAndWait — deferred via Platform.runLater()
-                //    so the FX thread is fully free before opening the next dialog.
-                //    Without this, calling showAndWait() inside a Task callback
-                //    throws IllegalStateException (nested showAndWait crash).
-                Platform.runLater(() -> {
-                    showInfo("Success", "Profile updated successfully!");
-                    HomePageController home = HomePageController.getInstance();
-                    if (home != null) home.refreshUserProfile();
-                });
-            } else {
-                Platform.runLater(() ->
-                        showError("Update Failed", "Could not save changes to the database."));
+            switch (task.getValue()) {
+                case "OK" -> {
+                    Session.getInstance().setLoggedInUsername(finalUName);
+                    pendingImagePath = null;
+                    refreshData();
+                    Platform.runLater(() -> {
+                        showInfo("Success", "Profile updated successfully!");
+                        HomePageController home = HomePageController.getInstance();
+                        if (home != null) home.refreshUserProfile();
+                    });
+                }
+                case "USERNAME_TAKEN" ->
+                        Platform.runLater(() ->
+                                usernameError.setText("Username \"" + finalUName + "\" is already taken by another account."));
+                default ->
+                        Platform.runLater(() ->
+                                showError("Update Failed", "Could not save changes to the database."));
             }
         });
 
@@ -208,9 +215,6 @@ public class AdminProfileController implements Refreshable {
 
     @FXML
     private void handleResetChanges() {
-        // ── FIX: showConfirm's callback used to call refreshData() which is safe,
-        //    but the confirm dialog itself uses showAndWait. Added Platform.runLater
-        //    inside showConfirm to prevent any nested showAndWait scenario.
         showConfirm("Reset Changes", "Discard all unsaved changes?", confirmed -> {
             if (confirmed) refreshData();
         });
@@ -235,8 +239,6 @@ public class AdminProfileController implements Refreshable {
         } else if (newPass.length() < 6) {
             newPassError.setText("Password must be at least 6 characters."); valid = false;
         } else if (newPass.equals(current)) {
-            // ── New password must differ from the current one — caught here
-            //    before any DB call or confirm popup so no round-trip is wasted.
             newPassError.setText("New password must be different from your current password."); valid = false;
         }
         if (!retype.isBlank() && !newPass.equals(retype)) {
@@ -261,7 +263,6 @@ public class AdminProfileController implements Refreshable {
                     handleClearPassword();
                     showInfo("Success", "Password changed successfully.");
                 } else {
-                    // DB rejected it — current password was wrong
                     currentPassError.setText("Current password is incorrect.");
                 }
             });
@@ -284,31 +285,17 @@ public class AdminProfileController implements Refreshable {
         newPasswordField.clear();
         retypePasswordField.clear();
         clearPasswordErrors();
-
-        // ── Also clear the visible plain-text mirrors created by setupEyeToggle().
-        //    When the eye is active, the PasswordField is hidden and its paired
-        //    TextField holds the visible text — clearing only the PasswordField
-        //    leaves stale text in the TextField, so both must be cleared.
         clearEyeTextField(currentPasswordField);
         clearEyeTextField(newPasswordField);
         clearEyeTextField(retypePasswordField);
     }
 
-    /**
-     * Finds the plain TextField sibling that setupEyeToggle() injected next to
-     * the given PasswordField and clears it. Also resets both fields back to
-     * their default visible/managed state (password visible, plain hidden)
-     * so the eye icon is effectively reset to the closed-eye state.
-     */
     private void clearEyeTextField(PasswordField pf) {
         if (pf == null || !(pf.getParent() instanceof StackPane parent)) return;
         int idx = parent.getChildren().indexOf(pf);
         if (idx + 1 >= parent.getChildren().size()) return;
         if (!(parent.getChildren().get(idx + 1) instanceof TextField tf)) return;
-
         tf.clear();
-
-        // Reset visibility so the eye toggle starts fresh (closed-eye state)
         pf.setVisible(true);  pf.setManaged(true);
         tf.setVisible(false); tf.setManaged(false);
     }
@@ -379,7 +366,7 @@ public class AdminProfileController implements Refreshable {
         body.setPadding(new Insets(26, 30, 30, 30));
         body.getChildren().addAll(buildStepHeader("1", "Select Staff Member"), spacer(16));
 
-        // ── Plain non-editable ComboBox ────────────────────────────────
+        // ── Staff combo ────────────────────────────────────────────────
         List<StaffBasicInfo> staffList = AdminDAO.getAllStaff();
         ObservableList<StaffBasicInfo> allStaff = FXCollections.observableArrayList(staffList);
 
@@ -543,9 +530,9 @@ public class AdminProfileController implements Refreshable {
                 errUser.setText("Username must be at least 3 characters."); ok = false;
             } else if (username.contains(" ")) {
                 errUser.setText("Username cannot contain spaces."); ok = false;
-            } else if (AdminDAO.isUsernameTaken(username)) {
-                errUser.setText("Username is already taken."); ok = false;
             }
+            // NOTE: isUsernameTaken() is intentionally NOT called here on the
+            // FX thread — the async task below handles it without blocking the UI.
 
             String pass   = passF.getText();
             String retype = retypeF.getText();
@@ -569,13 +556,40 @@ public class AdminProfileController implements Refreshable {
                                     ? "\n\nThis will promote them from Staff to Admin." : ""),
                     confirmed -> {
                         if (!confirmed) return;
-                        boolean done = AdminDAO.registerAccountForStaff(sel.staffID(), username, pass, role);
-                        if (done) {
-                            showInfo("Success", role + " account registered successfully.");
-                            dialog.close();
-                        } else {
-                            errUser.setText("Registration failed. Please try again.");
-                        }
+
+                        registerBtn.setDisable(true);
+
+                        // ── All DB work runs off the FX thread ─────────────
+                        Task<String> task = new Task<>() {
+                            @Override protected String call() {
+                                return AdminDAO.registerAccountForStaff(
+                                        sel.staffID(), username, pass, role);
+                            }
+                        };
+
+                        task.setOnSucceeded(ev -> {
+                            registerBtn.setDisable(false);
+                            switch (task.getValue()) {
+                                case "OK" -> {
+                                    showInfo("Success", role + " account registered successfully.");
+                                    dialog.close();
+                                }
+                                case "USERNAME_TAKEN" ->
+                                        errUser.setText("Username \"" + username + "\" is already taken.");
+                                default ->
+                                        errUser.setText("Registration failed. Please try again.");
+                            }
+                        });
+
+                        task.setOnFailed(ev -> {
+                            registerBtn.setDisable(false);
+                            task.getException().printStackTrace();
+                            errUser.setText("Unexpected error. Please try again.");
+                        });
+
+                        Thread t = new Thread(task);
+                        t.setDaemon(true);
+                        t.start();
                     });
         });
 
@@ -714,11 +728,6 @@ public class AdminProfileController implements Refreshable {
                         "-fx-border-radius:9;-fx-border-width:1;-fx-cursor:hand;");
     }
 
-    private void applyCloseBtnStyle(Label l, boolean hover) {
-        String color = hover ? COLOR_RED : COLOR_MUTED;
-        l.setStyle("-fx-font-size:14px;-fx-text-fill:" + color + ";-fx-cursor:hand;");
-    }
-
     // ════════════════════════════════════════════════════════════════════════
     // CSS INJECTION
     // ════════════════════════════════════════════════════════════════════════
@@ -812,16 +821,6 @@ public class AdminProfileController implements Refreshable {
     // ════════════════════════════════════════════════════════════════════════
     // STYLED DIALOGS
     // ════════════════════════════════════════════════════════════════════════
-
-    /**
-     * Confirm dialog.
-     *
-     * FIX: The callback is now deferred via Platform.runLater() so that the
-     * showAndWait() call from this dialog fully returns before the callback
-     * runs. Previously, any showInfo() / showError() inside the callback
-     * launched a second showAndWait() while the FX thread was still unwinding
-     * the first — causing IllegalStateException (nested showAndWait crash).
-     */
     private void showConfirm(String title, String message, Consumer<Boolean> callback) {
         Stage d = makeDialogStage(adminNameLabel);
         VBox content = buildDialogBody("❓", COLOR_MUTED, title, message);
@@ -847,7 +846,6 @@ public class AdminProfileController implements Refreshable {
         showDialog(d, content, yes, no, 400, 240, false);
     }
 
-    /** Info dialog — green success */
     private void showInfo(String title, String message) {
         Stage d = makeDialogStage(adminNameLabel);
         VBox content = buildDialogBody("✓", "#4caf50", title, message);
@@ -856,7 +854,6 @@ public class AdminProfileController implements Refreshable {
         showDialog(d, content, ok, null, 400, 210, true);
     }
 
-    /** Error dialog */
     private void showError(String title, String message) {
         Stage d = makeDialogStage(adminNameLabel);
         VBox content = buildDialogBody("✕", COLOR_RED, title, message);
@@ -865,7 +862,6 @@ public class AdminProfileController implements Refreshable {
         showDialog(d, content, ok, null, 400, 210, true);
     }
 
-    // ── Core dialog renderer ─────────────────────────────────────────────────
     private void showDialog(Stage d, VBox content,
                             Button primary, Button secondary,
                             double w, double h, boolean blocking) {
@@ -896,40 +892,6 @@ public class AdminProfileController implements Refreshable {
         else          d.show();
     }
 
-    // ── Non-blocking overload — for dialogs launched from inside another modal ──
-    private void showDialogNonBlocking(Stage d, VBox content,
-                                       Button primary, Button secondary,
-                                       double w, double h) {
-        HBox btns = new HBox(10);
-        btns.setAlignment(Pos.CENTER_RIGHT);
-        btns.setPadding(new Insets(14, 24, 20, 24));
-        btns.setStyle(
-                "-fx-border-color:" + COLOR_BORDER + " transparent transparent transparent;" +
-                        "-fx-border-width:1 0 0 0;");
-        if (secondary != null) btns.getChildren().addAll(secondary, primary);
-        else                    btns.getChildren().add(primary);
-
-        VBox root = new VBox(0);
-        root.setStyle(
-                "-fx-background-color:" + BG_CARD + ";" +
-                        "-fx-background-radius:16;" +
-                        "-fx-border-color:" + COLOR_BORDER + ";" +
-                        "-fx-border-radius:16;" +
-                        "-fx-border-width:1.5;");
-        root.setEffect(new DropShadow(40, Color.web("#000000", 0.85)));
-        root.getChildren().addAll(content, btns);
-
-        Scene sc = new Scene(root, w, h);
-        sc.setFill(Color.TRANSPARENT);
-        d.setScene(sc);
-        d.show();
-    }
-
-    /**
-     * Builds the dialog body:
-     *   - Coloured icon circle on the left
-     *   - Title (white, bold) + message (muted) stacked on the right
-     */
     private VBox buildDialogBody(String icon, String iconColor, String title, String message) {
         StackPane circle = new StackPane();
         circle.setMinSize(44, 44); circle.setMaxSize(44, 44);
@@ -968,7 +930,6 @@ public class AdminProfileController implements Refreshable {
         return body;
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
     private Stage makeDialogStage(javafx.scene.Node owner) {
         Stage d = new Stage();
         d.initModality(Modality.APPLICATION_MODAL);

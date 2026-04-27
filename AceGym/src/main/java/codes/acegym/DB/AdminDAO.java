@@ -117,8 +117,6 @@ public class AdminDAO {
         return list;
     }
 
-
-
     public static List<StaffBasicInfo> getAllStaff() {
         List<StaffBasicInfo> list = new ArrayList<>();
         String sql =
@@ -158,13 +156,32 @@ public class AdminDAO {
         }
     }
 
+    /**
+     * Same as isUsernameTaken but excludes a specific staffID.
+     * Used when saving profile changes so the current user's own username
+     * does not trigger a false "already taken" error.
+     */
+    public static boolean isUsernameTakenByOther(String username, int excludeStaffID) {
+        String sql =
+                "SELECT 1 FROM UserAccountsTable " +
+                        "WHERE Username = ? AND StaffID <> ? LIMIT 1";
+        try (Connection con = DBConnector.connect();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, username.trim());
+            ps.setInt(2, excludeStaffID);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     // ════════════════════════════════════════════════════════════════════════
     // UPDATE — Account Information
     // ════════════════════════════════════════════════════════════════════════
 
     /**
      * Updates the username in UserAccountsTable for the given staffID.
-     * Called when the admin saves changes from the Account Information card.
      */
     public static boolean updateUsername(int staffID, String newUsername) {
         String sql = "UPDATE UserAccountsTable SET Username = ? WHERE StaffID = ?";
@@ -181,7 +198,6 @@ public class AdminDAO {
 
     /**
      * Updates the profile image path in StaffTable for the given staffID.
-     * Called when the admin picks a new avatar and hits Save Changes.
      */
     public static boolean updateStaffImage(int staffID, String imagePath) {
         String sql = "UPDATE StaffTable SET StaffImage = ? WHERE StaffID = ?";
@@ -207,7 +223,6 @@ public class AdminDAO {
     public static boolean changePassword(int staffID,
                                          String currentPassword,
                                          String newPassword) {
-        // Step 1 — verify current password
         String verify = "SELECT 1 FROM UserAccountsTable WHERE StaffID = ? AND Password = ? LIMIT 1";
         try (Connection con = DBConnector.connect();
              PreparedStatement ps = con.prepareStatement(verify)) {
@@ -218,7 +233,6 @@ public class AdminDAO {
             }
         } catch (SQLException e) { e.printStackTrace(); return false; }
 
-        // Step 2 — apply new password
         String update = "UPDATE UserAccountsTable SET Password = ? WHERE StaffID = ?";
         try (Connection con = DBConnector.connect();
              PreparedStatement ps = con.prepareStatement(update)) {
@@ -229,35 +243,48 @@ public class AdminDAO {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    // REGISTER — two flows
+    // REGISTER
     // ════════════════════════════════════════════════════════════════════════
 
     /**
-     * FLOW A — Register an account for an EXISTING staff member selected from
-     * the combo box.  Only inserts into UserAccountsTable; the StaffTable row
-     * already exists.
+     * Register an account for an EXISTING staff member.
      *
-     * Also updates SystemRole in StaffTable so both tables stay in sync.
+     * The uniqueness check and the INSERT happen inside the same transaction
+     * so there is no TOCTOU gap — even if two requests race, only one wins.
+     *
+     * Return values (as String tokens, evaluated by the controller):
+     *   "OK"             — success
+     *   "USERNAME_TAKEN" — username already exists
+     *   "ERROR"          — any other DB failure
      */
-    public static boolean registerAccountForStaff(int staffID,
-                                                  String username,
-                                                  String password,
-                                                  String role) {
-        if (isUsernameTaken(username)) return false;
-
-        String updateRole  = "UPDATE StaffTable SET SystemRole = ? WHERE StaffID = ?";
-        String insertUser  = "INSERT INTO UserAccountsTable (StaffID, Username, Password) VALUES (?, ?, ?)";
+    public static String registerAccountForStaff(int staffID,
+                                                 String username,
+                                                 String password,
+                                                 String role) {
+        String checkUser  = "SELECT 1 FROM UserAccountsTable WHERE Username = ? LIMIT 1";
+        String updateRole = "UPDATE StaffTable SET SystemRole = ? WHERE StaffID = ?";
+        String insertUser = "INSERT INTO UserAccountsTable (StaffID, Username, Password) VALUES (?, ?, ?)";
 
         try (Connection con = DBConnector.connect()) {
             con.setAutoCommit(false);
             try {
-                // Sync role on the staff row
+                // ── 1. Re-check uniqueness INSIDE the transaction ──────────
+                try (PreparedStatement ps = con.prepareStatement(checkUser)) {
+                    ps.setString(1, username.trim());
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            con.rollback();
+                            return "USERNAME_TAKEN";
+                        }
+                    }
+                }
+                // ── 2. Sync role on the staff row ──────────────────────────
                 try (PreparedStatement ps = con.prepareStatement(updateRole)) {
                     ps.setString(1, role);
                     ps.setInt(2, staffID);
                     ps.executeUpdate();
                 }
-                // Create account
+                // ── 3. Create the account ──────────────────────────────────
                 try (PreparedStatement ps = con.prepareStatement(insertUser)) {
                     ps.setInt(1, staffID);
                     ps.setString(2, username.trim());
@@ -265,21 +292,22 @@ public class AdminDAO {
                     ps.executeUpdate();
                 }
                 con.commit();
-                return true;
+                return "OK";
             } catch (SQLException e) {
                 con.rollback();
                 e.printStackTrace();
-                return false;
+                // MySQL error 1062 = duplicate entry (UNIQUE constraint)
+                if (e.getErrorCode() == 1062) return "USERNAME_TAKEN";
+                return "ERROR";
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return "ERROR";
         }
     }
 
     /**
      * Returns true if the given staffID already has a row in UserAccountsTable.
-     * Used as a defensive guard in the register dialog.
      */
     public static boolean staffHasAccount(int staffID) {
         String sql = "SELECT 1 FROM UserAccountsTable WHERE StaffID = ? LIMIT 1";
@@ -294,9 +322,8 @@ public class AdminDAO {
     }
 
     /**
-     * FLOW B (kept for backward compatibility) — Creates a brand-new staff row
-     * in StaffTable AND a matching UserAccountsTable row in one transaction.
-     * Used if you ever need to register someone not yet in StaffTable at all.
+     * FLOW B — Creates a brand-new staff row in StaffTable AND a matching
+     * UserAccountsTable row in one transaction.
      */
     public static boolean registerAccount(String firstName,
                                           String lastName,
@@ -340,35 +367,63 @@ public class AdminDAO {
             }
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
-    public static boolean updateAdminProfile(int staffId, String fName, String lName, String uName, String imagePath) {
-        String sqlStaff = "UPDATE StaffTable SET StaffFirstName = ?, StaffLastName = ?, StaffImage = ? WHERE StaffID = ?";
-        String sqlAccount = "UPDATE UserAccountsTable SET Username = ? WHERE StaffID = ?";
 
-        try (Connection conn = DBConnector.connect()) {
-            conn.setAutoCommit(false);
-            try (PreparedStatement psStaff = conn.prepareStatement(sqlStaff);
-                 PreparedStatement psAcc = conn.prepareStatement(sqlAccount)) {
+    /**
+     * Updates first name, last name, username, and profile image atomically.
+     * Checks that the new username is not already taken by a DIFFERENT staff
+     * member before writing — returns "USERNAME_TAKEN" if so.
+     */
+    public static String updateAdminProfile(int staffId,
+                                            String fName,
+                                            String lName,
+                                            String uName,
+                                            String imagePath) {
+        String checkUser  =
+                "SELECT 1 FROM UserAccountsTable WHERE Username = ? AND StaffID <> ? LIMIT 1";
+        String sqlStaff   =
+                "UPDATE StaffTable SET StaffFirstName = ?, StaffLastName = ?, StaffImage = ? WHERE StaffID = ?";
+        String sqlAccount =
+                "UPDATE UserAccountsTable SET Username = ? WHERE StaffID = ?";
 
-                psStaff.setString(1, fName);
-                psStaff.setString(2, lName);
-                psStaff.setString(3, imagePath);
-                psStaff.setInt(4, staffId);
-                psStaff.executeUpdate();
-
-                psAcc.setString(1, uName);
-                psAcc.setInt(2, staffId);
-                psAcc.executeUpdate();
-
-                conn.commit();
-                return true;
+        try (Connection con = DBConnector.connect()) {
+            con.setAutoCommit(false);
+            try {
+                // ── 1. Uniqueness check for the new username ───────────────
+                try (PreparedStatement ps = con.prepareStatement(checkUser)) {
+                    ps.setString(1, uName.trim());
+                    ps.setInt(2, staffId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            con.rollback();
+                            return "USERNAME_TAKEN";
+                        }
+                    }
+                }
+                // ── 2. Update StaffTable ───────────────────────────────────
+                try (PreparedStatement ps = con.prepareStatement(sqlStaff)) {
+                    ps.setString(1, fName);
+                    ps.setString(2, lName);
+                    ps.setString(3, imagePath);
+                    ps.setInt(4, staffId);
+                    ps.executeUpdate();
+                }
+                // ── 3. Update UserAccountsTable ────────────────────────────
+                try (PreparedStatement ps = con.prepareStatement(sqlAccount)) {
+                    ps.setString(1, uName.trim());
+                    ps.setInt(2, staffId);
+                    ps.executeUpdate();
+                }
+                con.commit();
+                return "OK";
             } catch (SQLException e) {
-                conn.rollback();
+                con.rollback();
                 e.printStackTrace();
+                if (e.getErrorCode() == 1062) return "USERNAME_TAKEN";
+                return "ERROR";
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return "ERROR";
         }
-        return false;
     }
 }
-
