@@ -544,13 +544,120 @@ public class PlanController {
         btn.setManaged(false);
     }
 
-    // ── Inline alert (no external FXML needed) ────────────────────
+    // ── Styled alert modal (matches ConfirmationPopup CSS) ───────
     private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        boolean isError = (type == Alert.AlertType.ERROR);
+        String accentColor  = "#CB443E";
+        String accentShadow = "rgba(203,68,62,0.4)";
+        String accentBorder = "rgba(203,68,62,0.2)";
+        String iconSymbol   = isError ? "✕" : "⚠";
+
+        Stage owner = (Stage) addPlanBtn.getScene().getWindow();
+
+        // ── Icon badge ───────────────────────────────────────────────────
+        Label iconLabel = new Label(iconSymbol);
+        iconLabel.setPrefSize(70, 70);
+        iconLabel.setMinSize(70, 70);
+        iconLabel.setMaxSize(70, 70);
+        iconLabel.setAlignment(javafx.geometry.Pos.CENTER);
+        iconLabel.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-border-color: " + accentColor + ";" +
+                        "-fx-border-width: 3;" +
+                        "-fx-border-radius: 35;" +
+                        "-fx-background-radius: 35;" +
+                        "-fx-text-fill: " + accentColor + ";" +
+                        "-fx-font-size: 30px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-family: 'Inter';" +
+                        "-fx-effect: dropshadow(three-pass-box, " + accentShadow + ", 10, 0, 0, 0);"
+        );
+
+        // ── Title label ──────────────────────────────────────────────────
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle(
+                "-fx-font-family: 'Inter';" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: " + accentColor + ";"
+        );
+
+        // ── Message label ────────────────────────────────────────────────
+        Label msgLabel = new Label(message);
+        msgLabel.setMaxWidth(420);
+        msgLabel.setWrapText(true);
+        msgLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+        msgLabel.setAlignment(javafx.geometry.Pos.CENTER);
+        msgLabel.setStyle(
+                "-fx-font-family: 'Inter';" +
+                        "-fx-font-size: 19px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #E8E6E9;"
+        );
+
+        // ── OK button ────────────────────────────────────────────────────
+        Button okBtn = new Button("OK");
+        okBtn.setPrefWidth(130);
+        okBtn.setPrefHeight(48);
+        okBtn.setStyle(
+                "-fx-background-color: " + accentColor + ";" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 20px;" +
+                        "-fx-padding: 10 25;" +
+                        "-fx-cursor: hand;"
+        );
+        okBtn.setOnMouseEntered(e -> okBtn.setStyle(okBtn.getStyle().replace(accentColor, "#d9635d")));
+        okBtn.setOnMouseExited(e  -> okBtn.setStyle(okBtn.getStyle().replace("#d9635d", accentColor)));
+
+        // ── Card ───────────────────────────────────────────────────────────────
+        javafx.scene.layout.VBox card = new javafx.scene.layout.VBox(18);
+        card.setAlignment(javafx.geometry.Pos.CENTER);
+        card.setPadding(new javafx.geometry.Insets(30));
+        card.setMinWidth(380);
+        card.setStyle(
+                "-fx-background-color: radial-gradient(center 50% 50%, radius 70%, #1e293b 0%, #111827 100%);" +
+                        "-fx-background-radius: 15;" +
+                        "-fx-border-color: linear-gradient(to bottom, " + accentColor + ", " + accentBorder + ");" +
+                        "-fx-border-width: 1.5;" +
+                        "-fx-border-radius: 15;" +
+                        "-fx-effect: dropshadow(three-pass-box, " + accentShadow + ", 15, 0, 0, 0);"
+        );
+        card.getChildren().addAll(iconLabel, titleLabel, msgLabel, okBtn);
+
+        // ── Root ─────────────────────────────────────────────────────────────────
+        javafx.scene.layout.AnchorPane root = new javafx.scene.layout.AnchorPane(card);
+        root.setStyle("-fx-background-color: transparent;");
+        javafx.scene.layout.AnchorPane.setTopAnchor(card, 10.0);
+        javafx.scene.layout.AnchorPane.setBottomAnchor(card, 10.0);
+        javafx.scene.layout.AnchorPane.setLeftAnchor(card, 10.0);
+        javafx.scene.layout.AnchorPane.setRightAnchor(card, 10.0);
+
+        // ── Stage ────────────────────────────────────────────────────────────────
+        Stage alertStage = new Stage();
+        alertStage.initStyle(StageStyle.TRANSPARENT);
+        alertStage.initModality(Modality.APPLICATION_MODAL);
+        alertStage.initOwner(owner);
+
+        javafx.scene.Scene scene = new javafx.scene.Scene(root);
+        scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+        alertStage.setScene(scene);
+
+        GaussianBlur blur = new GaussianBlur(10);
+        owner.getScene().getRoot().setEffect(blur);
+        alertStage.setOnHidden(ev -> owner.getScene().getRoot().setEffect(null));
+
+        okBtn.setOnAction(ev -> alertStage.close());
+
+        alertStage.show();
+        centerStage(alertStage, owner);
+
+        root.setOpacity(0);
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), root);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+        fadeIn.play();
     }
 
     // ── Confirmation modal (pure Java — no FXML load lag) ─────────
