@@ -1,5 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@100..900&display=swap');
+@font-face {
+    src: url("/Font/Bebas_Neue/BebasNeue-Regular.ttf");
+}
 
+@font-face {
+    src: url("/Font/Inter/Inter-VariableFont_opsz,wght.ttf");
+}
 /* --- Variables --- */
 .root {
     -fx-base-dark: #0E1223;
