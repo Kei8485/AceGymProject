@@ -3,12 +3,7 @@
 }
 
 @font-face {
-    src: url("/Font/Inter/Inter-VariableFont_opsz,wght.ttf");
-}
-/* ── Base ── */
-.main-content-bg {
-    -fx-background-color: #0E1223;
-}
+
 
 .custom-scroll-pane {
     -fx-background-color: transparent;
