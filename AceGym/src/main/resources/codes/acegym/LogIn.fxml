@@ -72,7 +72,7 @@
 
                                  <TextField fx:id="textFieldPass" opacity="0.0" prefHeight="40" prefWidth="400" styleClass="text-field-login" />
 
-                                 <PasswordField fx:id="passwordField" prefHeight="40" prefWidth="400" styleClass="password-field-login"/>
+                                 <PasswordField fx:id="passwordField" prefHeight="40" prefWidth="400" styleClass="password-field-login" />
 
                                  <StackPane maxWidth="40" onMouseClicked="#togglePassword" prefWidth="40" style="-fx-cursor: hand;" StackPane.alignment="CENTER_RIGHT">
 
@@ -102,7 +102,7 @@
                      </VBox.margin>
                      <children>
                         <CheckBox fx:id="rememberMeCB" mnemonicParsing="false" text="Remember me" />
-                        <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" onMouseClicked="#handleForgotPassword" prefHeight="18.0" prefWidth="220.0" styleClass="forgot-link" stylesheets="@../../Css/styles.css" text="Forgot password?"  />
+                        <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" onMouseClicked="#handleForgotPassword" prefHeight="18.0" prefWidth="220.0" styleClass="forgot-link" stylesheets="@../../Css/styles.css" text="Forgot password?" />
                      </children>
                   </HBox>
                   <HBox prefHeight="42.0" prefWidth="395.0">
@@ -121,23 +121,15 @@
                      <children>
                         <VBox alignment="TOP_CENTER" maxWidth="-Infinity" prefHeight="261.0" prefWidth="350.0">
                            <children>
-                              <Label alignment="CENTER" prefHeight="42.0" prefWidth="467.0" text="Ace Fitness Gym" textAlignment="CENTER">
+                              <Label alignment="CENTER" prefHeight="56.0" prefWidth="361.0" text="Ace Fitness Gym" textFill="#cb443e">
                                  <font>
-                                    <Font size="31.0" />
+                                    <Font name="System Bold" size="39.0" />
                                  </font>
-                                 <styleClass>
-                                    <String fx:value="gym-name-header" />
-                                    <String fx:value="text-header" />
-                                 </styleClass>
                               </Label>
-                              <Label alignment="TOP_RIGHT" prefHeight="73.0" prefWidth="467.0" text="Staff Management Portal: Track members, coaches &amp; performance" wrapText="true">
-                                 <styleClass>
-                                    <String fx:value="sub-header" />
-                                    <String fx:value="sub-header-title" />
-                                 </styleClass>
-                                 <padding>
-                                    <Insets left="33.0" />
-                                 </padding>
+                              <Label alignment="CENTER" prefHeight="56.0" prefWidth="350.0" text="Staff Management Portal: Track members, coaches &amp; performance" textAlignment="CENTER" textFill="#6b7280" wrapText="true">
+                                 <font>
+                                    <Font name="Inter Semi Bold" size="17.0" />
+                                 </font>
                               </Label>
                            </children>
                            <StackPane.margin>

@@ -12,7 +12,7 @@ import javafx.stage.StageStyle;
 
 import java.util.Objects;
 import java.util.prefs.Preferences;
-
+import javafx.scene.text.Font;
 public class AceGymApplication extends Application {
 
     // ── Preferences keys ────────────────────────────────────────────────────
@@ -23,6 +23,10 @@ public class AceGymApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+
+
+        Font.loadFont(getClass().getResourceAsStream("/Font/Bebas_Neue/BebasNeue-Regular.ttf"), 12);
+        Font.loadFont(getClass().getResourceAsStream("/Font/Inter/Inter-VariableFont_opsz,wght.ttf"), 12);
 
         stage.getIcons().add(new Image(Objects.requireNonNull(
                 getClass().getResourceAsStream("/image/logoo.png"))));
