@@ -438,3 +438,30 @@
     -fx-text-fill: #4a5068;
     -fx-cursor: default;
 }
+
+
+.badge-new {
+    -fx-background-color: #28a745;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-padding: 2 8 2 8;
+    -fx-font-size: 11px;
+}
+
+.badge-renewed {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-padding: 2 8 2 8;
+    -fx-font-size: 11px;
+}
+
+.desc-new {
+    -fx-font-size: 11px;
+    -fx-text-fill: #28a745;
+}
+
+.desc-renewed {
+    -fx-font-size: 11px;
+    -fx-text-fill: #007bff;
+}

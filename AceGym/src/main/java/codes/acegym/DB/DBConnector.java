@@ -87,9 +87,9 @@ public class DBConnector {
                 new Class[]{Connection.class},
                 (proxy, method, args) -> {
                     if ("close".equals(method.getName())) {
-                        // Return to pool rather than closing
                         try {
                             if (!finalRaw.isClosed()) {
+                                try { finalRaw.setAutoCommit(true); } catch (SQLException ignored) {}
                                 POOL.offer(finalRaw);
                             }
                         } catch (SQLException ignored) {}

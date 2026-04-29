@@ -231,6 +231,14 @@
                                                     </children>
                                                 </HBox>
 
+                                                <!-- Duration (Days) -->
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <children>
+                                                        <Label maxWidth="Infinity" styleClass="summary-label" text="Duration" HBox.hgrow="ALWAYS" />
+                                                        <Label fx:id="sumDaysLabel" styleClass="summary-value-box" text="—" />
+                                                    </children>
+                                                </HBox>
+
                                                 <Separator styleClass="summary-divider" />
 
                                                 <!-- Base Price -->
@@ -246,6 +254,14 @@
                                                     <children>
                                                         <Label maxWidth="Infinity" styleClass="summary-label" text="Coaching Fee" HBox.hgrow="ALWAYS" />
                                                         <Label fx:id="coachingFeeLabel" styleClass="summary-value-box" text="₱0.00" />
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- Membership Fee (visible only on Non-Member → Member) -->
+                                                <HBox fx:id="membershipFeeRow" alignment="CENTER_LEFT" managed="false" visible="false">
+                                                    <children>
+                                                        <Label maxWidth="Infinity" styleClass="summary-label" text="Membership Fee" HBox.hgrow="ALWAYS" />
+                                                        <Label fx:id="membershipFeeLabel" styleClass="summary-value-box" text="₱0.00" />
                                                     </children>
                                                 </HBox>
 
@@ -283,6 +299,24 @@
                                                     <children>
                                                         <Label maxWidth="Infinity" styleClass="summary-label" text="Via" HBox.hgrow="ALWAYS" />
                                                         <Label fx:id="sumMethodLabel" styleClass="summary-value-box" text="—" />
+                                                    </children>
+                                                </HBox>
+
+                                                <Separator styleClass="summary-divider" />
+
+                                                <!-- Payment Date -->
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <children>
+                                                        <Label maxWidth="Infinity" styleClass="summary-label" text="Payment Date" HBox.hgrow="ALWAYS" />
+                                                        <Label fx:id="sumPaymentDateLabel" styleClass="summary-value-box" text="—" />
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- Valid Until -->
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <children>
+                                                        <Label maxWidth="Infinity" styleClass="summary-label" text="Valid Until" HBox.hgrow="ALWAYS" />
+                                                        <Label fx:id="sumExpiryDateLabel" styleClass="summary-value-green" text="—" />
                                                     </children>
                                                 </HBox>
 

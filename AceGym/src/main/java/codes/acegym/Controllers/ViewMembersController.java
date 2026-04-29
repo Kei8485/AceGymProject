@@ -30,7 +30,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class ViewMembersController implements Initializable {
+public class ViewMembersController implements Initializable, Refreshable {
 
     // ── FXML injections ──────────────────────────────────────────────────────
     @FXML private TableView<MemberRow> membersTable;
@@ -92,6 +92,13 @@ public class ViewMembersController implements Initializable {
         setupSearch();
         setupRefresh();
         setupRowDoubleClick();
+    }
+
+    @Override
+    public void refreshData() {
+        searchField.clear();
+        membersTable.getSelectionModel().clearSelection();
+        loadData();
     }
 
     // ────────────────────────────────────────────────────────────────────────

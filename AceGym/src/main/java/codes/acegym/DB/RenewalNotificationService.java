@@ -22,7 +22,8 @@ public class RenewalNotificationService {
             String fullName,
             String email,
             String expiryDate,
-            int    daysLeft
+            int    daysLeft,
+            String paymentPeriod   // e.g. "Monthly", "Daily", "Yearly"
     ) {}
 
     // ═════════════════════════════════════════════════════════════════════════
@@ -57,34 +58,41 @@ public class RenewalNotificationService {
 
     /**
      * Send a renewal reminder to one specific client.
-     * Called directly from the Dashboard renewal row button.
+     * Called directly from the Dashboard renewal row Notify button.
      *
-     * @param fullName   client full name
-     * @param email      client email address
-     * @param expiryDate formatted string e.g. "Apr 28, 2026"
-     * @param daysLeft   days until expiry (0 = today)
+     * @param fullName      client full name
+     * @param email         client email address
+     * @param expiryDate    formatted string e.g. "Expires Apr 28, 2026"
+     * @param daysLeft      days until expiry (0 = today)
+     * @param paymentPeriod last plan period e.g. "Monthly" (shown in email card)
      * @return true if sent successfully
      */
     public static boolean sendToOne(String fullName, String email,
-                                    String expiryDate, int daysLeft) {
+                                    String expiryDate, int daysLeft,
+                                    String paymentPeriod) {
         if (isEmailMissing(email)) {
             System.out.println("[RenewalNotification] No email on file for: " + fullName);
             return false;
         }
-        return sendRenewalEmail(new RenewalTarget(fullName, email, expiryDate, daysLeft));
+        return sendRenewalEmail(new RenewalTarget(
+                fullName, email, expiryDate, daysLeft,
+                paymentPeriod != null ? paymentPeriod : "—"
+        ));
     }
 
     // ═════════════════════════════════════════════════════════════════════════
-    // DATABASE QUERY
+    // DATABASE QUERY — bulk startup mode
     // ═════════════════════════════════════════════════════════════════════════
 
     private static List<RenewalTarget> getExpiringClients() {
         List<RenewalTarget> list = new ArrayList<>();
         String sql =
-                "SELECT CONCAT(c.FirstName, ' ', c.LastName) AS FullName, " +
+                "SELECT CONCAT(c.FirstName, ' ', c.LastName)    AS FullName, " +
                         "       c.ClientEmail, " +
-                        "       DATE_FORMAT(m.DateExpired, '%b %d, %Y') AS ExpiryDate, " +
-                        "       DATEDIFF(m.DateExpired, CURDATE())       AS DaysLeft " +
+                        "       DATE_FORMAT(m.DateExpired, '%b %d, %Y')  AS ExpiryDate, " +
+                        "       DATEDIFF(m.DateExpired, CURDATE())        AS DaysLeft, " +
+                        "       COALESCE(r_last.SnapshotPaymentPeriod, " +
+                        "                pp.PaymentPeriod, '—')           AS PaymentPeriod " +
                         "FROM MembershipTable m " +
                         "JOIN ClientTable c ON c.ClientID = m.ClientID " +
                         "WHERE m.DateExpired >= CURDATE() " +
@@ -96,6 +104,14 @@ public class RenewalNotificationService {
                         "      WHERE ClientID = m.ClientID " +
                         "      ORDER BY DateApplied DESC LIMIT 1" +
                         "  ) " +
+                        "LEFT JOIN ReceiptTable r_last " +
+                        "       ON r_last.ReceiptID = (" +
+                        "          SELECT ReceiptID FROM ReceiptTable " +
+                        "          WHERE ClientID = c.ClientID " +
+                        "          ORDER BY PaymentDate DESC LIMIT 1" +
+                        "       ) " +
+                        "LEFT JOIN RateTable          ra ON r_last.RateID         = ra.RateID " +
+                        "LEFT JOIN PaymentPeriodTable pp ON ra.PaymentPeriodID    = pp.PaymentPeriodID " +
                         "ORDER BY m.DateExpired ASC";
 
         try (Connection con = DBConnector.connect();
@@ -106,7 +122,8 @@ public class RenewalNotificationService {
                         rs.getString("FullName"),
                         rs.getString("ClientEmail"),
                         rs.getString("ExpiryDate"),
-                        rs.getInt("DaysLeft")
+                        rs.getInt("DaysLeft"),
+                        rs.getString("PaymentPeriod")
                 ));
             }
         } catch (SQLException e) {
@@ -165,6 +182,8 @@ public class RenewalNotificationService {
             default -> "IN " + t.daysLeft() + " DAYS";
         };
         String urgencyColor = t.daysLeft() <= 1 ? "#dc3545" : "#e94560";
+        String period = (t.paymentPeriod() != null && !t.paymentPeriod().isBlank())
+                ? t.paymentPeriod() : "—";
 
         return """
                 <!DOCTYPE html>
@@ -223,6 +242,10 @@ public class RenewalNotificationService {
                           <span class="card-value expiry-value">%s</span>
                         </div>
                         <div class="card-row">
+                          <span class="card-label">Payment Period</span>
+                          <span class="card-value">%s</span>
+                        </div>
+                        <div class="card-row">
                           <span class="card-label">Status</span>
                           <span class="card-value" style="color:#28a745;">● Active</span>
                         </div>
@@ -242,7 +265,11 @@ public class RenewalNotificationService {
                 </html>
                 """.formatted(
                 urgencyColor, urgencyColor, urgencyColor,
-                daysLabel, t.fullName(), t.fullName(), t.expiryDate()
+                daysLabel,
+                t.fullName(),
+                t.fullName(),
+                t.expiryDate(),
+                period
         );
     }
 

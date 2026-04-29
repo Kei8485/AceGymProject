@@ -519,3 +519,42 @@
 .context-menu .separator {
     -fx-background-color: #2e3349;
 }
+
+/* ScrollPane – completely transparent */
+.custom-scroll-pane {
+    -fx-background-color: transparent; /* Main background */
+    -fx-background: transparent;      /* Viewport background */
+    -fx-border-color: transparent;
+}
+
+.custom-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Vertical ScrollBar Track */
+.custom-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+}
+
+/* The Draggable Thumb */
+.custom-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #1c2237; /* Match your card-search color */
+    -fx-background-radius: 10;
+}
+
+.custom-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #CB443E; /* Turn red on hover for feedback */
+}
+
+/* Hide the increment/decrement buttons (the small arrows) */
+.custom-scroll-pane .scroll-bar .increment-button,
+.custom-scroll-pane .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.custom-scroll-pane .scroll-bar .increment-arrow,
+.custom-scroll-pane .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+}

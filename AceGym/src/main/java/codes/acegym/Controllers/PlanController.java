@@ -349,15 +349,19 @@ public class PlanController {
         cancelCategoryBtn.setOnAction(e -> resetCategoryForm());
 
         // ── Row click → edit mode ──
+        // Clicking a "None" row is also blocked — no editing of the protected entry
         categoryTable.setOnMouseClicked(e -> {
             TrainingCategory sel = categoryTable.getSelectionModel().getSelectedItem();
-            if (sel != null) {
+            if (sel != null && !"none".equalsIgnoreCase(sel.getCategoryName())) {
                 selectedCategory = sel;
                 categoryNameField.setText(sel.getCategoryName());
                 categoryAmountField.setText(String.valueOf(sel.getPrice()));
                 categoryCoachingFeeField.setText(String.valueOf(sel.getCoachingFee()));
                 addCategoryBtn.setText("Update Category");
                 showCancelBtn(cancelCategoryBtn);
+            } else if (sel != null) {
+                // Silently deselect the protected "None" row
+                categoryTable.getSelectionModel().clearSelection();
             }
         });
     }
@@ -380,10 +384,18 @@ public class PlanController {
                     });
                 });
             }
+
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty ? null : deleteBtn);
+                if (empty) {
+                    setGraphic(null);
+                    return;
+                }
+                TrainingCategory cat = getTableView().getItems().get(getIndex());
+                // Hide the Remove button for the protected "None" entry
+                boolean isNone = cat != null && "none".equalsIgnoreCase(cat.getCategoryName());
+                setGraphic(isNone ? null : deleteBtn);
             }
         });
     }

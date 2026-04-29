@@ -1,155 +1,169 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="reportRoot" minHeight="650.0" minWidth="867.0" prefHeight="891.0" prefWidth="950.0" styleClass="payment-page-bg" stylesheets="@../../Css/ReportPage.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.ReportPageController">
+<AnchorPane fx:id="reportRoot" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="650.0" minWidth="867.0" prefHeight="891.0" prefWidth="950.0" styleClass="payment-page-bg" stylesheets="@../../Css/ReportPage.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="codes.acegym.Controllers.ReportPageController">
     <children>
-        <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-            <padding>
-                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-            </padding>
-            <children>
 
-                <!-- ── HEADER ── -->
-                <HBox alignment="CENTER_LEFT" spacing="15.0">
+        <!-- ── Outer ScrollPane — makes entire page scrollable ── -->
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <content>
+                <VBox minHeight="850.0" spacing="20.0">
+                    <padding>
+                        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+                    </padding>
                     <children>
-                        <VBox alignment="CENTER" styleClass="header-icon-box">
-                            <children>
-                                <ImageView fitHeight="41.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@../../image/tag-solid.png" />
-                                    </image>
-                                </ImageView>
-                            </children>
-                        </VBox>
-                        <VBox>
-                            <children>
-                                <Label styleClass="pos-header" text="FINANCIAL SUMMARY" />
-                                <Label styleClass="add-payment-header" text="Sales Report" />
-                            </children>
-                        </VBox>
-                    </children>
-                </HBox>
 
-                <!-- ── FOOTER STATS (moved to top) ── -->
-                <HBox alignment="CENTER" spacing="20.0" styleClass="report-footer-bar">
-                    <children>
-                        <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="stat-label" text="TOTAL SALES" />
-                                <Label fx:id="totalSalesLabel" styleClass="stat-value-large" text="₱0.00" />
-                            </children>
-                        </VBox>
-                        <Region minHeight="40.0" prefWidth="1.5" styleClass="card-divider" />
-                        <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="stat-label" text="TRANSACTIONS" />
-                                <Label fx:id="transactionsLabel" styleClass="stat-value" text="0" />
-                            </children>
-                        </VBox>
-                        <Region minHeight="40.0" prefWidth="1.5" styleClass="card-divider" />
-                        <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="stat-label" text="CASH SALES" />
-                                <Label fx:id="cashSalesLabel" styleClass="stat-value" text="0" />
-                            </children>
-                        </VBox>
-                        <Region minHeight="40.0" prefWidth="1.5" styleClass="card-divider" />
-                        <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="stat-label" text="DIGITAL SALES" />
-                                <Label fx:id="digitalSalesLabel" styleClass="stat-value" text="0" />
-                            </children>
-                        </VBox>
-                    </children>
-                </HBox>
-
-                <!-- ── DATE RANGE PICKER ── -->
-                <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="payment-card-step">
-                    <children>
-                        <!-- From Date -->
-                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="detail-label" text="From Date" />
-                                <HBox alignment="CENTER_RIGHT" styleClass="input-display">
-                                    <children>
-                                        <TextField fx:id="fromDateField" editable="false" promptText="MM/DD/YYYY" styleClass="transparent-field" HBox.hgrow="ALWAYS" />
-                                        <ImageView fx:id="fromDateIcon" fitHeight="21.0" fitWidth="22.0" opacity="0.6" pickOnBounds="true" preserveRatio="true">
-                                            <image><Image url="@../../image/calendar-days-solid.png" /></image>
-                                        </ImageView>
-                                    </children>
-                                </HBox>
-                            </children>
-                        </VBox>
-
-                        <Label fx:id="resetDate" onMouseClicked="#handleResetDate" styleClass="detail-label" text="—">
-                            <padding><Insets top="22.0" /></padding>
-                            <cursor><Cursor fx:constant="HAND" /></cursor>
-                        </Label>
-
-                        <!-- To Date -->
-                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="detail-label" text="To Date" />
-                                <HBox alignment="CENTER_RIGHT" styleClass="input-display">
-                                    <children>
-                                        <TextField fx:id="toDateField" editable="false" promptText="MM/DD/YYYY" styleClass="transparent-field" HBox.hgrow="ALWAYS" />
-                                        <ImageView fx:id="toDateIcon" fitHeight="21.0" fitWidth="22.0" opacity="0.6" pickOnBounds="true" preserveRatio="true">
-                                            <image><Image url="@../../image/calendar-days-solid.png" /></image>
-                                        </ImageView>
-                                    </children>
-                                </HBox>
-                            </children>
-                        </VBox>
-                    </children>
-                </HBox>
-
-                <!-- ── TABLE + CONTROLS ── -->
-                <VBox spacing="15.0" styleClass="payment-card-step" VBox.vgrow="ALWAYS">
-                    <children>
-                        <Label styleClass="step-title" text="Payment History" />
-
-                        <!-- Filter row -->
+                        <!-- ── HEADER ── -->
                         <HBox alignment="CENTER_LEFT" spacing="15.0">
                             <children>
-                                <ComboBox fx:id="filterCombo" prefWidth="130.0" promptText="Filter" styleClass="combo-field" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <HBox alignment="CENTER_LEFT" prefWidth="250.0" styleClass="input-display">
+                                <VBox alignment="CENTER" styleClass="header-icon-box">
                                     <children>
-                                        <TextField fx:id="searchField" promptText="Search..." styleClass="transparent-field" HBox.hgrow="ALWAYS" />
-                                        <ImageView fitHeight="14.0" fitWidth="14.0" opacity="0.5" pickOnBounds="true" preserveRatio="true">
-                                            <image><Image url="@../../image/magnifying-glass-solid.png" /></image>
+                                        <ImageView fitHeight="41.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../../image/tag-solid.png" />
+                                            </image>
                                         </ImageView>
                                     </children>
-                                </HBox>
-                                <Button fx:id="generateBtn" minWidth="140.0" onAction="#handleGenerateReport" styleClass="btn-save-red" text="Generate Report" />
+                                </VBox>
+                                <VBox>
+                                    <children>
+                                        <Label styleClass="pos-header" text="FINANCIAL SUMMARY" />
+                                        <Label styleClass="add-payment-header" text="Sales Report" />
+                                    </children>
+                                </VBox>
                             </children>
                         </HBox>
 
-                        <!-- TABLE -->
-                        <TableView fx:id="receiptTable" VBox.vgrow="ALWAYS">
-                            <columns>
-                                <TableColumn fx:id="colClientID" prefWidth="80.0" text="Client ID" />
-                                <TableColumn fx:id="colFirstName" prefWidth="120.0" text="First Name" />
-                                <TableColumn fx:id="colLastName" prefWidth="120.0" text="Last Name" />
-                                <TableColumn fx:id="colDate" prefWidth="115.0" text="Date" />
-                                <TableColumn fx:id="colPaymentMethod" prefWidth="130.0" text="Payment Method" />
-                                <TableColumn fx:id="colAmount" prefWidth="110.0" text="Amount" />
-                                <TableColumn fx:id="colStatus" prefWidth="80.0" text="Status" />
-                            </columns>
-                            <columnResizePolicy>
-                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                            </columnResizePolicy>
-                        </TableView>
+                        <!-- ── STATS BAR ── -->
+                        <HBox alignment="CENTER" spacing="20.0" styleClass="report-footer-bar">
+                            <children>
+                                <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label styleClass="stat-label" text="TOTAL SALES" />
+                                        <Label fx:id="totalSalesLabel" styleClass="stat-value-large" text="₱0.00" />
+                                    </children>
+                                </VBox>
+                                <Region minHeight="40.0" prefWidth="1.5" styleClass="card-divider" />
+                                <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label styleClass="stat-label" text="TRANSACTIONS" />
+                                        <Label fx:id="transactionsLabel" styleClass="stat-value" text="0" />
+                                    </children>
+                                </VBox>
+                                <Region minHeight="40.0" prefWidth="1.5" styleClass="card-divider" />
+                                <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label styleClass="stat-label" text="CASH SALES" />
+                                        <Label fx:id="cashSalesLabel" styleClass="stat-value" text="0" />
+                                    </children>
+                                </VBox>
+                                <Region minHeight="40.0" prefWidth="1.5" styleClass="card-divider" />
+                                <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label styleClass="stat-label" text="DIGITAL SALES" />
+                                        <Label fx:id="digitalSalesLabel" styleClass="stat-value" text="0" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <!-- ── DATE RANGE PICKER ── -->
+                        <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="payment-card-step">
+                            <children>
+                                <!-- From Date -->
+                                <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label styleClass="detail-label" text="From Date" />
+                                        <HBox alignment="CENTER_RIGHT" styleClass="input-display">
+                                            <children>
+                                                <TextField fx:id="fromDateField" editable="false" promptText="MM/DD/YYYY" styleClass="transparent-field" HBox.hgrow="ALWAYS" />
+                                                <ImageView fx:id="fromDateIcon" fitHeight="21.0" fitWidth="22.0" opacity="0.6" pickOnBounds="true" preserveRatio="true">
+                                                    <image><Image url="@../../image/calendar-days-solid.png" /></image>
+                                                </ImageView>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <Label fx:id="resetDate" onMouseClicked="#handleResetDate" styleClass="detail-label" text="—">
+                                    <padding><Insets top="22.0" /></padding>
+                                    <cursor><Cursor fx:constant="HAND" /></cursor>
+                                </Label>
+
+                                <!-- To Date -->
+                                <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label styleClass="detail-label" text="To Date" />
+                                        <HBox alignment="CENTER_RIGHT" styleClass="input-display">
+                                            <children>
+                                                <TextField fx:id="toDateField" editable="false" promptText="MM/DD/YYYY" styleClass="transparent-field" HBox.hgrow="ALWAYS" />
+                                                <ImageView fx:id="toDateIcon" fitHeight="21.0" fitWidth="22.0" opacity="0.6" pickOnBounds="true" preserveRatio="true">
+                                                    <image><Image url="@../../image/calendar-days-solid.png" /></image>
+                                                </ImageView>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <!-- ── TABLE + CONTROLS ── -->
+                        <!-- minHeight="550" gives the table room to show many rows.
+                             VBox.vgrow="ALWAYS" still lets it stretch beyond that. -->
+                        <VBox minHeight="550.0" spacing="15.0" styleClass="payment-card-step" VBox.vgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="step-title" text="Payment History" />
+
+                                <!-- Filter row -->
+                                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                    <children>
+                                        <ComboBox fx:id="filterCombo" prefWidth="130.0" promptText="Filter" styleClass="combo-field" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <HBox alignment="CENTER_LEFT" prefWidth="250.0" styleClass="input-display">
+                                            <children>
+                                                <TextField fx:id="searchField" promptText="Search..." styleClass="transparent-field" HBox.hgrow="ALWAYS" />
+                                                <ImageView fitHeight="14.0" fitWidth="14.0" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+                                                    <image><Image url="@../../image/magnifying-glass-solid.png" /></image>
+                                                </ImageView>
+                                            </children>
+                                        </HBox>
+                                        <Button fx:id="generateBtn" minWidth="140.0" onAction="#handleGenerateReport" styleClass="btn-save-red" text="Generate Report" />
+                                    </children>
+                                </HBox>
+
+                                <!-- TABLE — prefHeight + minHeight ensure it renders tall -->
+                                <TableView fx:id="receiptTable" minHeight="450.0" prefHeight="400.0" VBox.vgrow="ALWAYS">
+                                    <columns>
+                                        <TableColumn fx:id="colClientID" prefWidth="80.0" text="Client ID" />
+                                        <TableColumn fx:id="colFirstName" prefWidth="120.0" text="First Name" />
+                                        <TableColumn fx:id="colLastName" prefWidth="120.0" text="Last Name" />
+                                        <TableColumn fx:id="colDate" prefWidth="115.0" text="Date" />
+                                        <TableColumn fx:id="colPaymentMethod" prefWidth="130.0" text="Payment Method" />
+                                        <TableColumn fx:id="colAmount" prefWidth="110.0" text="Amount" />
+                                        <TableColumn fx:id="colStatus" prefWidth="80.0" text="Status" />
+                                    </columns>
+                                    <columnResizePolicy>
+                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                    </columnResizePolicy>
+                                </TableView>
+
+                            </children>
+                        </VBox>
 
                     </children>
                 </VBox>
+            </content>
+         <styleClass>
+            <String fx:value="custom-scroll-pane" />
+            <String fx:value="bac" />
+         </styleClass>
+        </ScrollPane>
 
-            </children>
-        </VBox>
     </children>
 </AnchorPane>

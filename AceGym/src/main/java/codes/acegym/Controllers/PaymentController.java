@@ -26,6 +26,8 @@ import javafx.util.StringConverter;
 
 import java.net.URL;
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,8 +64,14 @@ public class PaymentController implements Initializable, Refreshable  {
     @FXML private Label totalPriceLabel;
     @FXML private Label sumMethodLabel;
 
-    // ── Membership fee label (optional — add fx:id="membershipFeeLabel" in FXML) ─
+    // ── Membership fee label & row ───────────────────────────────────────────
     @FXML private Label membershipFeeLabel;
+    @FXML private HBox  membershipFeeRow;
+
+    // ── Date / duration labels ───────────────────────────────────────────────
+    @FXML private Label sumDaysLabel;
+    @FXML private Label sumPaymentDateLabel;
+    @FXML private Label sumExpiryDateLabel;
 
     // ── Upgrade info label ───────────────────────────────────────────────────
     @FXML private Label upgradeBadge;
@@ -567,9 +575,20 @@ public class PaymentController implements Initializable, Refreshable  {
             priceLabel.setText("₱0.00");
             coachingFeeLabel.setText("₱0.00");
             discountLabel.setText("— ₱0.00");
+
+            // Membership fee row
             if (membershipFeeLabel != null) membershipFeeLabel.setText("₱" + fmt(memFee));
+            if (membershipFeeRow != null) { membershipFeeRow.setVisible(true); membershipFeeRow.setManaged(true); }
+
             subtotalLabel.setText("₱" + fmt(memFee));
             totalPriceLabel.setText("₱" + fmt(memFee));
+
+            // Dates
+            LocalDate today = LocalDate.now();
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MMM dd, yyyy");
+            if (sumDaysLabel        != null) sumDaysLabel.setText("—");
+            if (sumPaymentDateLabel != null) sumPaymentDateLabel.setText(today.format(dtf));
+            if (sumExpiryDateLabel  != null) sumExpiryDateLabel.setText("See existing plan");
             return;
         }
 
@@ -600,6 +619,15 @@ public class PaymentController implements Initializable, Refreshable  {
         double basePrice       = rate[2] / 100.0;
         double discountPercent = clientDiscountMap.getOrDefault(clientTypeID, 0.0);
         double discount        = basePrice * discountPercent;
+
+        // ── Duration & dates ────────────────────────────────────────────────
+        int numDays = (int) rate[1];
+        LocalDate today  = LocalDate.now();
+        LocalDate expiry = today.plusDays(numDays);
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MMM dd, yyyy");
+        if (sumDaysLabel        != null) sumDaysLabel.setText(numDays + (numDays == 1 ? " day" : " days"));
+        if (sumPaymentDateLabel != null) sumPaymentDateLabel.setText(today.format(dtf));
+        if (sumExpiryDateLabel  != null) sumExpiryDateLabel.setText(expiry.format(dtf));
 
         double coachFee = 0.0;
         String coachSel = coachCombo.getValue();
@@ -680,9 +708,11 @@ public class PaymentController implements Initializable, Refreshable  {
                 membershipFeeLabel.setText("₱" + fmt(membershipFee));
                 membershipFeeLabel.setVisible(true);
                 membershipFeeLabel.setManaged(true);
+                if (membershipFeeRow != null) { membershipFeeRow.setVisible(true); membershipFeeRow.setManaged(true); }
             } else {
                 membershipFeeLabel.setVisible(false);
                 membershipFeeLabel.setManaged(false);
+                if (membershipFeeRow != null) { membershipFeeRow.setVisible(false); membershipFeeRow.setManaged(false); }
             }
         }
 
@@ -1108,6 +1138,13 @@ public class PaymentController implements Initializable, Refreshable  {
             membershipFeeLabel.setVisible(false);
             membershipFeeLabel.setManaged(false);
         }
+        if (membershipFeeRow != null) {
+            membershipFeeRow.setVisible(false);
+            membershipFeeRow.setManaged(false);
+        }
+        if (sumDaysLabel        != null) sumDaysLabel.setText("—");
+        if (sumPaymentDateLabel != null) sumPaymentDateLabel.setText("—");
+        if (sumExpiryDateLabel  != null) sumExpiryDateLabel.setText("—");
     }
 
     // ════════════════════════════════════════════════════════════════════════

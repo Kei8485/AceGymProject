@@ -4,43 +4,16 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Data-access layer for the Dashboard screen.
- *
- * Covers:
- *  ── Stat Cards ──────────────────────────────────────────────────
- *  • getTotalMembers()       — total clients in ClientTable
- *  • getNewMembersThisMonth()— clients whose membership DateApplied is this month
- *  • getRenewalsDueCount()   — active memberships expiring within 7 days
- *  • getTotalCoaches()       — staff rows with SystemRole IN ('Staff','Admin')
- *
- *  ── Revenue (current month) ─────────────────────────────────────
- *  • getMonthlySales()       — SUM of TotalPayment this month
- *  • getCashSalesThisMonth() — SUM where PaymentType = 'Cash' this month
- *  • getDigitalSalesThisMonth()— SUM where PaymentType != 'Cash' this month
- *  • getTransactionCountThisMonth()— COUNT of receipts this month
- *  • getTotalSalesAllTime()  — SUM of all TotalPayment ever
- *
- *  ── List data ───────────────────────────────────────────────────
- *  • getRenewalsDue()        — up to 10 members expiring within 7 days
- *  • getRecentMembers()      — last 10 clients by most recent membership DateApplied
- *  • getCoachSummaries()     — all coaches with their assigned client count
- */
 public class DashboardDAO {
 
     // ═══════════════════════════════════════════════════════════════
     // STAT CARDS
     // ═══════════════════════════════════════════════════════════════
 
-    /** Total number of clients ever registered. */
     public static int getTotalMembers() {
         return queryInt("SELECT COUNT(*) FROM ClientTable");
     }
 
-    /**
-     * Clients who have a membership row where DateApplied falls in the
-     * current calendar month (i.e. "new this month").
-     */
     public static int getNewMembersThisMonth() {
         String sql =
                 "SELECT COUNT(DISTINCT c.ClientID) " +
@@ -51,17 +24,13 @@ public class DashboardDAO {
         return queryInt(sql);
     }
 
-    /**
-     * Active memberships that expire within the next 7 days (inclusive today).
-     * These are the clients the gym should contact for renewal.
-     */
     public static int getRenewalsDueCount() {
         String sql =
                 "SELECT COUNT(*) " +
                         "FROM MembershipTable m " +
                         "WHERE m.DateExpired >= CURDATE() " +
                         "  AND m.DateExpired <= DATE_ADD(CURDATE(), INTERVAL 7 DAY) " +
-                        "  AND m.ClientTypeID = 2 " +           // only active Members
+                        "  AND m.ClientTypeID = 2 " +
                         "  AND m.MembershipID = (" +
                         "      SELECT MembershipID FROM MembershipTable " +
                         "      WHERE ClientID = m.ClientID " +
@@ -70,10 +39,6 @@ public class DashboardDAO {
         return queryInt(sql);
     }
 
-    /**
-     * Count of staff with SystemRole IN ('Staff','Admin') — the coaches
-     * visible in the Coaches tab.
-     */
     public static int getTotalCoaches() {
         String sql =
                 "SELECT COUNT(*) FROM StaffTable " +
@@ -85,7 +50,6 @@ public class DashboardDAO {
     // REVENUE
     // ═══════════════════════════════════════════════════════════════
 
-    /** Sum of all receipts whose PaymentDate is in the current month. */
     public static double getMonthlySales() {
         String sql =
                 "SELECT COALESCE(SUM(TotalPayment), 0) FROM ReceiptTable " +
@@ -94,7 +58,6 @@ public class DashboardDAO {
         return queryDouble(sql);
     }
 
-    /** Monthly sales paid by Cash. */
     public static double getCashSalesThisMonth() {
         String sql =
                 "SELECT COALESCE(SUM(r.TotalPayment), 0) " +
@@ -106,7 +69,6 @@ public class DashboardDAO {
         return queryDouble(sql);
     }
 
-    /** Monthly sales paid by any non-Cash method (GCash, card, etc.). */
     public static double getDigitalSalesThisMonth() {
         String sql =
                 "SELECT COALESCE(SUM(r.TotalPayment), 0) " +
@@ -118,7 +80,6 @@ public class DashboardDAO {
         return queryDouble(sql);
     }
 
-    /** Number of receipt rows this month. */
     public static int getTransactionCountThisMonth() {
         String sql =
                 "SELECT COUNT(*) FROM ReceiptTable " +
@@ -127,7 +88,6 @@ public class DashboardDAO {
         return queryInt(sql);
     }
 
-    /** Grand total of all payments ever recorded. */
     public static double getTotalSalesAllTime() {
         return queryDouble("SELECT COALESCE(SUM(TotalPayment), 0) FROM ReceiptTable");
     }
@@ -137,41 +97,74 @@ public class DashboardDAO {
     // ═══════════════════════════════════════════════════════════════
 
     /**
-     * Row model for the Renewals Due list.
-     *
-     * @param name       full name
-     * @param email      client email — used by the per-row Notify button
-     *                   (empty string if not on file; button will be disabled)
-     * @param expiryDate formatted expiry date  e.g. "Expires Apr 28, 2026"
-     * @param daysLeft   display badge  e.g. "3 days" or "Today"
-     * @param daysLeftRaw raw int days — passed to RenewalNotificationService.sendToOne()
+     * @param name                full name
+     * @param email               client email — used by the Notify button
+     * @param membershipExpiryDate  e.g. "Expires Membership in Apr 28, 2026"
+     * @param planExpiryDate        e.g. "Expires Monthly plan in Apr 26, 2026"
+     *                              null if no receipt/plan found
+     * @param daysLeft            display badge e.g. "3 days" or "Today"
+     * @param daysLeftRaw         raw int — passed to RenewalNotificationService
+     * @param paymentPeriod       e.g. "Monthly" / "Daily" / "Yearly"
      */
     public record RenewalRow(String name, String email,
-                             String expiryDate, String daysLeft,
-                             int daysLeftRaw) {}
+                             String membershipExpiryDate, String planExpiryDate,
+                             String daysLeft, int daysLeftRaw, String paymentPeriod) {}
 
-    /**
-     * Up to 10 active members whose membership expires within the next 7 days,
-     * sorted soonest first.
-     */
     public static List<RenewalRow> getRenewalsDue() {
         List<RenewalRow> list = new ArrayList<>();
+
+        // Outer query filters and formats. Inner query computes the raw plan expiry date
+        // so we can reference it in WHERE and DATEDIFF without repeating the CASE expression.
         String sql =
-                "SELECT CONCAT(c.FirstName,' ',c.LastName)      AS FullName, " +
-                        "       COALESCE(c.ClientEmail, '')              AS ClientEmail, " +
-                        "       DATE_FORMAT(m.DateExpired, '%b %d, %Y') AS ExpiryDate, " +
-                        "       DATEDIFF(m.DateExpired, CURDATE())       AS DaysLeft " +
-                        "FROM MembershipTable m " +
-                        "JOIN ClientTable c ON c.ClientID = m.ClientID " +
-                        "WHERE m.DateExpired >= CURDATE() " +
-                        "  AND m.DateExpired <= DATE_ADD(CURDATE(), INTERVAL 7 DAY) " +
-                        "  AND m.ClientTypeID = 2 " +
-                        "  AND m.MembershipID = (" +
-                        "      SELECT MembershipID FROM MembershipTable " +
-                        "      WHERE ClientID = m.ClientID " +
-                        "      ORDER BY DateApplied DESC LIMIT 1" +
-                        "  ) " +
-                        "ORDER BY m.DateExpired ASC " +
+                "SELECT " +
+                        "    FullName, ClientEmail, PaymentPeriod, " +
+                        "    MembershipExpiry, MembershipDaysLeft, " +
+                        "    DATE_FORMAT(PlanExpiryRaw, '%b %d, %Y') AS PlanExpiry, " +
+                        "    DATEDIFF(PlanExpiryRaw, CURDATE())        AS PlanDaysLeft " +
+                        "FROM ( " +
+                        "    SELECT " +
+                        "        CONCAT(c.FirstName,' ',c.LastName)          AS FullName, " +
+                        "        COALESCE(c.ClientEmail, '')                  AS ClientEmail, " +
+                        "        DATE_FORMAT(m.DateExpired, '%b %d, %Y')     AS MembershipExpiry, " +
+                        "        DATEDIFF(m.DateExpired, CURDATE())           AS MembershipDaysLeft, " +
+                        "        COALESCE(pp.PaymentPeriod, '—')              AS PaymentPeriod, " +
+                        "        CASE LOWER(COALESCE(pp.PaymentPeriod,'')) " +
+                        "            WHEN 'daily'   THEN DATE_ADD(r_last.PaymentDate, INTERVAL 1 DAY) " +
+                        "            WHEN 'monthly' THEN DATE_ADD(r_last.PaymentDate, INTERVAL 1 MONTH) " +
+                        "            WHEN 'yearly'  THEN DATE_ADD(r_last.PaymentDate, INTERVAL 1 YEAR) " +
+                        "            ELSE NULL " +
+                        "        END AS PlanExpiryRaw " +
+                        "    FROM MembershipTable m " +
+                        "    JOIN ClientTable c ON c.ClientID = m.ClientID " +
+                        "    LEFT JOIN ReceiptTable r_last " +
+                        "           ON r_last.ReceiptID = ( " +
+                        "               SELECT ReceiptID FROM ReceiptTable " +
+                        "               WHERE ClientID = c.ClientID " +
+                        "                 AND (SnapshotPaymentPeriod IS NULL " +
+                        "                      OR SnapshotPaymentPeriod NOT IN ('Upgrade Fee','Plan Switch Fee')) " +
+                        "               ORDER BY PaymentDate DESC LIMIT 1 " +
+                        "           ) " +
+                        "    LEFT JOIN RateTable ra ON ra.RateID = r_last.RateID " +
+                        "    LEFT JOIN PaymentPeriodTable pp ON pp.PaymentPeriodID = ra.PaymentPeriodID " +
+                        "    WHERE m.ClientTypeID = 2 " +
+                        "      AND m.MembershipID = ( " +
+                        "              SELECT MembershipID FROM MembershipTable " +
+                        "              WHERE ClientID = m.ClientID " +
+                        "              ORDER BY DateApplied DESC LIMIT 1 " +
+                        "          ) " +
+                        ") sub " +
+                        // Show row if EITHER membership OR plan is expiring within 7 days
+                        "WHERE (MembershipDaysLeft >= 0 AND MembershipDaysLeft <= 7) " +
+                        "   OR (PlanExpiryRaw IS NOT NULL " +
+                        "       AND DATEDIFF(PlanExpiryRaw, CURDATE()) >= 0 " +
+                        "       AND DATEDIFF(PlanExpiryRaw, CURDATE()) <= 7) " +
+                        "ORDER BY LEAST( " +
+                        "    CASE WHEN MembershipDaysLeft >= 0 AND MembershipDaysLeft <= 7 " +
+                        "         THEN MembershipDaysLeft ELSE 999 END, " +
+                        "    CASE WHEN PlanExpiryRaw IS NOT NULL " +
+                        "          AND DATEDIFF(PlanExpiryRaw, CURDATE()) BETWEEN 0 AND 7 " +
+                        "         THEN DATEDIFF(PlanExpiryRaw, CURDATE()) ELSE 999 END " +
+                        ") ASC " +
                         "LIMIT 10";
 
         try (Connection con = DBConnector.connect();
@@ -179,16 +172,43 @@ public class DashboardDAO {
              ResultSet  rs  = st.executeQuery(sql)) {
 
             while (rs.next()) {
-                int days = rs.getInt("DaysLeft");
-                String badge = days == 0 ? "Today"
-                        : days == 1 ? "1 day"
-                        : days + " days";
+                int    memDays  = rs.getInt("MembershipDaysLeft");
+                int    planDays = rs.getInt("PlanDaysLeft");   // 0 if NULL (rs returns 0)
+                boolean planNull = rs.wasNull();               // true if PlanDaysLeft was NULL
+
+                String period       = rs.getString("PaymentPeriod");
+                String memExpiry    = rs.getString("MembershipExpiry");
+                String planExpiry   = rs.getString("PlanExpiry");
+
+                // Only show membership line if it's expiring within 7 days
+                String membershipLine = (memDays >= 0 && memDays <= 7)
+                        ? "Membership expires in " + memExpiry
+                        : null;
+
+                // Only show plan line if plan exists and is expiring within 7 days
+                String planLine = (!planNull && planDays >= 0 && planDays <= 7
+                        && planExpiry != null && !period.equals("—"))
+                        ? period + " plan expires in " + planExpiry
+                        : null;
+
+                // Badge = soonest expiry among what's actually expiring
+                int badgeDays = 999;
+                if (membershipLine != null) badgeDays = Math.min(badgeDays, memDays);
+                if (planLine       != null) badgeDays = Math.min(badgeDays, planDays);
+
+                String badge = badgeDays == 0   ? "Today"
+                        : badgeDays == 1   ? "1 day"
+                        : badgeDays < 999  ? badgeDays + " days"
+                        : "—";
+
                 list.add(new RenewalRow(
                         rs.getString("FullName"),
                         rs.getString("ClientEmail"),
-                        "Expires " + rs.getString("ExpiryDate"),
+                        membershipLine,
+                        planLine,
                         badge,
-                        days
+                        badgeDays == 999 ? 0 : badgeDays,
+                        period
                 ));
             }
         } catch (SQLException e) {
@@ -196,35 +216,60 @@ public class DashboardDAO {
         }
         return list;
     }
+    // ─────────────────────────────────────────────────────────────
+    // RECENT MEMBERS
+    // ─────────────────────────────────────────────────────────────
 
-    /**
-     * Row model for the Recent Members list.
-     * @param name     full name
-     * @param enrolled formatted membership DateApplied
-     * @param status   "Active" or "Expired"
-     */
-    public record MemberSummaryRow(String name, String enrolled, String status) {}
+    public record MemberSummaryRow(String name, String enrolled, String status, String type) {}
 
-    /**
-     * Last 10 clients by most recent membership DateApplied.
-     */
     public static List<MemberSummaryRow> getRecentMembers() {
         List<MemberSummaryRow> list = new ArrayList<>();
         String sql =
-                "SELECT CONCAT(c.FirstName,' ',c.LastName) AS FullName, " +
+                // New clients — first ever membership applied today
+                "SELECT CONCAT(c.FirstName,' ',c.LastName)      AS FullName, " +
                         "       DATE_FORMAT(m.DateApplied, '%b %d, %Y') AS Enrolled, " +
-                        "       CASE " +
-                        "           WHEN m.DateExpired >= CURDATE() THEN 'Active' " +
-                        "           ELSE 'Expired' " +
-                        "       END AS Status " +
+                        "       CASE WHEN m.DateExpired >= CURDATE() THEN 'Active' ELSE 'Expired' END AS Status, " +
+                        "       'New'                                    AS Type " +
                         "FROM MembershipTable m " +
                         "JOIN ClientTable c ON c.ClientID = m.ClientID " +
-                        "WHERE m.MembershipID = (" +
-                        "    SELECT MembershipID FROM MembershipTable " +
-                        "    WHERE ClientID = m.ClientID " +
-                        "    ORDER BY DateApplied DESC LIMIT 1" +
+                        "WHERE m.DateApplied = CURDATE() " +
+                        "AND NOT EXISTS (" +
+                        "    SELECT 1 FROM MembershipTable prev " +
+                        "    WHERE prev.ClientID = m.ClientID " +
+                        "    AND prev.DateApplied < CURDATE() " +
                         ") " +
-                        "ORDER BY m.DateApplied DESC " +
+
+                        "UNION ALL " +
+
+                        // Renewed clients — membership applied today but had one before
+                        "SELECT CONCAT(c.FirstName,' ',c.LastName)      AS FullName, " +
+                        "       DATE_FORMAT(m.DateApplied, '%b %d, %Y') AS Enrolled, " +
+                        "       CASE WHEN m.DateExpired >= CURDATE() THEN 'Active' ELSE 'Expired' END AS Status, " +
+                        "       'Renewed'                                AS Type " +
+                        "FROM MembershipTable m " +
+                        "JOIN ClientTable c ON c.ClientID = m.ClientID " +
+                        "WHERE m.DateApplied = CURDATE() " +
+                        "AND EXISTS (" +
+                        "    SELECT 1 FROM MembershipTable prev " +
+                        "    WHERE prev.ClientID = m.ClientID " +
+                        "    AND prev.DateApplied < CURDATE() " +
+                        ") " +
+
+                        "UNION ALL " +
+
+                        // New clients registered today but no membership yet
+                        "SELECT CONCAT(c.FirstName,' ',c.LastName)      AS FullName, " +
+                        "       DATE_FORMAT(c.DateRegistered, '%b %d, %Y') AS Enrolled, " +
+                        "       'None'                                   AS Status, " +
+                        "       'New Client'                             AS Type " +
+                        "FROM ClientTable c " +
+                        "WHERE c.DateRegistered = CURDATE() " +
+                        "AND NOT EXISTS (" +
+                        "    SELECT 1 FROM MembershipTable m " +
+                        "    WHERE m.ClientID = c.ClientID " +
+                        ") " +
+
+                        "ORDER BY Enrolled DESC " +
                         "LIMIT 10";
 
         try (Connection con = DBConnector.connect();
@@ -235,27 +280,19 @@ public class DashboardDAO {
                 list.add(new MemberSummaryRow(
                         rs.getString("FullName"),
                         rs.getString("Enrolled"),
-                        rs.getString("Status")
+                        rs.getString("Status"),
+                        rs.getString("Type")
                 ));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return list;
-    }
+    }    // COACHES
+    // ─────────────────────────────────────────────────────────────
 
-    /**
-     * Row model for the Coaches list.
-     * @param name        full name
-     * @param coachId     formatted "C-001"
-     * @param clientCount number of assigned clients
-     */
     public record CoachSummaryRow(String name, String coachId, String clientCount) {}
 
-    /**
-     * All coaches (Staff/Admin) with their total assigned client count,
-     * ordered by name.
-     */
     public static List<CoachSummaryRow> getCoachSummaries() {
         List<CoachSummaryRow> list = new ArrayList<>();
         String sql =
@@ -285,7 +322,6 @@ public class DashboardDAO {
         }
         return list;
     }
-
 
     // ═══════════════════════════════════════════════════════════════
     // HELPERS
